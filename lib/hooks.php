@@ -30,7 +30,7 @@ class OC_USER_CAS_Hooks {
 
 		$uid = $parameters['uid'];
 		$casBackend = OC_USER_CAS::getInstance();
-		$userDatabase = new OC_User_Database;
+		$userDatabase = new \OC\User\Database;
 
 		if (phpCAS::isAuthenticated()) {
 			// $cas_attributes may vary in name, therefore attributes are fetched to $attributes
@@ -149,7 +149,7 @@ function update_groups($uid, $groups, $protected_groups=array(), $just_created=f
 		$old_groups = OC_Group::getUserGroups($uid);
 		foreach($old_groups as $group) {
 			if(!in_array($group, $protected_groups) && !in_array($group, $groups)) {
-				OC_Group::removeFromGroup($uid,$group);
+				\OC\Group::removeFromGroup($uid,$group);
 				\OCP\Util::writeLog('cas','Removed "'.$uid.'" from the group "'.$group.'"', \OCP\Util::DEBUG);
 			}
 		}
@@ -162,10 +162,10 @@ function update_groups($uid, $groups, $protected_groups=array(), $just_created=f
 		else {
 			if (!OC_Group::inGroup($uid, $group)) {
 				if (!OC_Group::groupExists($group)) {
-					OC_Group::createGroup($group);
+					\OC\Group::createGroup($group);
 					\OCP\Util::writeLog('cas','New group created: '.$group, \OCP\Util::DEBUG);
 				}
-				OC_Group::addToGroup($uid, $group);
+				\OC\Group::addToGroup($uid, $group);
 				\OCP\Util::writeLog('cas','Added "'.$uid.'" to the group "'.$group.'"', \OCP\Util::DEBUG);
 			}
 		}
