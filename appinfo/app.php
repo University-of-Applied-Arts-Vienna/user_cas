@@ -47,7 +47,7 @@ if (OCP\App::isEnabled('user_cas')) {
 
 			phpCAS::forceAuthentication();
 
-			if (!\OC_User::login('', '')) {
+			if (!\OC_User::loginWithCookie('', '')) {
 				$error = true;
 				\OCP\Util::writeLog('cas','Error trying to authenticate the user', \OCP\Util::DEBUG);
 			}
