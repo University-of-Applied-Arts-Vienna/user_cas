@@ -32,6 +32,7 @@
 
 namespace OCA\user_cas\lib;
 
+class LdapBackendAdapter extends \OCA\user_ldap\USER_LDAP {
 class LdapBackendAdapter extends \OCA\User_LDAP\User_LDAP {
 
 	private $enabled;
@@ -42,7 +43,7 @@ class LdapBackendAdapter extends \OCA\User_LDAP\User_LDAP {
 
 
 	function __construct() {
-		$this->enabled = (\OCP\Config::getAppValue('user_cas', 'cas_link_to_ldap_backend', false) === 'on') &&
+		$this->enabled = ($this->ocConfig->getAppValue('user_cas', 'cas_link_to_ldap_backend', false) === 'on') &&
 				 \OCP\App::isEnabled('user_cas')  && \OCP\App::isEnabled('user_ldap');
 	}
 
@@ -86,20 +87,21 @@ class LdapBackendAdapter extends \OCA\User_LDAP\User_LDAP {
 		}
 
 		//check tables
-		$query = \OCP\DB::prepare('SELECT COUNT(*) FROM *PREFIX*ldap_user_mapping WHERE owncloud_name = ?');
+        $dbConnection = \OC::$server->getDatabaseConnection();
+		$query = $dbConnection->prepare('SELECT COUNT(*) FROM *PREFIX*ldap_user_mapping WHERE owncloud_name = ?');
 		$result = $query->execute(array($uuid));
-		if (!\OCP\DB::isError($result)) {
+		#if (!$dbConnection->getError()) {
 			$count = $result->fetchAll(\PDO::FETCH_COLUMN, 0);
 			if ($count[0] === 1) {
 				return true;
 			}
-		}
+		#}
 
 		//check primary LDAP server
 		$this->connect();
 		$uuid = $this->access->escapeFilterPart($uuid);
-		$filter = \OCP\Util::mb_str_replace(
-			'%uid', $uuid, $this->access->connection->ldapLoginFilter, 'UTF-8');
+		$filter = str_replace(
+			'%uid', $uuid, $this->access->connection->ldapLoginFilter);
 		$result = $this->access->fetchListOfUsers($filter, $this->connection->ldapUuidAttribute);
 
 		if (count($result) === 1 && $result[0]['count'] === 1) {
@@ -119,8 +121,8 @@ class LdapBackendAdapter extends \OCA\User_LDAP\User_LDAP {
 		$uid = $this->access->escapeFilterPart($uid);
 
 		//find out dn of the user name
-		$filter = \OCP\Util::mb_str_replace(
-			'%uid', $uid, $this->access->connection->ldapLoginFilter, 'UTF-8');
+		$filter = str_replace(
+			'%uid', $uid, $this->access->connection->ldapLoginFilter;
 		$ldap_users = $this->access->fetchListOfUsers($filter, 'dn');
 		if(count($ldap_users) < 1) {
 			return false;
@@ -131,7 +133,7 @@ class LdapBackendAdapter extends \OCA\User_LDAP\User_LDAP {
 		$ocname = $this->access->dn2username($dn);
 
 		if($ocname) {
-			\OCP\Config::setUserValue($ocname, 'user_ldap','firstLoginAccomplished', 1);
+			$this->ocConfig->setUserValue($ocname, 'user_ldap','firstLoginAccomplished', 1);
 			return $ocname;
 		}
 		return false;
@@ -146,8 +148,8 @@ class LdapBackendAdapter extends \OCA\User_LDAP\User_LDAP {
 
 		$this->connect();
 		$uuid = $this->access->escapeFilterPart($uuid);
-		$filter = \OCP\Util::mb_str_replace(
-			'%uid', $uuid, $this->access->connection->ldapLoginFilter, 'UTF-8');
+		$filter = str_replace(
+			'%uid', $uuid, $this->access->connection->ldapLoginFilter);
 		$users = $this->getUsers($filter, 'dn');
 		if (count($users) === 1 && $users[0]['count'] === 1) {
 			$dn = $users[0][0];
