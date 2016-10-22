@@ -121,7 +121,7 @@ class LdapBackendAdapter extends \OCA\user_ldap\USER_LDAP {
 
 		//find out dn of the user name
 		$filter = str_replace(
-			'%uid', $uid, $this->access->connection->ldapLoginFilter;
+			'%uid', $uid, $this->access->connection->ldapLoginFilter);
 		$ldap_users = $this->access->fetchListOfUsers($filter, 'dn');
 		if(count($ldap_users) < 1) {
 			return false;
