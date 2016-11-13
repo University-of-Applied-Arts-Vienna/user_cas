@@ -47,11 +47,6 @@ class UserCAS extends \OC\User\Backend
      */
     private $userManager;
 
-    /**
-     * @var \OCA\User_CAS\Service\UserService $userService
-     */
-    private $userService;
-
 
     // cached settings
     public $autocreate;
@@ -93,10 +88,10 @@ class UserCAS extends \OC\User\Backend
      *
      * @return null|UserCAS
      */
-    public static function getInstance()
+    public static function getInstance(\OCA\User_CAS\Service\UserService $userService = NULL)
     {
         if (static::$instance === NULL) {
-            static::$instance = new static();
+            static::$instance = new static($userService);
         }
         return static::$instance;
     }
@@ -119,7 +114,6 @@ class UserCAS extends \OC\User\Backend
         $this->disableLogout = \OCP\Config::getAppValue('user_cas', 'cas_disable_logout', false);
 
         $this->userManager = new \OC\User\Manager();
-        $this->userService = new \OCA\User_CAS\Service\UserService();
 
         $this->init();
     }
@@ -167,14 +161,14 @@ class UserCAS extends \OC\User\Backend
     private function init()
     {
 
-        \OCP\App::registerAdmin('user_cas', 'settings');
-
         // Register User Backend
         $this->userManager->registerBackend('CAS');
 
+        $serverHostName = (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : '';
+
         // Gather all app config values
         $casVersion = \OCP\Config::getAppValue('user_cas', 'cas_server_version', '2.0');
-        $casHostname = \OCP\Config::getAppValue('user_cas', 'cas_server_hostname', $_SERVER['SERVER_NAME']);
+        $casHostname = \OCP\Config::getAppValue('user_cas', 'cas_server_hostname', $serverHostName);
         $casPort = \OCP\Config::getAppValue('user_cas', 'cas_server_port', 443);
         $casPath = \OCP\Config::getAppValue('user_cas', 'cas_server_path', '/cas');
         $casDebugFile = \OCP\Config::getAppValue('user_cas', 'cas_debug_file', '');
@@ -240,7 +234,7 @@ class UserCAS extends \OC\User\Backend
      */
     public function isEnforceAuthentication()
     {
-        if (OC::$CLI) {
+        if (\OC::$CLI) {
             return false;
         }
 
@@ -263,17 +257,6 @@ class UserCAS extends \OC\User\Backend
             )
         );
     }
-
-    /**
-     * Login method.
-     *
-     * @param $userName
-     */
-    public function login($userName) {
-
-        $this->userService->login($userName, NULL);
-    }
-
 
 
     // Deprecated methods for LDAP Support:

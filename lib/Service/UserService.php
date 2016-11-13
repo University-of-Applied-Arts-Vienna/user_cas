@@ -69,7 +69,7 @@ class UserService
      *
      * @param string $userId
      * @param string $password
-     * @return boolean|null
+     * @return boolean
      */
     public function login($userId, $password = NULL)
     {

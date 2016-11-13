@@ -25,10 +25,10 @@ namespace OCA\User_CAS\AppInfo;
 use \OCP\AppFramework\App;
 use \OCP\IContainer;
 
-use \OCA\User_CAS\Service\UserService;
-use \OCA\User_CAS\Hooks\UserHooks;
-
-require_once __DIR__ . '/../vendor/phpCAS/CAS.php';
+use OCA\User_CAS\Service\UserService;
+use OCA\User_CAS\Hooks\UserHooks;
+use OCA\User_CAS\Controller\SettingsController;
+use OCA\User_CAS\Controller\AuthenticationController;
 
 /**
  * Class Application
@@ -56,12 +56,42 @@ class Application extends App
         $container = $this->getContainer();
 
         /**
+         * Register SettingsController
+         */
+        $container->registerService('SettingsController', function (IContainer $c) {
+            return new SettingsController(
+                $c->query('AppName'),
+                $c->query('Request'),
+                $c->query('Config')
+            );
+        });
+
+        /**
+         * Register AuthenticationController
+         */
+        $container->registerService('AuthenticationController', function (IContainer $c) {
+            return new AuthenticationController(
+                $c->query('AppName'),
+                $c->query('Request'),
+                $c->query('Config'),
+                $c->query('UserService')
+            );
+        });
+
+        /**
          * Register UserService with UserSession for login/logout and UserManager for create
          */
         $container->registerService('UserService', function (IContainer $c) {
             return new UserService(
                 $c->query('ServerContainer')->getUserManager(), $c->query('ServerContainer')->getUserSession()
             );
+        });
+
+        /**
+         * Register UserCAS
+         */
+        $container->registerService('UserCAS', function (IContainer $c) {
+            return \OCA\User_CAS\UserCAS::getInstance();
         });
 
         /**

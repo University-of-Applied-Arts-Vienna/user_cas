@@ -1,11 +1,11 @@
-(function() {
-    
-	var cas = document.createElement('script');
-	cas.type = 'text/javascript';
-	(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(cas);
+(function () {
+
+    var cas = document.createElement('script');
+    cas.type = 'text/javascript';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(cas);
 })();
 
-$(document).ready(function(){
+$(document).ready(function () {
 
     var loginCas = $('<div id="login-cas"></div>');
 
@@ -27,15 +27,15 @@ $(document).ready(function(){
         {
             'text-align': 'center',
             'font-weight': 'bolder',
-            'font-size' : '110%',
-            'color' : '#fff',
+            'font-size': '110%',
+            'color': '#fff',
         }
     );
     buttonLoginCas.css(
         {
             'margin-right': '7px',
-            'cursor' : 'pointer',
-            'border' : '1px solid #777',
+            'cursor': 'pointer',
+            'border': '1px solid #777',
             'padding': '10px',
         }
     );
@@ -47,7 +47,7 @@ $(document).ready(function(){
         submit.hide();
     }
 
-    user.on("change paste keyup", function() {
+    user.on("change paste keyup", function () {
         if ($(this).val() !== "") {
             password.parent().show();
             rememberLogin.show();
@@ -64,9 +64,9 @@ $(document).ready(function(){
 
     buttonLoginCas.appendTo(loginCas);
 
-    buttonLoginCas.click(function(event){
-	event.preventDefault();
-        window.location="?app=user_cas";
+    buttonLoginCas.click(function (event) {
+        event.preventDefault();
+        window.location = "?app=user_cas";
     });
 
 
