@@ -39,7 +39,7 @@ namespace OCA\User_CAS;
  *
  * @since 1.4.0
  */
-class UserCAS extends OC_User_Backend
+class UserCAS extends \OC\User\Backend
 {
 
     /**
