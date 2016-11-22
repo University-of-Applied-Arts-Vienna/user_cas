@@ -34,18 +34,47 @@ namespace OCA\UserCAS\User;
  *
  * @since 1.4.0
  */
-class Backend extends \OC\User\Backend
+class Backend extends \OC\User\Backend implements \OCP\IUserBackend
 {
 
     /**
-     * @param string|boolean $uid
-     * @param string $password
-     * @return bool|string
+     * @var \OC\User\Manager $userManager
      */
-    public function checkPassword($uid = FALSE, $password = NULL)
+    private $userManager;
+
+
+    /**
+     * Backend constructor.
+     *
+     * @param \OC\User\Manager $userManager
+     */
+    public function __construct(\OC\User\Manager $userManager)
     {
 
-        if(\phpCAS::isInitialized()) {
+        $this->userManager = $userManager;
+    }
+
+
+    /**
+     * Backend name to be shown in user management
+     * @return string the name of the backend to be shown
+     * @since 8.0.0
+     */
+    public function getBackendName() {
+
+        return "CAS";
+    }
+
+
+    /**
+     * @param string $uid
+     * @param string $password
+     * @return bool
+     */
+    public function checkPassword($uid, $password)
+    {
+
+        if (\phpCAS::isInitialized()) {
 
             if (!\phpCAS::isAuthenticated()) {
 
@@ -59,13 +88,65 @@ class Backend extends \OC\User\Backend
                 return FALSE;
             }
 
-            return $uid;
-        }
-        else {
+            $casUid = \phpCAS::getUser();
+
+            if ($casUid === $uid) return $uid;
+        } else {
 
             \OCP\Util::writeLog('cas', 'phpCAS has not been initialized.', \OCP\Util::ERROR);
             return FALSE;
         }
+    }
 
+    /**
+     * @param string $uid
+     * @return NULL|string
+     */
+    public function getDisplayName($uid)
+    {
+        $user = $this->userManager->get($uid);
+
+        if (!is_null($user)) return $user->getDisplayName();
+
+        return NULL;
+    }
+
+    /**
+     * @param string $uid
+     * @param string $displayName
+     */
+    public function setDisplayName($uid, $displayName)
+    {
+        $user = $this->userManager->get($uid);
+
+        if (!is_null($user)) $user->setDisplayName($displayName);
+    }
+
+    /**
+     * delete a user
+     * @param string $uid The username of the user to delete
+     * @return bool
+     *
+     * Deletes a user
+     */
+    public function deleteUser($uid)
+    {
+        $user = $this->userManager->get($uid);
+
+        return $user->delete();
+    }
+
+    /**
+     * get the user's home directory
+     * @param string $uid the username
+     * @return boolean|string
+     */
+    public function getHome($uid)
+    {
+        $user = $this->userManager->get($uid);
+
+        if (!is_null($user)) return $user->getHome();
+
+        return FALSE;
     }
 }

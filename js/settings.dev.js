@@ -3,6 +3,18 @@ $(document).ready(function () {
     $('#user_cas #casSettings').tabs();
 
 
+    $("#user_cas #cas_force_login").on('change', function (event) {
+
+        if ($(this).is(':checked')) {
+
+            $("#user_cas #cas_disable_logout").attr("disabled", false);
+        }
+        else {
+
+            $("#user_cas #cas_disable_logout").attr("disabled", true);
+        }
+    });
+
     $("#user_cas #casSettingsSubmit").on('click', function (event) {
 
         event.preventDefault();
@@ -25,7 +37,9 @@ $(document).ready(function () {
                 //console.log(data);
                 var notification = OC.Notification.show("CAS settings have been successfully saved.");
 
-                setTimeout(function() {OC.Notification.hide(notification); }, 5000);
+                setTimeout(function () {
+                    OC.Notification.hide(notification);
+                }, 5000);
 
             },
             error: function (data) {
@@ -33,7 +47,9 @@ $(document).ready(function () {
                 //console.log(data);
                 var notification = OC.Notification.show("CAS settings have not been saved.");
 
-                setTimeout(function() {OC.Notification.hide(notification); }, 5000);
+                setTimeout(function () {
+                    OC.Notification.hide(notification);
+                }, 5000);
             }
         });
     });

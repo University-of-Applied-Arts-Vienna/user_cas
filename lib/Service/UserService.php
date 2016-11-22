@@ -74,17 +74,24 @@ class UserService
     /**
      * Login hook method.
      *
+     * @param $request
      * @param string $uid
      * @param string $password
-     * @return boolean
+     * @return bool
      */
-    public function login($uid, $password = NULL)
+    public function login($request, $uid, $password = '')
     {
 
         try {
 
-            return $this->userSession->login($uid, $password);
+            $loginSuccessful = $this->userSession->login($uid, $password);
 
+            if ($loginSuccessful) {
+
+                return $this->userSession->createSessionToken($request, $this->userSession->getUser()->getUID(), $uid, $password);
+            }
+
+            return FALSE;
         } catch (\OC\User\LoginException $e) {
 
             \OCP\Util::writeLog('cas', 'Owncloud could not log in the user with UID: ' . $uid . '. Exception thrown with code: ' . $e->getCode() . ' and message: ' . $e->getMessage() . '.', \OCP\Util::ERROR);
@@ -95,47 +102,56 @@ class UserService
 
     /**
      * IsLoggedIn method.
+     *
+     * @return boolean
      */
-    public function isLoggedIn() {
+    public function isLoggedIn()
+    {
 
         return $this->userSession->isLoggedIn();
     }
 
     /**
-     * Logout hook method.
-     */
-    public function logout()
-    {
-        $this->userSession->logout();
-    }
-
-    /**
-     * @param $userId
+     * @param string $userId
      * @return boolean|\OCP\IUser the created user or false
      */
     public function create($userId)
     {
 
-        $randomPassword = \OCP\Util::generateRandomBytes(20);
+        $randomPassword = \OC::$server->getSecureRandom()->getMediumStrengthGenerator()->generate(20);
 
-        $user = $this->userManager->createUser($userId, $randomPassword);
+        return $this->userManager->createUser($userId, $randomPassword);
+    }
 
-        return $user;
+    /**
+     * @param string $userId
+     * @return mixed
+     */
+    public function userExists($userId)
+    {
+
+        return $this->userManager->userExists($userId);
     }
 
     /**
      * Update the user
      *
-     * @param $uid
-     * @param $attributes
+     * @param \OCP\IUser $user
+     * @param array $attributes
      */
-    public function updateUser($uid, $attributes)
+    public function updateUser($user, $attributes)
     {
 
-        $user = $this->userSession->getUser();
+        $userId = $user->getUID();
 
-        \OCP\Util::writeLog('cas', 'Updating data of the user: ' . $uid, \OCP\Util::DEBUG);
-        \OCP\Util::writeLog('cas', 'attr: ' . implode(",", $attributes), \OCP\Util::DEBUG);
+        $attributesString = '';
+        foreach ($attributes as $key => $attribute) {
+
+            $attributesString .= $key . ': ' . $attribute . '; ';
+        }
+
+        \OCP\Util::writeLog('cas', 'Updating data of the user: ' . $userId, \OCP\Util::DEBUG);
+        \OCP\Util::writeLog('cas', 'Attributes: ' . $attributesString, \OCP\Util::DEBUG);
 
         if (isset($attributes['cas_email']) && is_object($user)) {
 
@@ -154,8 +170,8 @@ class UserService
     /**
      * Update the eMail address
      *
-     * @param $user
-     * @param $email
+     * @param \OCP\IUser $user
+     * @param string $email
      */
     private function updateMail($user, $email)
     {
@@ -170,8 +186,8 @@ class UserService
     /**
      * Update the display name
      *
-     * @param $user
-     * @param $name
+     * @param \OCP\IUser $user
+     * @param string $name
      */
     private function updateName($user, $name)
     {
@@ -184,13 +200,16 @@ class UserService
     /**
      * Gets an array of groups and will try to add the group to OC and then add the user to the groups.
      *
-     * @param $user
-     * @param $groups
+     * @param \OCP\IUser $user
+     * @param array $groups
      * @param array $protectedGroups
      * @param bool $justCreated
      */
     private function updateGroups($user, $groups, $protectedGroups = array(), $justCreated = false)
     {
+
+        if (!is_array($groups)) $groups = explode(", ", $groups);
+        if (!is_array($protectedGroups)) $protectedGroups = explode(", ", $protectedGroups);
 
         $uid = $user->getUID();
 
@@ -217,7 +236,7 @@ class UserService
 
                 if (!\OC_Group::inGroup($uid, $group)) {
 
-                    if (!OC_Group::groupExists($group)) {
+                    if (!\OC_Group::groupExists($group)) {
 
                         \OC_Group::createGroup($group);
                         \OCP\Util::writeLog('cas', 'New group created: ' . $group, \OCP\Util::DEBUG);

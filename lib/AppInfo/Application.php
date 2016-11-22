@@ -58,6 +58,23 @@ class Application extends App
 
         $container = $this->getContainer();
 
+        $container->registerService('User', function (IContainer $c) {
+            return $c->query('UserSession')->getUser();
+        });
+
+        $container->registerService('Config', function (IContainer $c) {
+            return $c->query('ServerContainer')->getConfig();
+        });
+
+        $container->registerService('L10N', function (IContainer $c) {
+            return $c->query('ServerContainer')->getL10N($c->query('AppName'));
+        });
+
+        $container->registerService('Backend', function (IContainer $c) {
+            return new Backend(
+                $c->query('ServerContainer')->getUserManager()
+            );
+        });
 
         /**
          * Register UserService with UserSession for login/logout and UserManager for create
@@ -74,7 +91,7 @@ class Application extends App
         /**
          * Register AppService with config
          */
-        $container->registerService('AppService', function($c) {
+        $container->registerService('AppService', function ($c) {
             return new AppService(
                 $c->query('AppName'),
                 $c->query('Config'),
@@ -107,7 +124,8 @@ class Application extends App
                 $c->query('Request'),
                 $c->query('Config'),
                 $c->query('UserService'),
-                $c->query('AppService')
+                $c->query('AppService'),
+                $c->query('ServerContainer')->getUserSession()
             );
         });
 
@@ -124,23 +142,6 @@ class Application extends App
                 $c->query('UserService'),
                 $c->query('AppService')
             );
-        });
-
-
-        $container->registerService('User', function (IContainer $c) {
-            return $c->query('UserSession')->getUser();
-        });
-
-        $container->registerService('Config', function(IContainer $c) {
-            return $c->query('ServerContainer')->getConfig();
-        });
-
-        $container->registerService('L10N', function(IContainer $c) {
-            return $c->query('ServerContainer')->getL10N($c->query('AppName'));
-        });
-
-        $container->registerService('Backend', function(IContainer $c) {
-            return new Backend();
         });
     }
 }

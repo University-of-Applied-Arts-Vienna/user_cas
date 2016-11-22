@@ -25,29 +25,35 @@
  *
  */
 
-require_once __DIR__ . '/../vendor/phpCAS/CAS.php';
-
 $app = new \OCA\UserCAS\AppInfo\Application();
 $c = $app->getContainer();
 
 if (\OCP\App::isEnabled($c->getAppName())) {
 
-    \OCP\App::registerAdmin($c->getAppName(), 'admin');
+    require_once __DIR__ . '/../vendor/phpCAS/CAS.php';
 
     $appService = $c->query('AppService');
     $userService = $c->query('UserService');
 
+    // Initialize app
+    //$appService->init();
+
+    // Register User Backend
     $appService->registerBackend();
 
+    // Register UserHooks
+    $c->query('UserHooks')->register();
+
+    // Register Admin Panel
+    \OCP\App::registerAdmin($c->getAppName(), 'admin');
+
+    // Register alternative LogIn
+    \OC_App::registerLogIn(array('href' => $appService->linkToRoute($c->getAppName() . '.authentication.casLogin'), 'name' => 'CAS Login'));
+
+
+    // Check for enforced authentication
     if ($appService->isEnforceAuthentication() && !$userService->isLoggedIn()) {
 
-        $appService->init();
-
-        if(\phpCAS::isInitialized() && !\phpCAS::isAuthenticated()) {
-
-            $c->query('AuthenticationController')->casLogin();
-        }
+        $c->query('AuthenticationController')->casLogin();
     }
-
-    \OC_App::registerLogIn(array('href' => $appService->linkToRoute($c->getAppName() . '.authentication.casLogin'), 'name' => 'CAS Login'));
 }

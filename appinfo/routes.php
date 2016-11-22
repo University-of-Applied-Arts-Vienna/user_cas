@@ -12,6 +12,7 @@ namespace OCA\UserCAS\AppInfo;
  * @copyright Felix Rupp <kontakt@felixrupp.com>
  */
 
+/** @var \OCA\UserCAS\AppInfo\Application $application */
 $application = new \OCA\UserCAS\AppInfo\Application();
 $application->registerRoutes($this, array(
     'routes' => [

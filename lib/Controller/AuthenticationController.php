@@ -22,7 +22,6 @@
 
 namespace OCA\UserCAS\Controller;
 
-use OCA\UserCAS\Service\AppService;
 use \OCP\IRequest;
 use \OCP\AppFramework\Http\RedirectResponse;
 use \OCP\AppFramework\Http;
@@ -33,8 +32,10 @@ use \OCP\IConfig;
 use \OCP\IUser;
 use \OCP\IURLGenerator;
 use \OCP\IUserManager;
+use \OC\User\Session;
 
-use \OCA\UserCAS\Service\UserService;
+use OCA\UserCAS\Service\AppService;
+use OCA\UserCAS\Service\UserService;
 
 
 /**
@@ -50,21 +51,49 @@ use \OCA\UserCAS\Service\UserService;
 class AuthenticationController extends Controller
 {
 
+    /**
+     * @var string $appName
+     */
     protected $appName;
 
+    /**
+     * @var \OCP\IConfig $config
+     */
     private $config;
+
+    /**
+     * @var \OCA\UserCAS\Service\UserService $userService
+     */
     private $userService;
+
+    /**
+     * @var \OCA\UserCAS\Service\AppService $appService
+     */
     private $appService;
 
-    public function __construct($appName, IRequest $request, IConfig $config, UserService $userService, AppService $appService)
+    /**
+     * @var Session $userSession
+     */
+    private $userSession;
+
+
+    /**
+     * AuthenticationController constructor.
+     * @param $appName
+     * @param IRequest $request
+     * @param IConfig $config
+     * @param UserService $userService
+     * @param AppService $appService
+     * @param Session $userSession
+     */
+    public function __construct($appName, IRequest $request, IConfig $config, UserService $userService, AppService $appService, Session $userSession)
     {
         $this->appName = $appName;
         $this->config = $config;
         $this->userService = $userService;
         $this->appService = $appService;
+        $this->userSession = $userSession;
         parent::__construct($appName, $request);
-
-        if (!$this->appService->isCasInitialized()) $this->appService->init();
     }
 
     /**
@@ -74,61 +103,59 @@ class AuthenticationController extends Controller
      * @NoCSRFRequired
      * @PublicPage
      *
-     * @return RedirectResponse
+     * @return \OCP\AppFramework\Http\RedirectResponse
      */
     public function casLogin()
     {
 
-        if(!$this->userService->isLoggedIn()) {
+        if (!$this->userService->isLoggedIn()) {
 
-            if ($this->appService->isCasInitialized()) {
+            if (!$this->appService->isCasInitialized()) $this->appService->init();
 
-                try {
+            try {
 
-                    if (\phpCAS::isAuthenticated()) {
+                if (\phpCAS::isAuthenticated()) {
 
-                        $userName = \phpCAS::getUser();
+                    $userName = \phpCAS::getUser();
 
-                        \OCP\Util::writeLog('cas', "phpCAS user ".$userName." has been authenticated.", \OCP\Util::DEBUG);
+                    \OCP\Util::writeLog('cas', "phpCAS user " . $userName . " has been authenticated.", \OCP\Util::DEBUG);
 
-                        $isLoggedIn = $this->userService->login($userName, NULL);
+                    $isLoggedIn = $this->userService->login($this->request, $userName, '');
 
-                        if ($isLoggedIn) { //TODO Fix owncloud login mechanism. Users are NOT logged in. Don’t know why!
+                    if ($isLoggedIn) {
 
-                            \OCP\Util::writeLog('cas', "phpCAS user has been authenticated against owncloud.", \OCP\Util::DEBUG);
+                        \OCP\Util::writeLog('cas', "phpCAS user has been authenticated against owncloud.", \OCP\Util::DEBUG);
+                    } else { # Not authenticated against owncloud
 
-                            $url = $this->appService->linkToRoute('files.view.index');
+                        \OCP\Util::writeLog('cas', "phpCAS user has not been authenticated against owncloud.", \OCP\Util::ERROR);
 
-                            return new RedirectResponse($url);
-                        }
-                        else { # Not authenticated against owncloud
-
-                            \OCP\Util::writeLog('cas', "phpCAS user has not been authenticated against owncloud.", \OCP\Util::ERROR);
-
-                            return new RedirectResponse("./");
-                        }
-                    } else { # Not authenticated against CAS
-
-                        \OCP\Util::writeLog('cas', "phpCAS user is not authenticated, redirect to CAS server.", \OCP\Util::DEBUG);
-
-                        \phpCAS::forceAuthentication();
+                        return new RedirectResponse($this->appService->linkToRoute('core.login.showLoginForm'));
                     }
-                } catch (\CAS_Exception $e) {
+                } else { # Not authenticated against CAS
 
-                    \OCP\Util::writeLog('cas', "phpCAS has thrown an exception with code: " . $e->getCode() . " and message: " . $e->getMessage() . ".", \OCP\Util::ERROR);
+                    \OCP\Util::writeLog('cas', "phpCAS user is not authenticated, redirect to CAS server.", \OCP\Util::DEBUG);
 
-                    return new RedirectResponse("./");
+                    \phpCAS::forceAuthentication();
                 }
-            } else { # Not casInitialized
+            } catch (\CAS_Exception $e) {
 
-                \OCP\Util::writeLog('cas', "phpCAS has not been initialized correctly. Can not log in.", \OCP\Util::ERROR);
+                \OCP\Util::writeLog('cas', "phpCAS has thrown an exception with code: " . $e->getCode() . " and message: " . $e->getMessage() . ".", \OCP\Util::ERROR);
 
-                return new RedirectResponse("./");
+                return new RedirectResponse($this->appService->linkToRoute('core.login.showLoginForm'));
             }
-        }
-        else {
+        } else {
 
             \OCP\Util::writeLog('cas', "phpCAS user is already authenticated against owncloud.", \OCP\Util::DEBUG);
         }
+
+        $defaultPage = $this->config->getAppValue('core', 'defaultpage');
+        if ($defaultPage) {
+
+            $location = $this->appService->getAbsoluteURL($defaultPage);
+
+            return new RedirectResponse($location);
+        }
+
+        return new RedirectResponse("./");
     }
 }
