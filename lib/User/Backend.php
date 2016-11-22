@@ -38,14 +38,32 @@ class Backend extends \OC\User\Backend
 {
 
     /**
-     * @param string|boolean $uid
-     * @param string $password
-     * @return bool|string
+     * @var \OC\User\Manager $userManager
      */
-    public function checkPassword($uid = FALSE, $password = NULL)
+    private $userManager;
+
+
+
+    /**
+     * Backend constructor.
+     *
+     * @param \OC\User\Manager $userManager
+     */
+    public function __construct(\OC\User\Manager $userManager)
     {
 
-        if(\phpCAS::isInitialized()) {
+        $this->userManager = $userManager;
+    }
+
+    /**
+     * @param string $uid
+     * @param string $password
+     * @return bool
+     */
+    public function checkPassword($uid, $password)
+    {
+
+        if (\phpCAS::isInitialized()) {
 
             if (!\phpCAS::isAuthenticated()) {
 
@@ -59,13 +77,37 @@ class Backend extends \OC\User\Backend
                 return FALSE;
             }
 
-            return $uid;
-        }
-        else {
+            $casUid = \phpCAS::getUser();
+
+            if ($casUid === $uid) return $uid;
+        } else {
 
             \OCP\Util::writeLog('cas', 'phpCAS has not been initialized.', \OCP\Util::ERROR);
             return FALSE;
         }
+    }
 
+    /**
+     * @param string $uid
+     * @return NULL|string
+     */
+    public function getDisplayName($uid)
+    {
+        $user = $this->userManager->get($uid);
+
+        if (!is_null($user)) return $user->getDisplayName();
+
+        return NULL;
+    }
+
+    /**
+     * @param string $uid
+     * @param string $displayName
+     */
+    public function setDisplayName($uid, $displayName)
+    {
+        $user = $this->userManager->get($uid);
+
+        if (!is_null($user)) $user->setDisplayName($displayName);
     }
 }

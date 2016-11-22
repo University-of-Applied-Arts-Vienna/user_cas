@@ -106,12 +106,6 @@ class AppService
     private $casServiceUrl;
 
     /**
-     * @var boolean
-     */
-    private $casInitialized = FALSE;
-
-
-    /**
      * UserService constructor.
      * @param $appName
      * @param \OCP\IConfig $config
@@ -141,7 +135,7 @@ class AppService
         // Gather all app config values
         $this->casVersion = $this->config->getAppValue('user_cas', 'cas_server_version', '2.0');
         $this->casHostname = $this->config->getAppValue('user_cas', 'cas_server_hostname', $serverHostName);
-        $this->casPort = $this->config->getAppValue('user_cas', 'cas_server_port', 443);
+        $this->casPort = (int)$this->config->getAppValue('user_cas', 'cas_server_port', 443);
         $this->casPath = $this->config->getAppValue('user_cas', 'cas_server_path', '/cas');
         $this->casDebugFile = $this->config->getAppValue('user_cas', 'cas_debug_file', '');
         $this->casCertPath = $this->config->getAppValue('user_cas', 'cas_cert_path', '');
@@ -150,8 +144,6 @@ class AppService
         if (!class_exists('\\phpCAS')) {
 
             \OCP\Util::writeLog('cas', 'phpCAS library could not be loaded. The class was not found.', \OCP\Util::ERROR);
-
-            $this->casInitialized = FALSE;
         }
 
         if (!\phpCAS::isInitialized()) {
@@ -185,14 +177,9 @@ class AppService
 
                 \OCP\Util::writeLog('cas', "phpCAS has been successfully initialized.", \OCP\Util::DEBUG);
 
-                $this->casInitialized = TRUE;
-
-
             } catch (\CAS_Exception $e) {
 
                 \OCP\Util::writeLog('cas', "phpCAS has thrown an exception with code: " . $e->getCode() . " and message: " . $e->getMessage() . ".", \OCP\Util::ERROR);
-
-                $this->casInitialized = FALSE;
             }
         } else {
 
@@ -220,7 +207,7 @@ class AppService
             return FALSE;
         }
 
-        if ($this->config->getAppValue($this->appName, 'cas_force_login') !== 'on') {
+        if ($this->config->getAppValue($this->appName, 'cas_force_login') !== 'true') {
             return FALSE;
         }
 
@@ -244,12 +231,37 @@ class AppService
      * Create a link to $route with URLGenerator.
      *
      * @param string $route
+     * @param array $arguments
      * @return string
      */
-    public function linkToRoute($route)
+    public function linkToRoute($route, $arguments = array())
     {
 
-        return $this->urlGenerator->linkToRoute($route);
+        return $this->urlGenerator->linkToRoute($route, $arguments);
+    }
+
+    /**
+     * Create an absolute link to $route with URLGenerator.
+     *
+     * @param string $route
+     * @param array $arguments
+     * @return string
+     */
+    public function linkToRouteAbsolute($route, $arguments = array())
+    {
+
+        return $this->urlGenerator->linkToRouteAbsolute($route, $arguments);
+    }
+
+    /**
+     * Create an url relative to owncloud host
+     *
+     * @param string $url
+     * @return mixed
+     */
+    public function getAbsoluteURL($url) {
+
+        return $this->urlGenerator->getAbsoluteURL($url);
     }
 
     /**
@@ -257,6 +269,14 @@ class AppService
      */
     public function isCasInitialized()
     {
-        return $this->casInitialized;
+        return \phpCAS::isInitialized();
+    }
+
+    /**
+     * @return array
+     */
+    public function getCasHosts() {
+
+        return explode(";", $this->config->getAppValue('user_cas', 'cas_server_hostname'));
     }
 }
