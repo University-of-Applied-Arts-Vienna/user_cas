@@ -170,8 +170,10 @@ class UserService
         }
         if (isset($attributes['cas_groups']) && is_object($user)) {
 
-            $this->updateGroups($user, $attributes['cas_groups'], $this->config->getAppValue($this->appName, 'cas_protected_groups'), false);
+            $this->updateGroups($user, $attributes['cas_groups'], $this->config->getAppValue($this->appName, 'cas_protected_groups'));
         }
+
+        \OCP\Util::writeLog('cas', 'Updating data finished.', \OCP\Util::DEBUG);
     }
 
     /**
@@ -208,15 +210,15 @@ class UserService
      * Gets an array of groups and will try to add the group to OC and then add the user to the groups.
      *
      * @param \OCP\IUser $user
-     * @param array $groups
-     * @param array $protectedGroups
+     * @param string $groups
+     * @param string $protectedGroups
      * @param bool $justCreated
      */
-    private function updateGroups($user, $groups, $protectedGroups = array(), $justCreated = false)
+    private function updateGroups($user, $groups, $protectedGroups = '', $justCreated = false)
     {
 
-        if (!is_array($groups)) $groups = explode(",", $groups);
-        if (!is_array($protectedGroups)) $protectedGroups = explode(",", $protectedGroups);
+        if (is_string($groups)) $groups = explode(",", $groups);
+        if (is_string($protectedGroups)) $protectedGroups = explode(",", $protectedGroups);
 
         $uid = $user->getUID();
 

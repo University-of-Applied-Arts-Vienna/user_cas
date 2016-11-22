@@ -51,6 +51,11 @@ class AuthenticationController extends Controller
     protected $appName;
 
     /**
+     * @var \OCP\IRequest $request
+     */
+    protected $request;
+
+    /**
      * @var \OCP\IConfig $config
      */
     private $config;
@@ -83,6 +88,7 @@ class AuthenticationController extends Controller
     public function __construct($appName, IRequest $request, IConfig $config, UserService $userService, AppService $appService, Session $userSession)
     {
         $this->appName = $appName;
+        $this->request = $request;
         $this->config = $config;
         $this->userService = $userService;
         $this->appService = $appService;
