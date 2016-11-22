@@ -147,15 +147,13 @@ class UserHooks
                         }
                     }
                 }
-
-                return TRUE;
             }
         } else {
 
             \OCP\Util::writeLog('cas', 'phpCas pre login hook NOT triggered. User: ' . $uid, \OCP\Util::DEBUG);
         }
 
-        return FALSE;
+        return TRUE;
     }
 
 
@@ -229,15 +227,13 @@ class UserHooks
 
                 // Try to update user attributes
                 $this->userService->updateUser($user, $attributes);
-
-                return TRUE;
             }
         } else {
 
             \OCP\Util::writeLog('cas', 'phpCas post login hook NOT triggered. User: ' . $uid, \OCP\Util::DEBUG);
         }
 
-        return FALSE;
+        return TRUE;
     }
 
     /**

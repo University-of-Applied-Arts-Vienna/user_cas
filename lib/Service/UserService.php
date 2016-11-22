@@ -89,14 +89,20 @@ class UserService
     public function login($request, $uid, $password = '')
     {
 
+         \OCP\Util::writeLog('cas', 'phpCAS login function step 1.', \OCP\Util::DEBUG);
+
         try {
 
             $loginSuccessful = $this->userSession->login($uid, $password);
+
+            \OCP\Util::writeLog('cas', 'phpCAS login function result: '.$loginSuccessful, \OCP\Util::DEBUG);
 
             if ($loginSuccessful) {
 
                 return $this->userSession->createSessionToken($request, $this->userSession->getUser()->getUID(), $uid, $password);
             }
+
+            \OCP\Util::writeLog('cas', 'phpCAS login function not successful.', \OCP\Util::DEBUG);
 
             return FALSE;
         } catch (\OC\User\LoginException $e) {

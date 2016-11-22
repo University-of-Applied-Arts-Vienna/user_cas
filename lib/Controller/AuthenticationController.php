@@ -51,11 +51,6 @@ class AuthenticationController extends Controller
     protected $appName;
 
     /**
-     * @var \OCP\IRequest $request
-     */
-    protected $request;
-
-    /**
      * @var \OCP\IConfig $config
      */
     private $config;
@@ -88,7 +83,6 @@ class AuthenticationController extends Controller
     public function __construct($appName, IRequest $request, IConfig $config, UserService $userService, AppService $appService, Session $userSession)
     {
         $this->appName = $appName;
-        $this->request = $request;
         $this->config = $config;
         $this->userService = $userService;
         $this->appService = $appService;
@@ -108,6 +102,8 @@ class AuthenticationController extends Controller
     public function casLogin()
     {
 
+        $location = $this->appService->getAbsoluteURL("/");
+
         if (!$this->userService->isLoggedIn()) {
 
             if (!$this->appService->isCasInitialized()) $this->appService->init();
@@ -122,9 +118,12 @@ class AuthenticationController extends Controller
 
                     $isLoggedIn = $this->userService->login($this->request, $userName, '');
 
+                    //$isLoggedIn = TRUE;
                     if ($isLoggedIn) {
 
                         \OCP\Util::writeLog('cas', "phpCAS user has been authenticated against owncloud.", \OCP\Util::DEBUG);
+
+                        return new RedirectResponse($location);
                     } else { # Not authenticated against owncloud
 
                         \OCP\Util::writeLog('cas', "phpCAS user has not been authenticated against owncloud.", \OCP\Util::ERROR);
@@ -146,16 +145,8 @@ class AuthenticationController extends Controller
         } else {
 
             \OCP\Util::writeLog('cas', "phpCAS user is already authenticated against owncloud.", \OCP\Util::DEBUG);
-        }
-
-        $defaultPage = $this->config->getAppValue('core', 'defaultpage');
-        if ($defaultPage) {
-
-            $location = $this->appService->getAbsoluteURL($defaultPage);
 
             return new RedirectResponse($location);
         }
-
-        return new RedirectResponse("./");
     }
 }
