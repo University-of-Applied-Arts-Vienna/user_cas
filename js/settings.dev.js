@@ -3,7 +3,7 @@ $(document).ready(function () {
     $('#user_cas #casSettings').tabs();
 
 
-    $("#user_cas #cas_force_login").on('change', function (event) {
+    /*$("#user_cas #cas_force_login").on('change', function (event) {
 
         if ($(this).is(':checked')) {
 
@@ -13,7 +13,7 @@ $(document).ready(function () {
 
             $("#user_cas #cas_disable_logout").attr("disabled", true);
         }
-    });
+    });*/
 
     $("#user_cas #casSettingsSubmit").on('click', function (event) {
 

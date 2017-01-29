@@ -106,11 +106,16 @@ class SettingsController extends Controller
 
             $this->config->setAppValue($this->appName, 'cas_service_url', $cas_service_url);
 
-            $this->config->setAppValue($this->appName, 'cas_force_login', ($cas_force_login !== NULL) ? 'true' : 'false');
-            $this->config->setAppValue($this->appName, 'cas_autocreate', ($cas_autocreate !== NULL) ? 'true' : 'false');
-            $this->config->setAppValue($this->appName, 'cas_update_user_data', ($cas_update_user_data !== NULL) ? 'true' : 'false');
-            $this->config->setAppValue($this->appName, 'cas_link_to_ldap_backend', ($cas_link_to_ldap_backend !== NULL) ? 'true' : 'false');
-            $this->config->setAppValue($this->appName, 'cas_disable_logout', ($cas_disable_logout !== NULL) ? 'true' : 'false');
+            $this->config->setAppValue($this->appName, 'cas_force_login', ($cas_force_login !== NULL) ? '1' : '0');
+            $this->config->setAppValue($this->appName, 'cas_autocreate', ($cas_autocreate !== NULL) ? '1' : '0');
+            $this->config->setAppValue($this->appName, 'cas_update_user_data', ($cas_update_user_data !== NULL) ? '1' : '0');
+            $this->config->setAppValue($this->appName, 'cas_link_to_ldap_backend', ($cas_link_to_ldap_backend !== NULL) ? '1' : '0');
+            $this->config->setAppValue($this->appName, 'cas_disable_logout', ($cas_disable_logout !== NULL) ? '1' : '0');
+
+            # Overwrite autocreate setting
+            #Todo: Fix autocreate bug
+            $this->config->setAppValue($this->appName, 'cas_autocreate', '1');
+
 
 
             return array(

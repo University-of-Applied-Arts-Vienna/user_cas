@@ -101,7 +101,7 @@ class UserHooks
     {
         $this->userSession->listen('\OC\User', 'preLogin', array($this, 'preLogin'));
         $this->userSession->listen('\OC\User', 'postLogin', array($this, 'postLogin'));
-        $this->userSession->listen('\OC\User', 'logout', array($this, 'logout'));
+        $this->userSession->listen('\OC\User', 'postLogout', array($this, 'postLogout'));
     }
 
 
@@ -117,36 +117,46 @@ class UserHooks
 
         if (!$this->appService->isCasInitialized()) $this->appService->init();
 
-        if ($this->appService->isCasInitialized() && \phpCAS::isAuthenticated() && $this->config->getAppValue($this->appName, 'cas_autocreate') === 'true') {
+        if (\phpCAS::isAuthenticated() && !$this->userSession->isLoggedIn()) {
 
-            \OCP\Util::writeLog('cas', 'phpCas pre login hook triggered. User: ' . $uid, \OCP\Util::DEBUG);
+            #Todo: Fix autocreate bug
+            if (boolval($this->config->getAppValue($this->appName, 'cas_autocreate'))) {
 
-            $casUid = \phpCAS::getUser();
+                \OCP\Util::writeLog('cas', 'phpCas pre login hook triggered. User: ' . $uid, \OCP\Util::DEBUG);
 
-            if ($casUid === $uid) {
+                $casUid = \phpCAS::getUser();
 
-                // Autocreate user if needed
-                if (!$this->userService->userExists($uid)) {
+                if ($casUid === $uid) {
 
-                    // create users if they do not exist
-                    if (preg_match('/[^a-zA-Z0-9 _\.@\-]/', $uid)) {
+                    // Autocreate user if needed
+                    if (!$this->userService->userExists($uid)) {
 
-                        \OCP\Util::writeLog('cas', 'Invalid username "' . $uid . '", allowed chars "a-zA-Z0-9" and "_.@-" ', \OCP\Util::DEBUG);
+                        // create users if they do not exist
+                        if (preg_match('/[^a-zA-Z0-9 _\.@\-]/', $uid)) {
 
-                        return FALSE;
+                            \OCP\Util::writeLog('cas', 'Invalid username "' . $uid . '", allowed chars "a-zA-Z0-9" and "_.@-" ', \OCP\Util::DEBUG);
+
+                            return FALSE;
+                        } else {
+
+                            \OCP\Util::writeLog('cas', 'phpCAS creating a new user with UID: ' . $uid, \OCP\Util::DEBUG);
+
+                            /** @var bool|\OCP\IUser the created user or false $uid */
+                            $user = $this->userService->create($uid);
+
+                            if ($user instanceof \OCP\IUser) {
+
+                                \OCP\Util::writeLog('cas', 'phpCAS created new user with UID: ' . $uid, \OCP\Util::DEBUG);
+                            }
+                        }
                     } else {
 
-                        \OCP\Util::writeLog('cas', 'phpCAS creating a new user with UID: ' . $uid, \OCP\Util::DEBUG);
-
-                        /** @var bool|\OCP\IUser the created user or false $uid */
-                        $user = $this->userService->create($uid);
-
-                        if ($user instanceof \OCP\IUser) {
-
-                            \OCP\Util::writeLog('cas', 'phpCAS created new user with UID: ' . $uid, \OCP\Util::DEBUG);
-                        }
+                        \OCP\Util::writeLog('cas', 'phpCAS no new user has been created.', \OCP\Util::DEBUG);
                     }
                 }
+            } else {
+
+                \OCP\Util::writeLog('cas', 'phpCas pre login hook triggered, but cas_autocreate was false.', \OCP\Util::DEBUG);
             }
         } else {
 
@@ -170,63 +180,68 @@ class UserHooks
 
         $uid = $user->getUID();
 
-        if ($this->appService->isCasInitialized() && \phpCAS::isAuthenticated() && $this->config->getAppValue($this->appName, 'cas_update_user_data') === 'true') {
+        if (\phpCAS::isAuthenticated() && $this->userSession->isLoggedIn()) {
 
-            \OCP\Util::writeLog('cas', 'phpCas post login hook triggered. User: ' . $uid, \OCP\Util::DEBUG);
+            if (boolval($this->config->getAppValue($this->appName, 'cas_update_user_data'))) {
 
-            // $cas_attributes may vary in name, therefore attributes are fetched to $attributes
+                \OCP\Util::writeLog('cas', 'phpCas post login hook triggered. User: ' . $uid, \OCP\Util::DEBUG);
 
-            $casUid = \phpCAS::getUser();
+                // $cas_attributes may vary in name, therefore attributes are fetched to $attributes
 
-            if ($casUid === $uid) {
+                $casUid = \phpCAS::getUser();
 
-                $casAttributes = \phpCAS::getAttributes();
+                if ($casUid === $uid) {
 
-                /*$casAttributesString = '';
-                foreach ($casAttributes as $key => $attribute) {
+                    $casAttributes = \phpCAS::getAttributes();
 
-                    $casAttributesString .= $key . ': ' . $attribute . '; ';
-                }*/
+                    /*$casAttributesString = '';
+                    foreach ($casAttributes as $key => $attribute) {
 
-                // parameters
-                $attributes = array();
+                        $casAttributesString .= $key . ': ' . $attribute . '; ';
+                    }*/
 
-                #\OCP\Util::writeLog('cas', 'Attributes for the user: ' . $uid . ' => ' . $casAttributesString, \OCP\Util::DEBUG);
+                    // parameters
+                    $attributes = array();
+
+                    #\OCP\Util::writeLog('cas', 'Attributes for the user: ' . $uid . ' => ' . $casAttributesString, \OCP\Util::DEBUG);
 
 
-                $displayNameMapping = $this->config->getAppValue($this->appName, 'cas_displayName_mapping');
-                if (array_key_exists($displayNameMapping, $casAttributes)) {
+                    $displayNameMapping = $this->config->getAppValue($this->appName, 'cas_displayName_mapping');
+                    if (array_key_exists($displayNameMapping, $casAttributes)) {
 
-                    $attributes['cas_name'] = $casAttributes[$displayNameMapping];
-                } else {
+                        $attributes['cas_name'] = $casAttributes[$displayNameMapping];
+                    } else {
 
-                    if (isset($casAttributes['displayName'])) $attributes['cas_name'] = $casAttributes['displayName'];
+                        if (isset($casAttributes['displayName'])) $attributes['cas_name'] = $casAttributes['displayName'];
+                    }
+
+                    $mailMapping = $this->config->getAppValue($this->appName, 'cas_email_mapping');
+                    if (array_key_exists($mailMapping, $casAttributes)) {
+
+                        $attributes['cas_email'] = $casAttributes[$mailMapping];
+                    } else {
+
+                        if (isset($casAttributes['mail'])) $attributes['cas_email'] = $casAttributes['mail'];
+                    }
+
+
+                    // Group handling
+                    $groupMapping = $this->config->getAppValue($this->appName, 'cas_group_mapping');
+                    $defaultGroup = $this->config->getAppValue($this->appName, 'cas_default_group');
+                    if (array_key_exists($groupMapping, $casAttributes)) {
+
+                        $attributes['cas_groups'] = $casAttributes[$groupMapping];
+                    } else if (is_string($defaultGroup) && strlen($defaultGroup) > 0) {
+
+                        $attributes['cas_groups'] = array($defaultGroup);
+                        \OCP\Util::writeLog('cas', 'Using default group "' . $defaultGroup . '" for the user: ' . $uid, \OCP\Util::DEBUG);
+                    }
+
+                    // Try to update user attributes
+                    $this->userService->updateUser($user, $attributes);
                 }
 
-                $mailMapping = $this->config->getAppValue($this->appName, 'cas_email_mapping');
-                if (array_key_exists($mailMapping, $casAttributes)) {
-
-                    $attributes['cas_email'] = $casAttributes[$mailMapping];
-                } else {
-
-                    if (isset($casAttributes['mail'])) $attributes['cas_email'] = $casAttributes['mail'];
-                }
-
-
-                // Group handling
-                $groupMapping = $this->config->getAppValue($this->appName, 'cas_group_mapping');
-                $defaultGroup = $this->config->getAppValue($this->appName, 'cas_default_group');
-                if (array_key_exists($groupMapping, $casAttributes)) {
-
-                    $attributes['cas_groups'] = $casAttributes[$groupMapping];
-                } else if (is_string($defaultGroup) && strlen($defaultGroup) > 0) {
-
-                    $attributes['cas_groups'] = array($defaultGroup);
-                    \OCP\Util::writeLog('cas', 'Using default group "' . $defaultGroup . '" for the user: ' . $uid, \OCP\Util::DEBUG);
-                }
-
-                // Try to update user attributes
-                $this->userService->updateUser($user, $attributes);
+                \OCP\Util::writeLog('cas', 'phpCas post login hook finished.', \OCP\Util::DEBUG);
             }
         } else {
 
@@ -241,19 +256,18 @@ class UserHooks
      *
      * @return boolean
      */
-    public function logout()
+    public function postLogout()
     {
 
         if (!$this->appService->isCasInitialized()) $this->appService->init();
 
         \OCP\Util::writeLog('cas', 'Logout hook triggered.', \OCP\Util::DEBUG);
 
-        if ($this->config->getAppValue($this->appName, 'cas_disable_logout') === 'false' && $this->appService->isEnforceAuthentication() && \phpCAS::isAuthenticated()) {
+        if (!boolval($this->config->getAppValue($this->appName, 'cas_disable_logout'))) {
 
             \OCP\Util::writeLog('cas', 'phpCAS logging out.', \OCP\Util::DEBUG);
 
             \phpCAS::logout(array("url" => $this->appService->getAbsoluteURL('/')));
-
         } else {
 
             \OCP\Util::writeLog('cas', 'phpCAS not logging out.', \OCP\Util::DEBUG);

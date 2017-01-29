@@ -35,8 +35,17 @@ if (\OCP\App::isEnabled($c->getAppName())) {
     $appService = $c->query('AppService');
     $userService = $c->query('UserService');
 
-    // Initialize app
-    //$appService->init();
+    // Check for enforced authentication
+    /*if ($appService->isEnforceAuthentication()) {
+
+        // Initialize app
+        $appService->init();
+
+        if(!\phpCAS::isAuthenticated()) {
+
+            header("Location: ".$appService->linkToRoute($c->getAppName() . '.authentication.casLogin'));
+        }
+    }*/
 
     // Register User Backend
     $appService->registerBackend();
@@ -49,22 +58,4 @@ if (\OCP\App::isEnabled($c->getAppName())) {
 
     // Register alternative LogIn
     \OC_App::registerLogIn(array('href' => $appService->linkToRoute($c->getAppName() . '.authentication.casLogin'), 'name' => 'CAS Login'));
-
-
-    // Check for enforced authentication
-    /*if ($appService->isEnforceAuthentication() && !$userService->isLoggedIn() && !\phpCAS::isAuthenticated()) {
-
-        $loggedIn = $userService->login($c->query('Request'), '');
-
-        if (!$loggedIn) {
-
-            $defaultPage = $c->query("Config")->getAppValue('core', 'defaultpage');
-            if ($defaultPage) {
-
-                $location = $this->appService->getAbsoluteURL($defaultPage);
-
-                return new \OCP\AppFramework\Http\RedirectResponse($location);
-            }
-        }
-    }*/
 }

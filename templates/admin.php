@@ -43,28 +43,28 @@
                     type="text" id="cas_cert_path" name="cas_cert_path" value="<?php p($_['cas_cert_path']); ?>"></p>
         </fieldset>
         <fieldset id="casSettings-2">
-            <!-- <p><input type="checkbox" id="cas_force_login"
-                      name="cas_force_login" <?php /*print_unescaped((($_['cas_force_login'] === 'true' || $_['cas_force_login'] === 'on') ? 'checked="checked"' : ''));*/ ?>>
+            <!--<p><input type="checkbox" id="cas_force_login"
+                      name="cas_force_login" <?php /*print_unescaped((($_['cas_force_login'] === 'true' || $_['cas_force_login'] === 'on' || $_['cas_force_login'] === '1') ? 'checked="checked"' : ''));*/ ?>>
                 <label class='checkbox' for="cas_force_login"><?php p($l->t('Force user login using CAS?')); ?></label>
-            </p>
-            <p><input type="checkbox" id="cas_disable_logout"
-                      name="cas_disable_logout" <?php /*print_unescaped((($_['cas_disable_logout'] === 'true' || $_['cas_disable_logout'] === 'on') ? 'checked="checked"' : ''));
-                                                        print_unescaped((($_['cas_force_login'] === 'false' || $_['cas_force_login'] === 'off') ? 'disabled="disabled"' : ''));*/ ?>>
-                <label class='checkbox'
-                       for="cas_disable_logout"><?php p($l->t('Disable CAS logout (do only OwnCloud logout) [Only works when "Force user login using CAS?" is enabled]')); ?></label>
             </p>-->
+            <p><input type="checkbox" id="cas_disable_logout"
+                      name="cas_disable_logout" <?php print_unescaped((($_['cas_disable_logout'] === 'true' || $_['cas_disable_logout'] === 'on' || $_['cas_disable_logout'] === '1') ? 'checked="checked"' : ''));
+                                                        /*print_unescaped((($_['cas_force_login'] === 'false' || $_['cas_force_login'] === 'off' || $_['cas_force_login'] === '0') ? 'disabled="disabled"' : ''));*/ ?>>
+                <label class='checkbox'
+                       for="cas_disable_logout"><?php p($l->t('Disable CAS logout (do only OwnCloud logout)')); ?></label>
+            </p>
             <p><input type="checkbox" id="cas_autocreate"
-                      name="cas_autocreate" <?php print_unescaped((($_['cas_autocreate'] === 'true' || $_['cas_autocreate'] === 'on') ? 'checked="checked"' : '')); ?>>
+                      name="cas_autocreate" <?php /*print_unescaped((($_['cas_autocreate'] === 'true' || $_['cas_autocreate'] === 'on' || $_['cas_autocreate'] === '1') ? 'checked="checked"' : ''));*/#Todo: Fix autocreate bug ?> checked="checked" disabled="disabled">
                 <label class='checkbox'
                        for="cas_autocreate"><?php p($l->t('Autocreate user after CAS login?')); ?></label>
             </p>
             <!-- <p><input type="checkbox" id="cas_link_to_ldap_backend"
-                      name="cas_link_to_ldap_backend" <?php /*print_unescaped((($_['cas_link_to_ldap_backend'] === 'true' || $_['cas_link_to_ldap_backend'] === 'on') ? 'checked="checked"' : ''));*/ ?>>
+                      name="cas_link_to_ldap_backend" <?php /*print_unescaped((($_['cas_link_to_ldap_backend'] === 'true' || $_['cas_link_to_ldap_backend'] === 'on' || $_['cas_link_to_ldap_backend'] === '1') ? 'checked="checked"' : ''));*/ ?>>
                 <label class='checkbox'
                        for="cas_link_to_ldap_backend"><?php p($l->t('Link CAS authentication with LDAP users and groups backend')); ?></label>
             </p> -->
             <p><input type="checkbox" id="cas_update_user_data"
-                      name="cas_update_user_data" <?php print_unescaped((($_['cas_update_user_data'] === 'true' || $_['cas_update_user_data'] === 'on') ? 'checked="checked"' : '')); ?>>
+                      name="cas_update_user_data" <?php print_unescaped((($_['cas_update_user_data'] === 'true' || $_['cas_update_user_data'] === 'on' || $_['cas_update_user_data'] === '1') ? 'checked="checked"' : '')); ?>>
                 <label class='checkbox'
                        for="cas_update_user_data"><?php p($l->t('Update user data after login?')); ?></label></p>
             <p><label
