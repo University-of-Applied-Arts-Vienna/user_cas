@@ -106,7 +106,17 @@ class AppService
     /**
      * @var string
      */
+    private $casPhpFile;
+
+    /**
+     * @var string
+     */
     private $casServiceUrl;
+
+    /**
+     * @var boolean
+     */
+    private $casInitialized;
 
     /**
      * UserService constructor.
@@ -126,6 +136,7 @@ class AppService
         $this->userSession = $userSession;
         $this->urlGenerator = $urlGenerator;
         $this->backend = $backend;
+        $this->casInitialized = FALSE;
     }
 
 
@@ -140,11 +151,23 @@ class AppService
         // Gather all app config values
         $this->casVersion = $this->config->getAppValue('user_cas', 'cas_server_version', '2.0');
         $this->casHostname = $this->config->getAppValue('user_cas', 'cas_server_hostname', $serverHostName);
-        $this->casPort = (int)$this->config->getAppValue('user_cas', 'cas_server_port', 443);
+        $this->casPort = intval($this->config->getAppValue('user_cas', 'cas_server_port', 443));
         $this->casPath = $this->config->getAppValue('user_cas', 'cas_server_path', '/cas');
-        $this->casDebugFile = $this->config->getAppValue('user_cas', 'cas_debug_file', '');
-        $this->casCertPath = $this->config->getAppValue('user_cas', 'cas_cert_path', '');
         $this->casServiceUrl = $this->config->getAppValue('user_cas', 'cas_service_url', '');
+        $this->casCertPath = $this->config->getAppValue('user_cas', 'cas_cert_path', '');
+
+        $this->casDebugFile = $this->config->getAppValue('user_cas', 'cas_debug_file', '');
+        $this->casPhpFile = $this->config->getAppValue('user_cas', 'cas_php_cas_path', '');
+
+        if (is_string($this->casPhpFile) && strlen($this->casPhpFile) > 0) {
+
+            \OCP\Util::writeLog('cas', 'Use custom phpCAS file:: ' . $this->casPhpFile, \OCP\Util::DEBUG);
+
+            require_once("$this->casPhpFile");
+        } else {
+
+            require_once(__DIR__ . '/../../vendor/jasig/phpcas/CAS.php');
+        }
 
         if (!class_exists('\\phpCAS')) {
 
@@ -180,13 +203,19 @@ class AppService
                     \phpCAS::setNoCasServerValidation();
                 }
 
+                $this->casInitialized = TRUE;
+
                 \OCP\Util::writeLog('cas', "phpCAS has been successfully initialized.", \OCP\Util::DEBUG);
 
             } catch (\CAS_Exception $e) {
 
+                $this->casInitialized = FALSE;
+
                 \OCP\Util::writeLog('cas', "phpCAS has thrown an exception with code: " . $e->getCode() . " and message: " . $e->getMessage() . ".", \OCP\Util::ERROR);
             }
         } else {
+
+            $this->casInitialized = TRUE;
 
             \OCP\Util::writeLog('cas', "phpCAS has already been initialized.", \OCP\Util::DEBUG);
         }
@@ -212,7 +241,7 @@ class AppService
             return FALSE;
         }
 
-        if ($this->config->getAppValue($this->appName, 'cas_force_login') !== 'true') {
+        if ($this->config->getAppValue($this->appName, 'cas_force_login') !== '1') {
             return FALSE;
         }
 
@@ -264,7 +293,8 @@ class AppService
      * @param string $url
      * @return mixed
      */
-    public function getAbsoluteURL($url) {
+    public function getAbsoluteURL($url)
+    {
 
         return $this->urlGenerator->getAbsoluteURL($url);
     }
@@ -274,14 +304,162 @@ class AppService
      */
     public function isCasInitialized()
     {
-        return \phpCAS::isInitialized();
+        return $this->casInitialized;
     }
 
     /**
      * @return array
      */
-    public function getCasHosts() {
+    public function getCasHosts()
+    {
 
-        return explode(";", $this->config->getAppValue('user_cas', 'cas_server_hostname'));
+        return explode(";", $this->casHostname);
+    }
+
+
+    ## Setters/Getters
+
+    /**
+     * @return string
+     */
+    public function getAppName()
+    {
+        return $this->appName;
+    }
+
+    /**
+     * @param string $appName
+     */
+    public function setAppName($appName)
+    {
+        $this->appName = $appName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCasVersion()
+    {
+        return $this->casVersion;
+    }
+
+    /**
+     * @param string $casVersion
+     */
+    public function setCasVersion($casVersion)
+    {
+        $this->casVersion = $casVersion;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCasHostname()
+    {
+        return $this->casHostname;
+    }
+
+    /**
+     * @param string $casHostname
+     */
+    public function setCasHostname($casHostname)
+    {
+        $this->casHostname = $casHostname;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCasPort()
+    {
+        return $this->casPort;
+    }
+
+    /**
+     * @param string $casPort
+     */
+    public function setCasPort($casPort)
+    {
+        $this->casPort = $casPort;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCasPath()
+    {
+        return $this->casPath;
+    }
+
+    /**
+     * @param string $casPath
+     */
+    public function setCasPath($casPath)
+    {
+        $this->casPath = $casPath;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCasDebugFile()
+    {
+        return $this->casDebugFile;
+    }
+
+    /**
+     * @param string $casDebugFile
+     */
+    public function setCasDebugFile($casDebugFile)
+    {
+        $this->casDebugFile = $casDebugFile;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCasCertPath()
+    {
+        return $this->casCertPath;
+    }
+
+    /**
+     * @param string $casCertPath
+     */
+    public function setCasCertPath($casCertPath)
+    {
+        $this->casCertPath = $casCertPath;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCasPhpFile()
+    {
+        return $this->casPhpFile;
+    }
+
+    /**
+     * @param string $casPhpFile
+     */
+    public function setCasPhpFile($casPhpFile)
+    {
+        $this->casPhpFile = $casPhpFile;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCasServiceUrl()
+    {
+        return $this->casServiceUrl;
+    }
+
+    /**
+     * @param string $casServiceUrl
+     */
+    public function setCasServiceUrl($casServiceUrl)
+    {
+        $this->casServiceUrl = $casServiceUrl;
     }
 }

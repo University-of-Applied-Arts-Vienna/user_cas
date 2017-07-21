@@ -7,11 +7,12 @@ $(document).ready(function () {
 
         if ($(this).is(':checked')) {
 
-            $("#user_cas #cas_disable_logout").attr("disabled", false);
+            $("#user_cas #cas_disable_logout").attr("disabled", true);
+            $("#user_cas #cas_disable_logout").prop('checked', false);
         }
         else {
 
-            $("#user_cas #cas_disable_logout").attr("disabled", true);
+            $("#user_cas #cas_disable_logout").attr("disabled", false);
         }
     });
 

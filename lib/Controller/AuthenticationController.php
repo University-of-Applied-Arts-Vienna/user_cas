@@ -102,6 +102,16 @@ class AuthenticationController extends Controller
     public function casLogin()
     {
 
+        $redirectUrl = $this->request->getParam("redirect_url", '');
+
+        if (is_string($redirectUrl) && strlen($redirectUrl) > 0) {
+
+            $location = $this->appService->getAbsoluteURL($redirectUrl);
+        } else {
+
+            $location = $this->appService->getAbsoluteURL("/");
+        }
+
         if (!$this->userService->isLoggedIn()) {
 
             if (!$this->appService->isCasInitialized()) $this->appService->init();
@@ -116,9 +126,12 @@ class AuthenticationController extends Controller
 
                     $isLoggedIn = $this->userService->login($this->request, $userName, '');
 
+                    //$isLoggedIn = TRUE;
                     if ($isLoggedIn) {
 
                         \OCP\Util::writeLog('cas', "phpCAS user has been authenticated against owncloud.", \OCP\Util::DEBUG);
+
+                        return new RedirectResponse($location);
                     } else { # Not authenticated against owncloud
 
                         \OCP\Util::writeLog('cas', "phpCAS user has not been authenticated against owncloud.", \OCP\Util::ERROR);
@@ -140,16 +153,8 @@ class AuthenticationController extends Controller
         } else {
 
             \OCP\Util::writeLog('cas', "phpCAS user is already authenticated against owncloud.", \OCP\Util::DEBUG);
-        }
-
-        $defaultPage = $this->config->getAppValue('core', 'defaultpage');
-        if ($defaultPage) {
-
-            $location = $this->appService->getAbsoluteURL($defaultPage);
 
             return new RedirectResponse($location);
         }
-
-        return new RedirectResponse("./");
     }
 }

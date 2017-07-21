@@ -24,8 +24,9 @@
 namespace OCA\UserCAS\Service;
 
 use \OCP\IConfig;
-use \OC\User\Manager;
-use \OC\User\Session;
+use \OCP\IUserManager;
+use \OCP\IGroupManager;
+use \OCP\IUserSession;
 
 /**
  * Class UserService
@@ -51,14 +52,19 @@ class UserService
     private $config;
 
     /**
-     * @var \OC\User\Session $userSession
+     * @var \OCP\IUserSession; $userSession
      */
     private $userSession;
 
     /**
-     * @var \OC\User\Manager $userManager
+     * @var \OCP\IUserManager $userManager
      */
     private $userManager;
+
+    /**
+     * @var \OCP\IGroupManager
+     */
+    private $groupManager;
 
 
     /**
@@ -66,16 +72,18 @@ class UserService
      *
      * @param $appName
      * @param IConfig $config
-     * @param Manager $userManager
-     * @param Session $userSession
+     * @param IUserManager $userManager
+     * @param IUserSession $userSession
+     * @param IGroupManager $groupManager
      */
-    public function __construct($appName, IConfig $config, Manager $userManager, Session $userSession)
+    public function __construct($appName, IConfig $config, IUserManager $userManager, IUserSession $userSession, IGroupManager $groupManager)
     {
 
         $this->appName = $appName;
         $this->config = $config;
         $this->userManager = $userManager;
         $this->userSession = $userSession;
+        $this->groupManager = $groupManager;
     }
 
     /**
@@ -89,14 +97,20 @@ class UserService
     public function login($request, $uid, $password = '')
     {
 
+         \OCP\Util::writeLog('cas', 'phpCAS login function step 1.', \OCP\Util::DEBUG);
+
         try {
 
             $loginSuccessful = $this->userSession->login($uid, $password);
+
+            \OCP\Util::writeLog('cas', 'phpCAS login function result: '.$loginSuccessful, \OCP\Util::DEBUG);
 
             if ($loginSuccessful) {
 
                 return $this->userSession->createSessionToken($request, $this->userSession->getUser()->getUID(), $uid, $password);
             }
+
+            \OCP\Util::writeLog('cas', 'phpCAS login function not successful.', \OCP\Util::DEBUG);
 
             return FALSE;
         } catch (\OC\User\LoginException $e) {
@@ -170,18 +184,25 @@ class UserService
         }
         if (isset($attributes['cas_groups']) && is_object($user)) {
 
-            $this->updateGroups($user, $attributes['cas_groups'], $this->config->getAppValue($this->appName, 'cas_protected_groups'), false);
+            $this->updateGroups($user, $attributes['cas_groups'], $this->config->getAppValue($this->appName, 'cas_protected_groups'));
         }
+
+        \OCP\Util::writeLog('cas', 'Updating data finished.', \OCP\Util::DEBUG);
     }
 
     /**
      * Update the eMail address
      *
      * @param \OCP\IUser $user
-     * @param string $email
+     * @param string|array $email
      */
     private function updateMail($user, $email)
     {
+
+        if(is_array($email)) {
+
+            $email = $email[0];
+        }
 
         if ($email !== $user->getEMailAddress()) {
 
@@ -194,62 +215,81 @@ class UserService
      * Update the display name
      *
      * @param \OCP\IUser $user
-     * @param string $name
+     * @param string| $name
      */
     private function updateName($user, $name)
     {
 
-        $user->setDisplayName($name);
+        if(is_array($name)) {
 
-        \OCP\Util::writeLog('cas', 'Set Name: ' . $name . ' for the user: ' . $user->getUID(), \OCP\Util::DEBUG);
+            $name = $name[0];
+        }
+
+        if ($name !== $user->getDisplayName()) {
+
+            $user->setDisplayName($name);
+            \OCP\Util::writeLog('cas', 'Set Name: ' . $name . ' for the user: ' . $user->getUID(), \OCP\Util::DEBUG);
+        }
     }
 
     /**
      * Gets an array of groups and will try to add the group to OC and then add the user to the groups.
      *
      * @param \OCP\IUser $user
-     * @param array $groups
-     * @param array $protectedGroups
+     * @param string $groups
+     * @param string $protectedGroups
      * @param bool $justCreated
      */
-    private function updateGroups($user, $groups, $protectedGroups = array(), $justCreated = false)
+    private function updateGroups($user, $groups, $protectedGroups = '', $justCreated = false)
     {
 
-        if (!is_array($groups)) $groups = explode(",", $groups);
-        if (!is_array($protectedGroups)) $protectedGroups = explode(",", $protectedGroups);
+        if (is_string($groups)) $groups = explode(",", $groups);
+        if (is_string($protectedGroups)) $protectedGroups = explode(",", $protectedGroups);
 
         $uid = $user->getUID();
 
         if (!$justCreated) {
 
-            $oldGroups = \OC_Group::getUserGroups($uid);
+            $oldGroups = $this->groupManager->getUserGroups($user);
 
             foreach ($oldGroups as $group) {
 
-                if (!in_array($group, $protectedGroups) && !in_array($group, $groups)) {
+                if($group instanceof \OCP\IGroup) {
 
-                    \OC_Group::removeFromGroup($uid, $group);
-                    \OCP\Util::writeLog('cas', 'Removed "' . $uid . '" from the group "' . $group . '"', \OCP\Util::DEBUG);
+                    $groupId = $group->getGID();
+
+                    if (!in_array($groupId, $protectedGroups) && !in_array($groupId, $groups)) {
+
+                        $group->removeUser($user);
+
+                        \OCP\Util::writeLog('cas', 'Removed "' . $uid . '" from the group "' . $groupId . '"', \OCP\Util::DEBUG);
+                    }
                 }
             }
         }
 
         foreach ($groups as $group) {
 
+            $groupObject = NULL;
+
             if (preg_match('/[^a-zA-Z0-9 _\.@\-]/', $group)) {
 
                 \OCP\Util::writeLog('cas', 'Invalid group "' . $group . '", allowed chars "a-zA-Z0-9" and "_.@-" ', \OCP\Util::DEBUG);
             } else {
 
-                if (!\OC_Group::inGroup($uid, $group)) {
+                if (!$this->groupManager->isInGroup($uid, $group)) {
 
-                    if (!\OC_Group::groupExists($group)) {
+                    if (!$this->groupManager->groupExists($group)) {
 
-                        \OC_Group::createGroup($group);
+                        $groupObject = $this->groupManager->createGroup($group);
                         \OCP\Util::writeLog('cas', 'New group created: ' . $group, \OCP\Util::DEBUG);
                     }
+                    else {
 
-                    \OC_Group::addToGroup($uid, $group);
+                        $groupObject = $this->groupManager->get($group);
+                    }
+
+                    $groupObject->addUser($user);
                     \OCP\Util::writeLog('cas', 'Added "' . $uid . '" to the group "' . $group . '"', \OCP\Util::DEBUG);
                 }
             }
