@@ -93,7 +93,12 @@ class Backend extends \OC\User\Backend implements \OCP\IUserBackend
 
             $casUid = \phpCAS::getUser();
 
-            if ($casUid === $uid) return $uid;
+            if ($casUid === $uid) {
+
+                \OCP\Util::writeLog('cas', 'phpCAS user password has been checked.', \OCP\Util::ERROR);
+
+                return $uid;
+            }
         } else {
 
             \OCP\Util::writeLog('cas', 'phpCAS has not been initialized.', \OCP\Util::ERROR);
