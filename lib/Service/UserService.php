@@ -225,9 +225,11 @@ class UserService
             $name = $name[0];
         }
 
-        $user->setDisplayName($name);
+        if ($name !== $user->getDisplayName()) {
 
-        \OCP\Util::writeLog('cas', 'Set Name: ' . $name . ' for the user: ' . $user->getUID(), \OCP\Util::DEBUG);
+            $user->setDisplayName($name);
+            \OCP\Util::writeLog('cas', 'Set Name: ' . $name . ' for the user: ' . $user->getUID(), \OCP\Util::DEBUG);
+        }
     }
 
     /**

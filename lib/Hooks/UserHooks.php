@@ -119,7 +119,6 @@ class UserHooks
 
         if (\phpCAS::isAuthenticated() && !$this->userSession->isLoggedIn()) {
 
-            #Todo: Fix autocreate bug
             if (boolval($this->config->getAppValue($this->appName, 'cas_autocreate'))) {
 
                 \OCP\Util::writeLog('cas', 'phpCas pre login hook triggered. User: ' . $uid, \OCP\Util::DEBUG);

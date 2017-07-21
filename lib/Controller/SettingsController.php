@@ -112,12 +112,6 @@ class SettingsController extends Controller
             $this->config->setAppValue($this->appName, 'cas_link_to_ldap_backend', ($cas_link_to_ldap_backend !== NULL) ? '1' : '0');
             $this->config->setAppValue($this->appName, 'cas_disable_logout', ($cas_disable_logout !== NULL) ? '1' : '0');
 
-            # Overwrite autocreate setting
-            #Todo: Fix autocreate bug
-            $this->config->setAppValue($this->appName, 'cas_autocreate', '1');
-
-
-
             return array(
                 'code' => 200,
                 'message' => 'Your settings have been updated.'
