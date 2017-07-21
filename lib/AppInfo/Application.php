@@ -84,7 +84,8 @@ class Application extends App
                 $c->query('AppName'),
                 $c->query('Config'),
                 $c->query('ServerContainer')->getUserManager(),
-                $c->query('ServerContainer')->getUserSession()
+                $c->query('ServerContainer')->getUserSession(),
+                $c->query('ServerContainer')->getGroupManager()
             );
         });
 

@@ -30,7 +30,7 @@ $c = $app->getContainer();
 
 if (\OCP\App::isEnabled($c->getAppName())) {
 
-    require_once __DIR__ . '/../vendor/phpCAS/CAS.php';
+    require_once __DIR__ . '/../vendor/jasig/phpcas/CAS.php';
 
     $appService = $c->query('AppService');
     $userService = $c->query('UserService');
