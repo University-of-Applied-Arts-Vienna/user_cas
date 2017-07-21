@@ -70,6 +70,10 @@ class Application extends App
             return $c->query('ServerContainer')->getL10N($c->query('AppName'));
         });
 
+        $container->registerService('Logger', function (IContainer $c) {
+            return $c->query('ServerContainer')->getLogger();
+        });
+
         $container->registerService('Backend', function (IContainer $c) {
             return new Backend(
                 $c->query('ServerContainer')->getUserManager()

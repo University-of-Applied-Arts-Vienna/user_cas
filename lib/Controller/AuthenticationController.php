@@ -108,6 +108,7 @@ class AuthenticationController extends Controller
 
             $location = $this->appService->getAbsoluteURL($redirectUrl);
         } else {
+
             $location = $this->appService->getAbsoluteURL("/");
         }
 

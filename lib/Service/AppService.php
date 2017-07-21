@@ -106,7 +106,17 @@ class AppService
     /**
      * @var string
      */
+    private $casPhpFile;
+
+    /**
+     * @var string
+     */
     private $casServiceUrl;
+
+    /**
+     * @var boolean
+     */
+    private $casInitialized;
 
     /**
      * UserService constructor.
@@ -126,6 +136,7 @@ class AppService
         $this->userSession = $userSession;
         $this->urlGenerator = $urlGenerator;
         $this->backend = $backend;
+        $this->casInitialized = FALSE;
     }
 
 
@@ -146,6 +157,17 @@ class AppService
         $this->casCertPath = $this->config->getAppValue('user_cas', 'cas_cert_path', '');
 
         $this->casDebugFile = $this->config->getAppValue('user_cas', 'cas_debug_file', '');
+        $this->casPhpFile = $this->config->getAppValue('user_cas', 'cas_php_cas_path', '');
+
+        if (is_string($this->casPhpFile) && strlen($this->casPhpFile) > 0) {
+
+            \OCP\Util::writeLog('cas', 'Use custom phpCAS file:: ' . $this->casPhpFile, \OCP\Util::DEBUG);
+
+            require_once("$this->casPhpFile");
+        } else {
+
+            require_once(__DIR__ . '/../../vendor/jasig/phpcas/CAS.php');
+        }
 
         if (!class_exists('\\phpCAS')) {
 
@@ -181,13 +203,19 @@ class AppService
                     \phpCAS::setNoCasServerValidation();
                 }
 
+                $this->casInitialized = TRUE;
+
                 \OCP\Util::writeLog('cas', "phpCAS has been successfully initialized.", \OCP\Util::DEBUG);
 
             } catch (\CAS_Exception $e) {
 
+                $this->casInitialized = FALSE;
+
                 \OCP\Util::writeLog('cas', "phpCAS has thrown an exception with code: " . $e->getCode() . " and message: " . $e->getMessage() . ".", \OCP\Util::ERROR);
             }
         } else {
+
+            $this->casInitialized = TRUE;
 
             \OCP\Util::writeLog('cas', "phpCAS has already been initialized.", \OCP\Util::DEBUG);
         }
@@ -213,7 +241,7 @@ class AppService
             return FALSE;
         }
 
-        if ($this->config->getAppValue($this->appName, 'cas_force_login') !== 'true') {
+        if ($this->config->getAppValue($this->appName, 'cas_force_login') !== '1') {
             return FALSE;
         }
 
@@ -276,7 +304,7 @@ class AppService
      */
     public function isCasInitialized()
     {
-        return \phpCAS::isInitialized();
+        return $this->casInitialized;
     }
 
     /**
@@ -401,6 +429,22 @@ class AppService
     public function setCasCertPath($casCertPath)
     {
         $this->casCertPath = $casCertPath;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCasPhpFile()
+    {
+        return $this->casPhpFile;
+    }
+
+    /**
+     * @param string $casPhpFile
+     */
+    public function setCasPhpFile($casPhpFile)
+    {
+        $this->casPhpFile = $casPhpFile;
     }
 
     /**

@@ -1,7 +1,7 @@
 {
   "name": "felixurpp/user_cas",
   "description": "This is the package for Ownclouds 3rd Party App user_cas",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "license": "AGPL",
   "authors": [
     {
@@ -10,6 +10,6 @@
     }
   ],
   "require": {
-    "jasig/phpcas": "1.3.5"
+    "jasig/phpcas": "^1.3"
   }
 }
