@@ -244,6 +244,21 @@ class AppService
     }
 
     /**
+     * Register Login
+     *
+     * @param string $urlParams
+     */
+    public function registerLogIn($urlParams)
+    {
+
+        /** @var array $loginAlternatives */
+        $loginAlternatives = $this->config->getSystemValue('login.alternatives', []);
+        $loginAlternatives[] = ['href' => $this->linkToRoute($this->appName . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login'];
+
+        $this->config->setSystemValue('login.alternatives', $loginAlternatives);
+    }
+
+    /**
      * Create a link to $route with URLGenerator.
      *
      * @param string $route

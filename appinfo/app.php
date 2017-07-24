@@ -47,7 +47,7 @@ if (\OCP\App::isEnabled($c->getAppName())) {
     }
 
     // Register alternative LogIn
-    \OC_App::registerLogIn(array('href' => $appService->linkToRoute($c->getAppName() . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login'));
+    $appService->registerLogIn($urlParams);
 
     // Check for enforced authentication
     if ($appService->isEnforceAuthentication() && (!isset($_GET["cas_enforce_authentication"]) || (isset($_GET["cas_enforce_authentication"]) && $_GET["cas_enforce_authentication"] === '0'))) {
