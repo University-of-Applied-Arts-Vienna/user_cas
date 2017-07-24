@@ -253,9 +253,23 @@ class AppService
 
         /** @var array $loginAlternatives */
         $loginAlternatives = $this->config->getSystemValue('login.alternatives', []);
-        $loginAlternatives[] = ['href' => $this->linkToRoute($this->appName . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login'];
 
-        $this->config->setSystemValue('login.alternatives', $loginAlternatives);
+        $loginAlreadyRegistered = FALSE;
+
+        foreach ($loginAlternatives as $loginAlternative) {
+
+            if (isset($loginAlternative['href']) && $loginAlternative['href'] === $this->linkToRoute($this->appName . '.authentication.casLogin') . $urlParams) {
+
+                $loginAlreadyRegistered = TRUE;
+            }
+        }
+
+        if (!$loginAlreadyRegistered) {
+
+            $loginAlternatives[] = ['href' => $this->linkToRoute($this->appName . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login'];
+
+            $this->config->setSystemValue('login.alternatives', $loginAlternatives);
+        }
     }
 
     /**
