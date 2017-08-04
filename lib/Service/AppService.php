@@ -213,7 +213,7 @@ class AppService
 
                 $this->casInitialized = FALSE;
 
-                $this->loggingService->write(\OCP\Util::ERROR,"phpCAS has thrown an exception with code: " . $e->getCode() . " and message: " . $e->getMessage() . ".");
+                $this->loggingService->write(\OCP\Util::ERROR, "phpCAS has thrown an exception with code: " . $e->getCode() . " and message: " . $e->getMessage() . ".");
                 #\OCP\Util::writeLog('cas', "phpCAS has thrown an exception with code: " . $e->getCode() . " and message: " . $e->getMessage() . ".", \OCP\Util::ERROR);
             }
         } else {
@@ -279,9 +279,20 @@ class AppService
 
         if (!$loginAlreadyRegistered) {
 
-            $loginAlternatives[] = ['href' => $this->linkToRoute($this->appName . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login'];
+            // Workaround for Nextcloud 12.0.0, as it does not support alternate logins via config.php
+            /** @var \OCP\Defaults $defaults */
+            $defaults = new \OCP\Defaults();
+            if (strpos(strtolower($defaults->getName()), 'next') !== FALSE && strpos(implode('.', \OCP\Util::getVersion()), '12.0.0') !== FALSE) {
 
-            $this->config->setSystemValue('login.alternatives', $loginAlternatives);
+                $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Nextcloud detected.");
+                \OC_App::registerLogIn(array('href' => $this->linkToRoute($this->appName . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login'));
+            }
+            else {
+
+                $loginAlternatives[] = ['href' => $this->linkToRoute($this->appName . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login'];
+
+                $this->config->setSystemValue('login.alternatives', $loginAlternatives);
+            }
         }
     }
 
