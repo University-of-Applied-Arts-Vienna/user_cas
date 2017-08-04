@@ -12,19 +12,20 @@ DEPENDENCIES
 
 * Owncloud >= 10.0 OR Nextcloud >= 12.0
 * PHP >= 5.6, PHP 7 if possible
-* [Composer Dependency Manager](https://getcomposer.org/)
+* [Composer Dependency Manager](https://getcomposer.org/), if you want to install via GIT.
 
-This app does not require a standalone version of jasig’s/apereo’s phpcas any longer. The library is shipped within composer dependencies. Although you can configure to use your own version of jasig’s/apereo’s phpcas library later on.
+This app does not require a standalone version of jasig’s/apereo’s phpcas any longer. The library is shipped within composer dependencies or in the archive file you downloaded. Although you can configure to use your own version of jasig’s/apereo’s phpcas library later on.
 
 
 STEPS
 -----
 
-1. Git clone/copy the `user_cas` folder into the Owncloud's apps folder and make sure to set correct permissions for your Webserver.
-2. Change directory inside `user_cas` folder after cloning/copying and perform a `composer update` command. The dependencies will be installed. Attention: You will need the [composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx) binary to be installed
-2. Access the Owncloud web interface with a locally created Owncloud user with admin privileges.
-3. Access the administrations panel => Apps and enable the **CAS user and group backend** app.
-4. Access the administration panel => General and configure the app.
+1. Git clone/copy the downloaded `user_cas` folder into the Owncloud's apps folder and make sure to set correct permissions for your Webserver.
+2. Change directory inside `user_cas` folder after cloning and perform a `composer update` command if you installed via GIT. The dependencies will be installed. Attention: You will need the [composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx) binary to be installed.
+3. Adjust the settings for the `user_cas` folder according to your webserver setup.
+4. Access the Owncloud web interface with a locally created Owncloud user with admin privileges.
+5. Access the administrations panel => Apps and enable the **CAS user and group backend** app.
+6. Access the administration panel => General and configure the app.
 
 
 CONFIGURATION
