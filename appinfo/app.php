@@ -30,9 +30,14 @@ $c = $app->getContainer();
 
 if (\OCP\App::isEnabled($c->getAppName())) {
 
-    $script = basename($_SERVER['SCRIPT_FILENAME']);
+    $enable = TRUE;
 
-    if (!\OC::$CLI && !in_array($script, array('cron.php', 'public.php', 'remote.php', 'status.php'))) {
+    $script = $_SERVER['SCRIPT_FILENAME'];
+    if (in_array(basename($script), array('console.php', 'cron.php', 'public.php', 'remote.php', 'status.php', 'version.php')) || strpos($script, "/ocs")) {
+        $enable = FALSE;
+    }
+
+    if (!\OC::$CLI && $enable) {
 
         $appService = $c->query('AppService');
         $userService = $c->query('UserService');
