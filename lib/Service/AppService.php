@@ -231,16 +231,13 @@ class AppService
             return FALSE;
         }
 
-        $script = basename($_SERVER['SCRIPT_FILENAME']);
-        return !in_array(
-            $script,
-            array(
-                'cron.php',
-                'public.php',
-                'remote.php',
-                'status.php',
-            )
-        );
+
+        $script = $_SERVER['SCRIPT_FILENAME'];
+        if (in_array(basename($script), array('console.php', 'cron.php', 'public.php', 'remote.php', 'status.php', 'version.php')) || strpos($script, "/ocs")) {
+            return FALSE;
+        }
+
+        return TRUE;
     }
 
     /**
