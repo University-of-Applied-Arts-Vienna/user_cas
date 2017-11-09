@@ -6,7 +6,7 @@
     <licence>AGPL</licence>
     <author>Felix Rupp, Leonis Holding, Sixto Martin</author>
     <namespace>UserCAS</namespace>
-    <version>1.5.0</version>
+    <version>1.4.8</version>
     <types>
         <prelogin/>
         <authentication/>
@@ -29,11 +29,8 @@
     <dependencies>
         <php min-version="5.6" max-version="7.0.99"/>
 
-        <owncloud min-version="10.0" max-version="10.0.99"/>
-        <nextcloud min-version="12.0" max-version="12.0.99" />
-    </dependencies>
+        <lib>curl</lib>
 
-    <settings>
-        <admin>OCA\UserCAS\Panels\Admin</admin>
-    </settings>
+        <owncloud min-version="9.1.6" max-version="10.0.99"/>
+    </dependencies>
 </info>
