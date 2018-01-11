@@ -39,9 +39,16 @@ if (in_array(basename($script), array('console.php', 'cron.php', 'public.php', '
 
 if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI && $enable) {
 
-    $script = basename($_SERVER['SCRIPT_FILENAME']);
+    $enable = TRUE;
 
-    if (!\OC::$CLI && !in_array($script, array('cron.php', 'public.php', 'remote.php', 'status.php'))) {
+    $script = $_SERVER['SCRIPT_FILENAME'];
+    $requestUri = $_SERVER['REQUEST_URI'];
+
+    if (in_array(basename($script), array('console.php', 'cron.php', 'public.php', 'remote.php', 'status.php', 'version.php')) || strpos($script, "ocs") || strpos($requestUri, "oc.js")) {
+        $enable = FALSE;
+    }
+
+    if (!\OC::$CLI && $enable) {
 
         $appService = $c->query('AppService');
         $userService = $c->query('UserService');
