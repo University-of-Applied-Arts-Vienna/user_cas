@@ -2,17 +2,17 @@
 <info>
     <id>user_cas</id>
     <name>CAS user and group backend</name>
-    <description>Authenticate Users against a jasig/apero CAS Server (https://github.com/apereo/cas). Based on code by brenard, Leonis Holding and Sixto Martin Garcia</description>
+    <description>Authenticate Users against a jasig/apero CAS Server (https://github.com/apereo/cas)</description>
     <licence>AGPL</licence>
-    <author>Felix Rupp</author>
+    <author>Felix Rupp, Leonis Holding, Sixto Martin</author>
     <namespace>UserCAS</namespace>
-    <version>1.4.9</version>
+    <version>1.5.0</version>
     <types>
         <prelogin/>
         <authentication/>
     </types>
 
-    <category>security</category>
+    <category>tool</category>
 
     <website>https://github.com/felixrupp/user_cas</website>
 
@@ -29,8 +29,11 @@
     <dependencies>
         <php min-version="5.6" max-version="7.0.99"/>
 
-        <lib>curl</lib>
-
-        <owncloud min-version="9.1.6" max-version="10.0.99"/>
+        <owncloud min-version="10.0" max-version="10.0.99"/>
+        <nextcloud min-version="12.0" max-version="12.0.99" />
     </dependencies>
+
+    <settings>
+        <admin>OCA\UserCAS\Panels\Admin</admin>
+    </settings>
 </info>
