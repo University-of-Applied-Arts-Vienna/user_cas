@@ -26,7 +26,7 @@ use \OCP\IRequest;
 use \OCP\AppFramework\Http\RedirectResponse;
 use \OCP\AppFramework\Controller;
 use \OCP\IConfig;
-use \OC\User\Session;
+use \OCP\IUserSession;
 
 use OCA\UserCAS\Service\AppService;
 use OCA\UserCAS\Service\UserService;
@@ -67,7 +67,7 @@ class AuthenticationController extends Controller
     private $appService;
 
     /**
-     * @var Session $userSession
+     * @var IUserSession $userSession
      */
     private $userSession;
 
@@ -83,10 +83,10 @@ class AuthenticationController extends Controller
      * @param IConfig $config
      * @param UserService $userService
      * @param AppService $appService
-     * @param Session $userSession
+     * @param IUserSession $userSession
      * @param LoggingService $loggingService
      */
-    public function __construct($appName, IRequest $request, IConfig $config, UserService $userService, AppService $appService, Session $userSession, LoggingService $loggingService)
+    public function __construct($appName, IRequest $request, IConfig $config, UserService $userService, AppService $appService, IUserSession $userSession, LoggingService $loggingService)
     {
         $this->appName = $appName;
         $this->config = $config;

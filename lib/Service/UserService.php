@@ -23,11 +23,12 @@
 
 namespace OCA\UserCAS\Service;
 
-use OCA\UserCAS\User\Backend;
 use \OCP\IConfig;
 use \OCP\IUserManager;
 use \OCP\IGroupManager;
 use \OCP\IUserSession;
+
+use OCA\UserCAS\User\Backend;
 
 /**
  * Class UserService
@@ -78,7 +79,7 @@ class UserService
     private $backend;
 
     /**
-     * @var LoggingService $loggingService
+     * @var \OCA\UserCAS\Service\LoggingService $loggingService
      */
     private $loggingService;
 
@@ -168,6 +169,7 @@ class UserService
     /**
      * @param string $userId
      * @return boolean|\OCP\IUser the created user or false
+     * @throws \Exception
      */
     public function create($userId)
     {

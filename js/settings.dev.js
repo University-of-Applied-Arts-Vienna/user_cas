@@ -44,7 +44,7 @@ $(document).ready(function () {
             data: postData,
             success: function (data) {
 
-                var notification = OC.Notification.show("CAS settings have been successfully saved.");
+                var notification = OC.Notification.show(data.message);
 
                 setTimeout(function () {
                     OC.Notification.hide(notification);
@@ -53,7 +53,7 @@ $(document).ready(function () {
             },
             error: function (data) {
 
-                var notification = OC.Notification.show("CAS settings have not been saved.");
+                var notification = OC.Notification.show(data.message);
 
                 setTimeout(function () {
                     OC.Notification.hide(notification);

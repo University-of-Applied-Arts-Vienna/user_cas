@@ -23,7 +23,7 @@
 
 namespace OCA\UserCAS\User;
 
-use \OC\User\Manager;
+use \OCP\IUserManager;
 use OCA\UserCAS\Service\LoggingService;
 
 
@@ -41,7 +41,7 @@ class Backend extends \OC\User\Backend implements \OCP\IUserBackend
 {
 
     /**
-     * @var \OC\User\Manager $userManager
+     * @var \OCP\IUserManager $userManager
      */
     private $userManager;
 
@@ -53,10 +53,10 @@ class Backend extends \OC\User\Backend implements \OCP\IUserBackend
 
     /**
      * Backend constructor.
-     * @param Manager $userManager
+     * @param IUserManager $userManager
      * @param LoggingService $loggingService
      */
-    public function __construct(Manager $userManager, LoggingService $loggingService)
+    public function __construct(IUserManager $userManager, LoggingService $loggingService)
     {
 
         $this->userManager = $userManager;

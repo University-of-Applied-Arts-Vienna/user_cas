@@ -23,7 +23,6 @@
 
 namespace OCA\UserCAS\AppInfo;
 
-use OCA\UserCAS\Service\LoggingService;
 use \OCP\AppFramework\App;
 use \OCP\IContainer;
 
@@ -33,6 +32,7 @@ use OCA\UserCAS\Hooks\UserHooks;
 use OCA\UserCAS\Controller\SettingsController;
 use OCA\UserCAS\Controller\AuthenticationController;
 use OCA\UserCAS\User\Backend;
+use OCA\UserCAS\Service\LoggingService;
 
 /**
  * Class Application

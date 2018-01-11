@@ -22,7 +22,6 @@
 
 namespace OCA\UserCAS\Panels;
 
-use OC\Settings\Panels\Helper;
 use OCP\Settings\ISettings;
 use OCP\Template;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -68,7 +67,7 @@ class Admin implements ISettings
      */
     public function getSectionID()
     {
-        return 'general';
+        return 'authentication';
     }
 
     /**
@@ -99,9 +98,6 @@ class Admin implements ISettings
     public function getPanel()
     {
 
-        #\OCP\Util::addscript('user_cas', 'settings');
-        #\OCP\Util::addStyle('user_cas', 'settings');
-
         $tmpl = new Template('user_cas', 'admin');
 
         foreach ($this->params as $param) {
@@ -121,7 +117,8 @@ class Admin implements ISettings
      *
      * @since 1.5.0
      */
-    public function getForm() {
+    public function getForm()
+    {
 
         $parameters = array();
 

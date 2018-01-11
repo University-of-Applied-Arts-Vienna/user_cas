@@ -86,7 +86,6 @@ class SettingsController extends Controller
      * @param $cas_server_hostname
      * @param $cas_server_port
      * @param $cas_server_path
-     * @param $cas_update_user_data
      * @param $cas_protected_groups
      * @param $cas_default_group
      * @param $cas_email_mapping
@@ -138,13 +137,13 @@ class SettingsController extends Controller
 
             return array(
                 'code' => 200,
-                'message' => 'Your settings have been updated.'
+                'message' => $this->l10n->t('Your CAS settings have been updated.')
             );
         } catch (\Exception $e) {
 
             return array(
                 'code' => 500,
-                'message' => 'Your settings could not be updated. Please try again.'
+                'message' => $this->l10n->t('Your CAS settings could not be updated. Please try again.')
             );
         }
     }

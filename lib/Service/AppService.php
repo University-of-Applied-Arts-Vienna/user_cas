@@ -24,10 +24,9 @@
 namespace OCA\UserCAS\Service;
 
 use \OCP\IConfig;
-use \OC\User\Session;
-use \OC\User\Manager;
+use \OCP\IUserSession;
+use \OCP\IUserManager;
 use \OCP\IURLGenerator;
-use OCA\UserCAS\Service\LoggingService;
 
 /**
  * Class UserService
@@ -53,17 +52,17 @@ class AppService
     private $config;
 
     /**
-     * @var OCA\UserCAS\Service\LoggingService
+     * @var \OCA\UserCAS\Service\LoggingService
      */
     private $loggingService;
 
     /**
-     * @var \OC\User\Manager $userManager
+     * @var \OCP\IUserManager $userManager
      */
     private $userManager;
 
     /**
-     * @var \OC\User\Session $userSession
+     * @var \OCP\IUserSession $userSession
      */
     private $userSession;
 
@@ -132,11 +131,11 @@ class AppService
      * @param $appName
      * @param \OCP\IConfig $config
      * @param \OCA\UserCAS\Service\LoggingService $loggingService
-     * @param \OC\User\Manager $userManager
-     * @param \OC\User\Session $userSession
+     * @param \OCP\IUserManager $userManager
+     * @param \OCP\IUserSession $userSession
      * @param \OCP\IURLGenerator $urlGenerator
      */
-    public function __construct($appName, IConfig $config, LoggingService $loggingService, Manager $userManager, Session $userSession, IURLGenerator $urlGenerator)
+    public function __construct($appName, IConfig $config, LoggingService $loggingService, IUserManager $userManager, IUserSession $userSession, IURLGenerator $urlGenerator)
     {
 
         $this->appName = $appName;
@@ -306,7 +305,7 @@ class AppService
             }
             else {
 
-                $loginAlternatives[] = ['href' => $this->linkToRoute($this->appName . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login'];
+                $loginAlternatives[] = ['href' => $this->linkToRoute($this->appName . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login', 'img' => './apps/user_cas/img/logo.png'];
 
                 $this->config->setSystemValue('login.alternatives', $loginAlternatives);
             }
@@ -500,7 +499,7 @@ class AppService
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getCasHandleLogoutServers()
     {
