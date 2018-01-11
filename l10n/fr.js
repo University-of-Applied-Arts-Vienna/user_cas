@@ -25,6 +25,8 @@ OC.L10N.register(
     "Group" : "Groupe",
     "Optional: Overwrite phpCAS path (CAS.php file) if you want to use your own version. Leave blank to use the shipped version." : "Optionnel: Chemin PHP CAS (fichier CAS.php). Laissez vide pour utiliser la version expédiée.",
     "PHP CAS debug file" : "Chemin du fichier de debug de PHP CAS",
-    "Save" : "Enregistrer"
+    "Save" : "Enregistrer",
+    "Your CAS settings have been updated.": "Vos paramètres CAS ont été mis à jour.",
+    "Your CAS settings could not be updated. Please try again.": "Vos paramètres CAS n'ont pas pu être mis à jour. Veuillez réessayer."
 },
 "nplurals=2; plural=(n != 1);");

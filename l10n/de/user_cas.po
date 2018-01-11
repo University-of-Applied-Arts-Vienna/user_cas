@@ -133,3 +133,11 @@ msgstr "PHP CAS debug Datei"
 #: templates/admin.php:118
 msgid "Save"
 msgstr "Speichern"
+
+#: lib/Controller/SettingsController.php:140
+msgid "Your CAS settings have been updated."
+msgstr "Ihre CAS Einstellungen wurden gespeichert."
+
+#: lib/Controller/SettingsController.php:146
+msgid "Your CAS settings could not be updated. Please try again."
+msgstr "Ihre CAS Einstellungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut."

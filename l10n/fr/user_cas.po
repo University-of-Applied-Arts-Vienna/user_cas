@@ -135,3 +135,11 @@ msgstr "Chemin du fichier de debug de PHP CAS"
 #: templates/admin.php:118
 msgid "Save"
 msgstr "Enregistrer"
+
+#: lib/Controller/SettingsController.php:140
+msgid "Your CAS settings have been updated."
+msgstr "Vos paramètres CAS ont été mis à jour."
+
+#: lib/Controller/SettingsController.php:146
+msgid "Your CAS settings could not be updated. Please try again."
+msgstr "Vos paramètres CAS n'ont pas pu être mis à jour. Veuillez réessayer."

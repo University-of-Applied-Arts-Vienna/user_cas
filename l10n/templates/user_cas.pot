@@ -126,3 +126,11 @@ msgstr ""
 #: templates/admin.php:118
 msgid "Save"
 msgstr ""
+
+#: lib/Controller/SettingsController.php:140
+msgid "Your CAS settings have been updated."
+msgstr ""
+
+#: lib/Controller/SettingsController.php:146
+msgid "Your CAS settings could not be updated. Please try again."
+msgstr ""
