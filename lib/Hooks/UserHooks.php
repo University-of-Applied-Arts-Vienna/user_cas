@@ -23,6 +23,7 @@
 
 namespace OCA\UserCAS\Hooks;
 
+use OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException;
 use \OCP\IUserManager;
 use \OCP\IUserSession;
 use \OCP\IConfig;
@@ -119,11 +120,24 @@ class UserHooks
      * @param $uid
      * @param $password
      * @return bool
+     * @throws \Exception
      */
     public function preLogin($uid, $password)
     {
 
-        if (!$this->appService->isCasInitialized()) $this->appService->init();
+        if (!$this->appService->isCasInitialized()) {
+
+            try {
+
+                $this->appService->init();
+            } catch (PhpUserCasLibraryNotFoundException $e) {
+
+                $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: '.$e->getCode().' and message: '.$e->getMessage());
+
+                header("Location: " . $this->appService->getAbsoluteURL('/'));
+                die();
+            }
+        };
 
         if (\phpCAS::isAuthenticated() && !$this->userSession->isLoggedIn()) {
 
@@ -190,7 +204,19 @@ class UserHooks
     public function postLogin(\OCP\IUser $user, $password)
     {
 
-        if (!$this->appService->isCasInitialized()) $this->appService->init();
+        if (!$this->appService->isCasInitialized()) {
+
+            try {
+
+                $this->appService->init();
+            } catch (PhpUserCasLibraryNotFoundException $e) {
+
+                $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: '.$e->getCode().' and message: '.$e->getMessage());
+
+                header("Location: " . $this->appService->getAbsoluteURL('/'));
+                die();
+            }
+        };
 
         $uid = $user->getUID();
 
@@ -212,6 +238,8 @@ class UserHooks
                     $casAttributesString = '';
                     foreach ($casAttributes as $key => $attribute) {
 
+                        if(is_array($attribute)) $attribute = implode(", ", $attribute);
+
                         $casAttributesString .= $key . ': ' . $attribute . '; ';
                     }
 
@@ -225,8 +253,7 @@ class UserHooks
                     if (array_key_exists($displayNameMapping, $casAttributes)) {
 
                         $attributes['cas_name'] = $casAttributes[$displayNameMapping];
-                    }
-                    else if (array_key_exists('displayName', $casAttributes)) {
+                    } else if (array_key_exists('displayName', $casAttributes)) {
 
                         $attributes['cas_name'] = $casAttributes['displayName'];
                     }
@@ -235,8 +262,7 @@ class UserHooks
                     if (array_key_exists($mailMapping, $casAttributes)) {
 
                         $attributes['cas_email'] = $casAttributes[$mailMapping];
-                    }
-                    else if (array_key_exists('mail', $casAttributes)) {
+                    } else if (array_key_exists('mail', $casAttributes)) {
 
                         $attributes['cas_email'] = $casAttributes['mail'];
                     }
@@ -249,13 +275,11 @@ class UserHooks
                     if (array_key_exists($groupMapping, $casAttributes)) {
 
                         $attributes['cas_groups'] = $casAttributes[$groupMapping];
-                    }
-                    # Test for standard 'groups' attribute
+                    } # Test for standard 'groups' attribute
                     else if (array_key_exists('groups', $casAttributes)) {
 
                         $attributes['cas_groups'] = $casAttributes['groups'];
-                    }
-                    else if (is_string($defaultGroup) && strlen($defaultGroup) > 0) {
+                    } else if (is_string($defaultGroup) && strlen($defaultGroup) > 0) {
 
                         $attributes['cas_groups'] = array($defaultGroup);
 
@@ -287,7 +311,19 @@ class UserHooks
     public function postLogout()
     {
 
-        if (!$this->appService->isCasInitialized()) $this->appService->init();
+        if (!$this->appService->isCasInitialized()) {
+
+            try {
+
+                $this->appService->init();
+            } catch (PhpUserCasLibraryNotFoundException $e) {
+
+                $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: '.$e->getCode().' and message: '.$e->getMessage());
+
+                header("Location: " . $this->appService->getAbsoluteURL('/'));
+                die();
+            }
+        };
 
         $this->loggingService->write(\OCP\Util::DEBUG, 'Logout hook triggered.');
         #\OCP\Util::writeLog('cas', 'Logout hook triggered.', \OCP\Util::DEBUG);

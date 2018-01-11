@@ -22,6 +22,7 @@
 
 namespace OCA\UserCAS\Controller;
 
+
 use \OCP\IRequest;
 use \OCP\AppFramework\Http\RedirectResponse;
 use \OCP\AppFramework\Controller;
@@ -31,6 +32,7 @@ use \OCP\IUserSession;
 use OCA\UserCAS\Service\AppService;
 use OCA\UserCAS\Service\UserService;
 use OCA\UserCAS\Service\LoggingService;
+use OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException;
 
 
 /**
@@ -121,7 +123,19 @@ class AuthenticationController extends Controller
 
         if (!$this->userService->isLoggedIn()) {
 
-            if (!$this->appService->isCasInitialized()) $this->appService->init();
+            if (!$this->appService->isCasInitialized()) {
+
+                try {
+                    $this->appService->init();
+                }
+                catch(PhpUserCasLibraryNotFoundException $e) {
+
+                    $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: '.$e->getCode().' and message: '.$e->getMessage());
+
+                    header("Location: " . $this->appService->getAbsoluteURL('/'));
+                    die();
+                }
+            }
 
             try {
 

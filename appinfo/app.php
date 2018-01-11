@@ -52,8 +52,10 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI && $enable) {
 
         $appService = $c->query('AppService');
         $userService = $c->query('UserService');
+        $loggingService = $c->query("LoggingService");
 
         // Register User Backend
+        // CAS is initialized here, through registerBackend() call
         $userService->registerBackend();
 
         // Register UserHooks
@@ -79,14 +81,26 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI && $enable) {
                 $urlParams .= "?cas_enforce_authentication=1";
             }
 
-            \OCP\Util::writeLog('cas', 'Enforce Authentication was: ' . $appService->isEnforceAuthentication(), \OCP\Util::DEBUG);
+            $loggingService->write(\OCP\Util::DEBUG, 'Enforce Authentication was: ' . $appService->isEnforceAuthentication());
 
             // Initialize app
-            if (!$appService->isCasInitialized()) $appService->init();
+            if (!$appService->isCasInitialized()) {
+
+                try {
+                    $appService->init();
+                }
+                catch(\OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException $e) {
+
+                    $loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: '.$e->getCode().' and message: '.$e->getMessage());
+
+                    header("Location: " . $appService->getAbsoluteURL('/'));
+                    die();
+                }
+            }
 
             if (!\phpCAS::isAuthenticated()) {
 
-                \OCP\Util::writeLog('cas', 'Enforce Authentication was on and phpCAS is not authenticated. Redirecting to CAS Server.', \OCP\Util::DEBUG);
+                $loggingService->write(\OCP\Util::DEBUG, 'Enforce Authentication was on and phpCAS is not authenticated. Redirecting to CAS Server.');
 
                 header("Location: " . $appService->linkToRouteAbsolute($c->getAppName() . '.authentication.casLogin') . $urlParams);
                 die();

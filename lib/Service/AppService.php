@@ -23,6 +23,7 @@
 
 namespace OCA\UserCAS\Service;
 
+use OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException;
 use \OCP\IConfig;
 use \OCP\IUserSession;
 use \OCP\IUserManager;
@@ -150,6 +151,7 @@ class AppService
 
     /**
      * init method.
+     * @throws PhpUserCasLibraryNotFoundException
      */
     public function init()
     {
@@ -168,7 +170,7 @@ class AppService
         $logoutServersArray = explode(",", $this->config->getAppValue('user_cas', 'cas_handlelogout_servers', ''));
         $this->casHandleLogoutServers = array();
 
-        foreach($logoutServersArray as $casHandleLogoutServer) {
+        foreach ($logoutServersArray as $casHandleLogoutServer) {
 
             $this->casHandleLogoutServers[] = ltrim(trim($casHandleLogoutServer));
         }
@@ -181,16 +183,30 @@ class AppService
             $this->loggingService->write(\OCP\Util::DEBUG, 'Use custom phpCAS file:: ' . $this->casPhpFile);
             #\OCP\Util::writeLog('cas', 'Use custom phpCAS file:: ' . $this->casPhpFile, \OCP\Util::DEBUG);
 
-            require_once("$this->casPhpFile");
+            if (is_file($this->casPhpFile)) {
+
+                require_once("$this->casPhpFile");
+            } else {
+
+                throw new PhpUserCasLibraryNotFoundException('Your custom phpCAS library could not be loaded. The class was not found. Please disable the app with ./occ command or in Database and adjust the path to your library (or remove it to use the shipped library).', 500);
+            }
+
         } else {
 
-            require_once(__DIR__ . '/../../vendor/jasig/phpcas/CAS.php');
+            if (is_file(__DIR__ . '/../../vendor/jasig/phpcas/CAS.php')) {
+
+                require_once(__DIR__ . '/../../vendor/jasig/phpcas/CAS.php');
+            } else {
+
+                throw new PhpUserCasLibraryNotFoundException('phpCAS library could not be loaded. The class was not found.', 500);
+            }
         }
 
         if (!class_exists('\\phpCAS')) {
 
             $this->loggingService->write(\OCP\Util::ERROR, 'phpCAS library could not be loaded. The class was not found.');
-            #\OCP\Util::writeLog('cas', 'phpCAS library could not be loaded. The class was not found.', \OCP\Util::ERROR);
+
+            throw new PhpUserCasLibraryNotFoundException('phpCAS library could not be loaded. The class was not found.', 500);
         }
 
         if (!\phpCAS::isInitialized()) {
@@ -302,10 +318,9 @@ class AppService
 
                 $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Nextcloud detected.");
                 \OC_App::registerLogIn(array('href' => $this->linkToRoute($this->appName . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login'));
-            }
-            else {
+            } else {
 
-                $loginAlternatives[] = ['href' => $this->linkToRoute($this->appName . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login', 'img' => './apps/user_cas/img/logo.png'];
+                $loginAlternatives[] = ['href' => $this->linkToRoute($this->appName . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login', 'img' => '/apps/user_cas/img/cas-logo.png'];
 
                 $this->config->setSystemValue('login.alternatives', $loginAlternatives);
             }
