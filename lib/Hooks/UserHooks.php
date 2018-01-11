@@ -23,8 +23,8 @@
 
 namespace OCA\UserCAS\Hooks;
 
-use \OC\User\Manager;
-use \OC\User\Session;
+use \OCP\IUserManager;
+use \OCP\IUserSession;
 use \OCP\IConfig;
 
 use OCA\UserCAS\Service\LoggingService;
@@ -50,12 +50,12 @@ class UserHooks
     private $appName;
 
     /**
-     * @var \OC\User\Manager $userManager
+     * @var \OCP\IUserManager $userManager
      */
     private $userManager;
 
     /**
-     * @var \OC\User\Session $userSession
+     * @var \OCP\IUserSession $userSession
      */
     private $userSession;
 
@@ -84,14 +84,14 @@ class UserHooks
      * UserHooks constructor.
      *
      * @param string $appName
-     * @param \OC\User\Manager $userManager
-     * @param \OC\User\Session $userSession
+     * @param \OCP\IUserManager $userManager
+     * @param \OCP\IUserSession $userSession
      * @param \OCP\IConfig $config
      * @param \OCA\UserCAS\Service\UserService $userService
      * @param \OCA\UserCAS\Service\AppService $appService
      * @param \OCA\UserCAS\Service\LoggingService $loggingService
      */
-    public function __construct($appName, Manager $userManager, Session $userSession, IConfig $config, UserService $userService, AppService $appService, LoggingService $loggingService)
+    public function __construct($appName, IUserManager $userManager, IUserSession $userSession, IConfig $config, UserService $userService, AppService $appService, LoggingService $loggingService)
     {
         $this->appName = $appName;
         $this->userManager = $userManager;
@@ -209,44 +209,53 @@ class UserHooks
 
                     $casAttributes = \phpCAS::getAttributes();
 
-                    /*$casAttributesString = '';
+                    $casAttributesString = '';
                     foreach ($casAttributes as $key => $attribute) {
 
                         $casAttributesString .= $key . ': ' . $attribute . '; ';
-                    }*/
+                    }
 
                     // parameters
                     $attributes = array();
 
-                    #\OCP\Util::writeLog('cas', 'Attributes for the user: ' . $uid . ' => ' . $casAttributesString, \OCP\Util::DEBUG);
+                    \OCP\Util::writeLog('cas', 'Attributes for the user: ' . $uid . ' => ' . $casAttributesString, \OCP\Util::DEBUG);
 
 
                     $displayNameMapping = $this->config->getAppValue($this->appName, 'cas_displayName_mapping');
                     if (array_key_exists($displayNameMapping, $casAttributes)) {
 
                         $attributes['cas_name'] = $casAttributes[$displayNameMapping];
-                    } else {
+                    }
+                    else if (array_key_exists('displayName', $casAttributes)) {
 
-                        if (isset($casAttributes['displayName'])) $attributes['cas_name'] = $casAttributes['displayName'];
+                        $attributes['cas_name'] = $casAttributes['displayName'];
                     }
 
                     $mailMapping = $this->config->getAppValue($this->appName, 'cas_email_mapping');
                     if (array_key_exists($mailMapping, $casAttributes)) {
 
                         $attributes['cas_email'] = $casAttributes[$mailMapping];
-                    } else {
+                    }
+                    else if (array_key_exists('mail', $casAttributes)) {
 
-                        if (isset($casAttributes['mail'])) $attributes['cas_email'] = $casAttributes['mail'];
+                        $attributes['cas_email'] = $casAttributes['mail'];
                     }
 
 
                     // Group handling
                     $groupMapping = $this->config->getAppValue($this->appName, 'cas_group_mapping');
                     $defaultGroup = $this->config->getAppValue($this->appName, 'cas_default_group');
+                    # Test for mapped attribute from settings
                     if (array_key_exists($groupMapping, $casAttributes)) {
 
                         $attributes['cas_groups'] = $casAttributes[$groupMapping];
-                    } else if (is_string($defaultGroup) && strlen($defaultGroup) > 0) {
+                    }
+                    # Test for standard 'groups' attribute
+                    else if (array_key_exists('groups', $casAttributes)) {
+
+                        $attributes['cas_groups'] = $casAttributes['groups'];
+                    }
+                    else if (is_string($defaultGroup) && strlen($defaultGroup) > 0) {
 
                         $attributes['cas_groups'] = array($defaultGroup);
 
