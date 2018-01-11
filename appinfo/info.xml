@@ -12,7 +12,7 @@
         <authentication/>
     </types>
 
-    <category>tool</category>
+    <category>security</category>
 
     <website>https://github.com/felixrupp/user_cas</website>
 
