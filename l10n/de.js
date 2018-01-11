@@ -5,7 +5,7 @@ OC.L10N.register(
     "CAS Server" : "CAS Server",
     "Basic" : "Grundeinstellungen",
     "Mapping" : "Zuordnungen",
-    "PHP-CAS Library" : "PHP-CAS Bibliothek",
+    "phpCAS Library" : "phpCAS Bibliothek",
     "CAS Server Version" : "CAS Server Version",
     "CAS Server Hostname" : "CAS Server Hostname",
     "CAS Server Port" : "CAS Server Port",

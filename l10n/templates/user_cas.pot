@@ -34,7 +34,7 @@ msgid "Mapping"
 msgstr ""
 
 #: templates/admin.php:14
-msgid "PHP-CAS Library"
+msgid "phpCAS Library"
 msgstr ""
 
 #: templates/admin.php:18

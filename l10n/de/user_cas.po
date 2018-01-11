@@ -33,8 +33,8 @@ msgid "Mapping"
 msgstr "Zuordnungen"
 
 #: templates/admin.php:14
-msgid "PHP-CAS Library"
-msgstr "PHP-CAS Bibliothek"
+msgid "phpCAS Library"
+msgstr "phpCAS Bibliothek"
 
 #: templates/admin.php:18
 msgid "CAS Server Version"
