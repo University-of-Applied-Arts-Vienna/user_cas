@@ -54,6 +54,20 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI && $enable) {
         $userService = $c->query('UserService');
         $loggingService = $c->query("LoggingService");
 
+        // Initialize app
+        if (!$appService->isCasInitialized()) {
+
+            try {
+                $appService->init();
+            } catch (\OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException $e) {
+
+                $loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: ' . $e->getCode() . ' and message: ' . $e->getMessage());
+
+                header("Location: " . $appService->getAbsoluteURL('/'));
+                die();
+            }
+        }
+
         // Register User Backend
         // CAS is initialized here, through registerBackend() call
         $userService->registerBackend();
@@ -82,21 +96,6 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI && $enable) {
             }
 
             $loggingService->write(\OCP\Util::DEBUG, 'Enforce Authentication was: ' . $appService->isEnforceAuthentication());
-
-            // Initialize app
-            if (!$appService->isCasInitialized()) {
-
-                try {
-                    $appService->init();
-                }
-                catch(\OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException $e) {
-
-                    $loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: '.$e->getCode().' and message: '.$e->getMessage());
-
-                    header("Location: " . $appService->getAbsoluteURL('/'));
-                    die();
-                }
-            }
 
             if (!\phpCAS::isAuthenticated()) {
 
