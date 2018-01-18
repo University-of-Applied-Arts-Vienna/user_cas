@@ -128,6 +128,11 @@ class AppService
     private $casInitialized;
 
     /**
+     * @var boolean
+     */
+    private $ecasAttributeParserEnabled;
+
+    /**
      * UserService constructor.
      * @param $appName
      * @param \OCP\IConfig $config
@@ -169,6 +174,9 @@ class AppService
         $this->casDisableLogout = boolval($this->config->getAppValue($this->appName, 'cas_disable_logout', false));
         $logoutServersArray = explode(",", $this->config->getAppValue('user_cas', 'cas_handlelogout_servers', ''));
         $this->casHandleLogoutServers = array();
+
+        $this->ecasAttributeParserEnabled = boolval($this->config->getAppValue('user_cas', 'cas_ecas_attributeparserenabled', false));
+
 
         foreach ($logoutServersArray as $casHandleLogoutServer) {
 
@@ -244,6 +252,25 @@ class AppService
                 } else {
 
                     \phpCAS::setNoCasServerValidation();
+                }
+
+                # Handle ECAS Attributes if enabled
+                if ($this->ecasAttributeParserEnabled) {
+
+                    if (is_file(__DIR__ . '/../../vendor/ec-europa/ecas-phpcas-parser/src/EcasPhpCASParser.php')) {
+
+                        require_once(__DIR__ . '/../../vendor/ec-europa/ecas-phpcas-parser/src/EcasPhpCASParser.php');
+                    } else {
+
+                        $this->loggingService->write(\OCP\Util::ERROR, 'phpCAS EcasPhpCASParser library could not be loaded. The class was not found.');
+
+                        throw new PhpUserCasLibraryNotFoundException('phpCAS EcasPhpCASParser could not be loaded. The class was not found.', 500);
+                    }
+
+                    # Register the parser
+                    \phpCAS::setCasAttributeParserCallback('\EcasPhpCASParser\EcasPhpCASParser::parse');
+                    $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS EcasPhpCASParser has been successfully set.");
+
                 }
 
                 $this->casInitialized = TRUE;

@@ -87,11 +87,16 @@ style('user_cas', 'settings');
                         for="cas_protected_groups"><?php p($l->t('Groups that will not be unlinked from the user when sync the CAS server and the owncloud')); ?></label><input
                         id="cas_protected_groups" name="cas_protected_groups"
                         value="<?php p($_['cas_protected_groups']); ?>"
-                        original-title="<?php p($l->t('Multivalued field, use comma to separate values')); ?>"/></p>
+                        title="<?php p($l->t('Multivalued field, use comma to separate values')); ?>"/></p>
             <p><label
                         for="cas_default_group"><?php p($l->t('Default group when autocreating users and no group data was found for the user')); ?></label><input
                         id="cas_default_group" name="cas_default_group"
                         value="<?php p($_['cas_default_group']); ?>"></p>
+            <p><input type="checkbox" id="cas_ecas_attributeparserenabled"
+                      name="cas_ecas_attributeparserenabled" <?php print_unescaped((($_['cas_ecas_attributeparserenabled'] === 'true' || $_['cas_ecas_attributeparserenabled'] === 'on' || $_['cas_ecas_attributeparserenabled'] === '1') ? 'checked="checked"' : '')); ?>>
+                <label class='checkbox'
+                       for="cas_ecas_attributeparserenabled"><?php p($l->t('Use ECAS Attribute Parser?')); ?></label>
+            </p>
             <input type="hidden" value="<?php p($_['requesttoken']); ?>" name="requesttoken"/>
         </fieldset>
         <fieldset id="casSettings-3">
