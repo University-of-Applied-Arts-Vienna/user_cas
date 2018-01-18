@@ -2,7 +2,7 @@
   "name": "felixrupp/user_cas",
   "description": "This is the package for Ownclouds 3rd Party App user_cas",
   "minimum-stability": "stable",
-  "license": "AGPL",
+  "license": "AGPL-3.0-or-later",
   "authors": [
     {
       "name": "Felix Rupp",
