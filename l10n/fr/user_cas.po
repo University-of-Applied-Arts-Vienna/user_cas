@@ -108,6 +108,10 @@ msgstr ""
 "Groupe par défaut lors de la création automatique des utilisateurs quand "
 "aucun groupe n'est trouvé pour l'utilisateur"
 
+#: templates/admin.php:85
+msgid "Use ECAS Attribute Parser?"
+msgstr "Utiliser ECAS Attribute Parser?"
+
 #: templates/admin.php:89
 msgid "Email"
 msgstr "Email"

@@ -20,6 +20,7 @@ OC.L10N.register(
     "Groups that will not be unlinked from the user when sync the CAS server and the owncloud" : "Groupes de l'utilisateur qui seront pas supprimés lors de la synchronisation entre le serveur CAS et Owncloud",
     "Multivalued field, use comma to separate values" : "Champ multivalué, utilisez des virgules pour séparer les valeurs",
     "Default group when autocreating users and no group data was found for the user" : "Groupe par défaut lors de la création automatique des utilisateurs quand aucun groupe n'est trouvé pour l'utilisateur",
+    "Use ECAS Attribute Parser?": "Utiliser ECAS Attribute Parser?",
     "Email" : "Email",
     "Display Name" : "Nom affiché",
     "Group" : "Groupe",

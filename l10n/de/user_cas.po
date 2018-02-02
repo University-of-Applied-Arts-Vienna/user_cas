@@ -105,6 +105,10 @@ msgstr ""
 "Standardgruppe, die beim automatischen Neuerstellen von Benutzern vergeben "
 "wird"
 
+#: templates/admin.php:85
+msgid "Use ECAS Attribute Parser?"
+msgstr "ECAS Attribute Parser verwenden?"
+
 #: templates/admin.php:89
 msgid "Email"
 msgstr "E-Mail"

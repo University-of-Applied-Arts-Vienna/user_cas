@@ -101,6 +101,10 @@ msgid ""
 "user"
 msgstr ""
 
+#: templates/admin.php:85
+msgid "Use ECAS Attribute Parser?"
+msgstr ""
+
 #: templates/admin.php:89
 msgid "Email"
 msgstr ""
