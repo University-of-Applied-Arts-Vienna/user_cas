@@ -132,7 +132,7 @@ class UserHooks
                 $this->appService->init();
             } catch (PhpUserCasLibraryNotFoundException $e) {
 
-                $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: '.$e->getCode().' and message: '.$e->getMessage());
+                $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: ' . $e->getCode() . ' and message: ' . $e->getMessage());
 
                 header("Location: " . $this->appService->getAbsoluteURL('/'));
                 die();
@@ -211,7 +211,7 @@ class UserHooks
                 $this->appService->init();
             } catch (PhpUserCasLibraryNotFoundException $e) {
 
-                $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: '.$e->getCode().' and message: '.$e->getMessage());
+                $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: ' . $e->getCode() . ' and message: ' . $e->getMessage());
 
                 header("Location: " . $this->appService->getAbsoluteURL('/'));
                 die();
@@ -238,9 +238,9 @@ class UserHooks
                     $casAttributesString = '';
                     foreach ($casAttributes as $key => $attribute) {
 
-                        if(is_array($attribute)) $attribute = implode(", ", $attribute);
+                        $attributeString = $this->convertArrayAttributeValuesForDebug($attribute);
 
-                        $casAttributesString .= $key . ': ' . $attribute . '; ';
+                        $casAttributesString .= $key . ': ' . $attributeString . '; ';
                     }
 
                     // parameters
@@ -318,7 +318,7 @@ class UserHooks
                 $this->appService->init();
             } catch (PhpUserCasLibraryNotFoundException $e) {
 
-                $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: '.$e->getCode().' and message: '.$e->getMessage());
+                $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: ' . $e->getCode() . ' and message: ' . $e->getMessage());
 
                 header("Location: " . $this->appService->getAbsoluteURL('/'));
                 die();
@@ -341,5 +341,35 @@ class UserHooks
         }
 
         return TRUE;
+    }
+
+
+    /**
+     * Convert CAS Attribute values for debug reasons
+     *
+     * @param $attributes
+     * @return string
+     */
+    private function convertArrayAttributeValuesForDebug($attributes)
+    {
+
+        if (is_array($attributes)) {
+            $stringValue = '';
+
+            foreach ($attributes as $attribute) {
+
+                if (is_array($attribute)) {
+
+                    $stringValue .= $this->convertArrayAttributeValuesForDebug($attribute);
+                } else {
+
+                    $stringValue .= $attribute . ", ";
+                }
+            }
+
+            return $stringValue;
+        }
+
+        return $attributes;
     }
 }
