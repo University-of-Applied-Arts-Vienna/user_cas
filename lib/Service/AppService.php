@@ -273,6 +273,34 @@ class AppService
 
                 }
 
+                # Add ECAS Querystring Parameters
+                #if (is_string($this->ecasQueryStringStrength) && strlen($this->ecasQueryStringStrength) > 0) {
+
+                    # Register the new url
+
+                    $newProtocol = 'http://';
+
+                    if(is_string($this->getCasPort()) && strlen($this->getCasPort())>0 && $this->getCasPort() === "443") {
+
+                        $newProtocol = 'https://';
+                    }
+
+                    $newUrl = $newProtocol.$this->getCasHostname() . $this->getCasPath() . "/login";
+
+                    if (!empty($this->casServiceUrl)) {
+
+                        $newUrl = $this->buildQueryUrl($newUrl, 'service=' . urlencode($this->casServiceUrl));
+                    } else {
+
+                        $newUrl = $this->buildQueryUrl($newUrl, 'service=' . urlencode(\phpCAS::getServiceURL()));
+                    }
+
+                    $newUrl = $this->buildQueryUrl($newUrl, 'acceptedStrengths=' . urlencode('BASIC'));
+
+                    \phpCAS::setServerLoginURL($newUrl);
+                    $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS strength attribute has been successfully set. New URL: " . $newUrl);
+                #}
+
                 $this->casInitialized = TRUE;
 
                 $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS has been successfully initialized.");
@@ -570,5 +598,23 @@ class AppService
     public function setCasServiceUrl($casServiceUrl)
     {
         $this->casServiceUrl = $casServiceUrl;
+    }
+
+
+    /**
+     * This method is used to append query parameters to an url. Since the url
+     * might already contain parameter it has to be detected and to build a proper
+     * URL
+     *
+     * @param string $url base url to add the query params to
+     * @param string $query params in query form with & separated
+     *
+     * @return url with query params
+     */
+    private function buildQueryUrl($url, $query)
+    {
+        $url .= (strstr($url, '?') === false) ? '?' : '&';
+        $url .= $query;
+        return $url;
     }
 }
