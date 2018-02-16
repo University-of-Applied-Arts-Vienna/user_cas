@@ -175,7 +175,7 @@ class UserService
     public function create($userId)
     {
 
-        $randomPassword = \OC::$server->getSecureRandom()->getMediumStrengthGenerator()->generate(20);
+        $randomPassword = \OC::$server->getSecureRandom()->generate(20);
 
         return $this->userManager->createUser($userId, $randomPassword);
     }
