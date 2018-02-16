@@ -328,17 +328,16 @@ class AppService
                 $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'groups=' . urlencode('*'));
 
                 # Set the new URLs
-                if($this->getCasVersion() != "S1") {
+                if($this->getCasVersion() != "S1" && !empty($newUrl)) {
 
                     \phpCAS::setServerServiceValidateURL($newUrl);
                     $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS groups attribute has been successfully set. New CAS ".$this->getCasVersion()." service validate URL: " . $newUrl);
 
                 }
-                elseif ($this->getCasVersion() === "S1") {
+                elseif ($this->getCasVersion() === "S1" && !empty($newSamlUrl)) {
 
                      \phpCAS::setServerSamlValidateURL($newSamlUrl);
                      $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS groups attribute has been successfully set. New SAML 1.0 service validate URL: " . $newSamlUrl);
-
                 }
 
 
