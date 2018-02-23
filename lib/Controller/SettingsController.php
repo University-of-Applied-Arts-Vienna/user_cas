@@ -89,6 +89,9 @@ class SettingsController extends Controller
      * @param string $cas_php_cas_path
      * @param string $cas_service_url
      * @param string $cas_handlelogout_servers
+     * @param string $cas_access_allow_groups
+     * @param string $cas_ecas_accepted_strengths
+     * @param string $cas_ecas_retrieve_groups
      * @param string|null $cas_ecas_attributeparserenabled
      * @param string|null $cas_force_login
      * @param string|null $cas_autocreate
@@ -99,6 +102,7 @@ class SettingsController extends Controller
      */
     public function saveSettings($cas_server_version, $cas_server_hostname, $cas_server_port, $cas_server_path, $cas_protected_groups, $cas_default_group,
                                  $cas_email_mapping, $cas_displayName_mapping, $cas_group_mapping, $cas_cert_path, $cas_debug_file, $cas_php_cas_path, $cas_service_url, $cas_handlelogout_servers,
+                                 $cas_access_allow_groups, $cas_ecas_accepted_strengths, $cas_ecas_retrieve_groups,
                                  $cas_ecas_attributeparserenabled = NULL, $cas_force_login = NULL, $cas_autocreate = NULL, $cas_update_user_data = NULL, $cas_link_to_ldap_backend = NULL, $cas_disable_logout = NULL)
     {
 
@@ -106,22 +110,28 @@ class SettingsController extends Controller
 
             $this->config->setAppValue($this->appName, 'cas_server_version', $cas_server_version);
             $this->config->setAppValue($this->appName, 'cas_server_hostname', $cas_server_hostname);
-            $this->config->setAppValue($this->appName, 'cas_server_port', $cas_server_port);
-            $this->config->setAppValue($this->appName, 'cas_server_path', $cas_server_path);
+            $this->config->setAppValue($this->appName, 'cas_server_port', $cas_server_port, '443');
+            $this->config->setAppValue($this->appName, 'cas_server_path', $cas_server_path, '/cas');
 
             $this->config->setAppValue($this->appName, 'cas_protected_groups', $cas_protected_groups);
             $this->config->setAppValue($this->appName, 'cas_default_group', $cas_default_group);
+            $this->config->setAppValue($this->appName, 'cas_access_allow_groups', $cas_access_allow_groups);
+
             $this->config->setAppValue($this->appName, 'cas_email_mapping', $cas_email_mapping);
             $this->config->setAppValue($this->appName, 'cas_displayName_mapping', $cas_displayName_mapping);
             $this->config->setAppValue($this->appName, 'cas_group_mapping', $cas_group_mapping);
+
             $this->config->setAppValue($this->appName, 'cas_cert_path', $cas_cert_path);
             $this->config->setAppValue($this->appName, 'cas_debug_file', $cas_debug_file);
             $this->config->setAppValue($this->appName, 'cas_php_cas_path', $cas_php_cas_path);
-
             $this->config->setAppValue($this->appName, 'cas_service_url', $cas_service_url);
-
             $this->config->setAppValue($this->appName, 'cas_handlelogout_servers', $cas_handlelogout_servers);
 
+            # ECAS settings
+            $this->config->setAppValue($this->appName, 'cas_ecas_accepted_strengths', $cas_ecas_accepted_strengths);
+            $this->config->setAppValue($this->appName, 'cas_ecas_retrieve_groups', $cas_ecas_retrieve_groups, '*');
+
+            # Checkbox settings
             $this->config->setAppValue($this->appName, 'cas_force_login', ($cas_force_login !== NULL) ? '1' : '0');
             $this->config->setAppValue($this->appName, 'cas_autocreate', ($cas_autocreate !== NULL) ? '1' : '0');
             $this->config->setAppValue($this->appName, 'cas_update_user_data', ($cas_update_user_data !== NULL) ? '1' : '0');

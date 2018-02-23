@@ -83,7 +83,7 @@ class AppService
     private $casHostname;
 
     /**
-     * @var string
+     * @var int
      */
     private $casPort;
 
@@ -121,6 +121,16 @@ class AppService
      * @var array
      */
     private $casHandleLogoutServers;
+
+    /**
+     * @var string
+     */
+    private $cas_ecas_accepted_strengths;
+
+    /**
+     * @var string
+     */
+    private $cas_ecas_retrieve_groups;
 
     /**
      * @var boolean
@@ -175,7 +185,10 @@ class AppService
         $logoutServersArray = explode(",", $this->config->getAppValue('user_cas', 'cas_handlelogout_servers', ''));
         $this->casHandleLogoutServers = array();
 
+        # ECAS
         $this->ecasAttributeParserEnabled = boolval($this->config->getAppValue('user_cas', 'cas_ecas_attributeparserenabled', false));
+        $this->cas_ecas_accepted_strengths = $this->config->getAppValue('user_cas', 'cas_ecas_accepted_strengths');
+        $this->cas_ecas_retrieve_groups = $this->config->getAppValue('user_cas', 'cas_ecas_retrieve_groups');
 
 
         foreach ($logoutServersArray as $casHandleLogoutServer) {
@@ -274,70 +287,70 @@ class AppService
                 }
 
 
-
                 #### Add ECAS Querystring Parameters
-                #if (is_string($this->ecasQueryStringStrength) && strlen($this->ecasQueryStringStrength) > 0) {
+                if (is_string($this->cas_ecas_accepted_strengths) && strlen($this->cas_ecas_accepted_strengths) > 0) {
 
-                # Register the new login url
-                $newUrl = \phpCAS::getServerLoginURL();
+                    # Register the new login url
+                    $newUrl = \phpCAS::getServerLoginURL();
 
-                $newUrl = $this->buildQueryUrl($newUrl, 'acceptedStrengths=' . urlencode('BASIC'));
+                    $newUrl = $this->buildQueryUrl($newUrl, 'acceptedStrengths=' . urlencode($this->cas_ecas_accepted_strengths));
 
-                \phpCAS::setServerLoginURL($newUrl);
+                    \phpCAS::setServerLoginURL($newUrl);
 
-                $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS strength attribute has been successfully set. New service login URL: " . $newUrl);
-                #}
+                    $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS strength attribute has been successfully set. New service login URL: " . $newUrl);
+                }
 
 
                 # Register the new ticket validation url
-                $newProtocol = 'http://';
-                $newUrl = '';
-                $newSamlUrl = '';
+                if (is_string($this->cas_ecas_retrieve_groups) && strlen($this->cas_ecas_retrieve_groups) > 0) {
 
-                if (!empty($this->getCasPort()) && $this->getCasPort() == "443") {
+                    $newProtocol = 'http://';
+                    $newUrl = '';
+                    $newSamlUrl = '';
 
-                    $newProtocol = 'https://';
-                }
+                    if ($this->getCasPort() === 443) {
 
-                if ($this->getCasVersion() === "1.0") {
+                        $newProtocol = 'https://';
+                    }
 
-                    $newUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/validate';
-                } else if ($this->getCasVersion() === "2.0") {
+                    if ($this->getCasVersion() === "1.0") {
 
-                    $newUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/serviceValidate';
-                } else if ($this->getCasVersion() === "3.0") {
+                        $newUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/validate';
+                    } else if ($this->getCasVersion() === "2.0") {
 
-                    $newUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/p3/serviceValidate';
-                }
-                else if ($this->getCasVersion() === "S1") {
+                        $newUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/serviceValidate';
+                    } else if ($this->getCasVersion() === "3.0") {
 
-                    $newSamlUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/samlValidate';
-                }
+                        $newUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/p3/serviceValidate';
+                    } else if ($this->getCasVersion() === "S1") {
 
-                if (!empty($this->casServiceUrl)) {
+                        $newSamlUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/samlValidate';
+                    }
 
-                    $newUrl = $this->buildQueryUrl($newUrl, 'service=' . urlencode($this->casServiceUrl));
-                    $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'TARGET=' . urlencode($this->casServiceUrl));
-                } else {
+                    if (!empty($this->casServiceUrl)) {
 
-                    $newUrl = $this->buildQueryUrl($newUrl, 'service=' . urlencode(\phpCAS::getServiceURL()));
-                    $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'TARGET=' . urlencode(\phpCAS::getServiceURL()));
-                }
+                        $newUrl = $this->buildQueryUrl($newUrl, 'service=' . urlencode($this->casServiceUrl));
+                        $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'TARGET=' . urlencode($this->casServiceUrl));
+                    } else {
 
-                $newUrl = $this->buildQueryUrl($newUrl, 'groups=' . urlencode('*'));
-                $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'groups=' . urlencode('*'));
+                        $newUrl = $this->buildQueryUrl($newUrl, 'service=' . urlencode(\phpCAS::getServiceURL()));
+                        $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'TARGET=' . urlencode(\phpCAS::getServiceURL()));
+                    }
 
-                # Set the new URLs
-                if($this->getCasVersion() != "S1" && !empty($newUrl)) {
+                    $newUrl = $this->buildQueryUrl($newUrl, 'groups=' . urlencode($this->cas_ecas_retrieve_groups));
+                    $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'groups=' . urlencode($this->cas_ecas_retrieve_groups));
 
-                    \phpCAS::setServerServiceValidateURL($newUrl);
-                    $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS groups attribute has been successfully set. New CAS ".$this->getCasVersion()." service validate URL: " . $newUrl);
+                    # Set the new URLs
+                    if ($this->getCasVersion() != "S1" && !empty($newUrl)) {
 
-                }
-                elseif ($this->getCasVersion() === "S1" && !empty($newSamlUrl)) {
+                        \phpCAS::setServerServiceValidateURL($newUrl);
+                        $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS groups attribute has been successfully set. New CAS " . $this->getCasVersion() . " service validate URL: " . $newUrl);
 
-                     \phpCAS::setServerSamlValidateURL($newSamlUrl);
-                     $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS groups attribute has been successfully set. New SAML 1.0 service validate URL: " . $newSamlUrl);
+                    } elseif ($this->getCasVersion() === "S1" && !empty($newSamlUrl)) {
+
+                        \phpCAS::setServerSamlValidateURL($newSamlUrl);
+                        $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS groups attribute has been successfully set. New SAML 1.0 service validate URL: " . $newSamlUrl);
+                    }
                 }
 
 
@@ -529,7 +542,7 @@ class AppService
     }
 
     /**
-     * @return string
+     * @return int
      */
     public function getCasPort()
     {
@@ -537,7 +550,7 @@ class AppService
     }
 
     /**
-     * @param string $casPort
+     * @param int $casPort
      */
     public function setCasPort($casPort)
     {

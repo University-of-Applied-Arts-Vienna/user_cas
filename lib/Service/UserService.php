@@ -133,6 +133,47 @@ class UserService
                 return FALSE;
             }
 
+
+            # Check if user may be authorized based on groups or not
+            $cas_access_allow_groups = $this->config->getAppValue($this->appName, 'cas_access_allow_groups');
+            if (is_string($cas_access_allow_groups) && strlen($cas_access_allow_groups) > 0) {
+
+                $cas_access_allow_groups = explode(',', $cas_access_allow_groups);
+                $casAttributes = \phpCAS::getAttributes();
+                $casGroups = array();
+                $isAuthorized = FALSE;
+
+                $groupMapping = $this->config->getAppValue($this->appName, 'cas_group_mapping');
+                # Test for mapped attribute from settings
+                if (array_key_exists($groupMapping, $casAttributes['attributes'])) {
+
+                    $casGroups = $casAttributes['attributes'][$groupMapping];
+                } # Test for standard 'groups' attribute
+                else if (array_key_exists('groups', $casAttributes['attributes'])) {
+
+                    $casGroups = $casAttributes['attributes']['groups'];
+                }
+
+                foreach ($casGroups as $casGroup) {
+
+                    if (in_array($casGroup, $cas_access_allow_groups)) {
+
+                        $this->loggingService->write(\OCP\Util::DEBUG, 'phpCas CAS users login has been authorized with group: ' . $casGroup);
+
+                        $isAuthorized = TRUE;
+                    }
+                }
+
+                if (!$isAuthorized) {
+
+                    $this->loggingService->write(\OCP\Util::DEBUG, 'phpCas CAS user is not authorized to log into ownCloud. Bye.');
+
+                    return FALSE;
+                }
+            }
+
+
+            # Log in the user
             $loginSuccessful = $this->userSession->login($uid, $password);
 
             $this->loggingService->write(\OCP\Util::INFO, 'phpCAS login function result: ' . $loginSuccessful);
@@ -150,7 +191,7 @@ class UserService
         } catch (\OC\User\LoginException $e) {
 
             $this->loggingService->write(\OCP\Util::ERROR, 'Owncloud could not log in the user with UID: ' . $uid . '. Exception thrown with code: ' . $e->getCode() . ' and message: ' . $e->getMessage() . '.');
-            \OCP\Util::writeLog('cas', 'Owncloud could not log in the user with UID: ' . $uid . '. Exception thrown with code: ' . $e->getCode() . ' and message: ' . $e->getMessage() . '.', \OCP\Util::ERROR);
+            #\OCP\Util::writeLog('cas', 'Owncloud could not log in the user with UID: ' . $uid . '. Exception thrown with code: ' . $e->getCode() . ' and message: ' . $e->getMessage() . '.', \OCP\Util::ERROR);
 
             return FALSE;
         }

@@ -160,7 +160,10 @@ class AuthenticationController extends Controller
                         $this->loggingService->write(\OCP\Util::ERROR,"phpCAS user has not been authenticated against owncloud.");
                         #\OCP\Util::writeLog('cas', "phpCAS user has not been authenticated against owncloud.", \OCP\Util::ERROR);
 
-                        return new RedirectResponse($this->appService->linkToRoute('core.login.showLoginForm'));
+                        $redirectResponse = new RedirectResponse($this->appService->linkToRoute('core.login.showLoginForm'));
+                        $redirectResponse->setStatus(\OCP\AppFramework\Http::STATUS_FORBIDDEN);
+
+                        return $redirectResponse;
                     }
                 } else { # Not authenticated against CAS
 

@@ -57,10 +57,12 @@ msgid "Service URL"
 msgstr "Dienst URL"
 
 #: templates/admin.php:47
-msgid "Certification file path (.crt). Leave empty if dont want to validate"
-msgstr ""
-"Pfad zur Zertifikatsdatei (.crt). Nicht ausfüllen, wenn Sie nicht validieren "
-"möchten"
+msgid "Certification file path (.crt)."
+msgstr "Pfad zur Zertifikatsdatei (.crt)."
+
+#: templates/admin.php:47
+msgid "Leave empty if you don’t want to validate your CAS server instance"
+msgstr "Nicht ausfüllen, wenn Sie ihren CAS-Server nicht validieren möchten"
 
 #: templates/admin.php:54
 msgid "Force user login using CAS?"
@@ -69,6 +71,10 @@ msgstr "CAS Login erzwingen?"
 #: templates/admin.php:60
 msgid "Disable CAS logout (do only OwnCloud logout)"
 msgstr "CAS Logout deaktivieren (nur bei Owncloud ausloggen)"
+
+#: templates/admin.php63
+msgid "Logout Servers"
+msgstr "Logout Server"
 
 #: templates/admin.php63
 msgid "Comma separated list of servers which can send logout requests (leave empty if you do not want to restrict logout to defined servers)"
@@ -118,8 +124,8 @@ msgid "Display Name"
 msgstr "Anzeigename"
 
 #: templates/admin.php:99
-msgid "Group"
-msgstr "Gruppe"
+msgid "Groups"
+msgstr "Gruppen"
 
 #: templates/admin.php:107
 msgid ""

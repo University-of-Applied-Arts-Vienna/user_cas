@@ -288,7 +288,7 @@ class UserHooks
                     }
 
                     // Try to update user attributes
-                    $this->userService->updateUser($user, $attributes);
+                    $this->userService->updateUser($user, $attributes); //TODO: Add quota based on groups!
                 }
 
                 $this->loggingService->write(\OCP\Util::DEBUG, 'phpCas post login hook finished.');
