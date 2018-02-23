@@ -649,7 +649,7 @@ class AppService
      * @param string $url base url to add the query params to
      * @param string $query params in query form with & separated
      *
-     * @return url with query params
+     * @return string url with query params
      */
     private function buildQueryUrl($url, $query)
     {
