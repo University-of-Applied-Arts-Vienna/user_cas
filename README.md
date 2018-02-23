@@ -1,7 +1,7 @@
 INTRODUCTION
 ============
 
-This App provides CAS authentication support, using the phpcas library of jasig/apereo.
+This App provides CAS authentication support, using the phpCAS library of jasig/apereo.
 
 
 INSTALLATION
@@ -136,15 +136,15 @@ Authors
 -------
 
 Current Version, since 1.4.0:
-* Felix Rupp - https://github.com/felixrupp
+* Felix Rupp - [github.com/felixrupp](https://github.com/felixrupp)
 
 Older Versions:
-* Sixto Martin Garcia - https://github.com/pitbulk
-* David Willinger (Leonis Holding)  - https://github.com/leoniswebDAVe
-* Florian Hintermeier (Leonis Holding)  - https://github.com/leonisCacheFlo
-* brenard - https://github.com/brenard
+* Sixto Martin Garcia - [github.com/pitbulk](https://github.com/pitbulk)
+* David Willinger (Leonis Holding) - [github.com/leoniswebDAVe](https://github.com/leoniswebDAVe)
+* Florian Hintermeier (Leonis Holding)  - [github.com/leonisCacheFlo](https://github.com/leonisCacheFlo)
+* brenard - [github.com/brenard](https://github.com/brenard)
 
 Links
 -------
-* Owncloud - http://owncloud.org
-* Owncloud @ GitHub - https://github.com/owncloud
+* Owncloud - [owncloud.org](http://www.owncloud.org)
+* Owncloud @ GitHub - [github.com/owncloud](https://github.com/owncloud)
