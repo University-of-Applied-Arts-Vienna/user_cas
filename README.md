@@ -3,7 +3,6 @@ INTRODUCTION
 
 This App provides CAS authentication support, using the phpcas library of jasig/apereo.
 
-
 INSTALLATION
 ============
 
