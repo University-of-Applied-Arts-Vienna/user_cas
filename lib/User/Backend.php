@@ -23,6 +23,8 @@
 
 namespace OCA\UserCAS\User;
 
+use OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException;
+use OCA\UserCAS\Service\AppService;
 use \OCP\IUserManager;
 use OCA\UserCAS\Service\LoggingService;
 
@@ -50,17 +52,23 @@ class Backend extends \OC\User\Backend implements \OCP\IUserBackend
      */
     private $loggingService;
 
+    /**
+     * @var \OCA\UserCAS\Service\AppService $appService
+     */
+    private $appService;
 
     /**
      * Backend constructor.
      * @param IUserManager $userManager
      * @param LoggingService $loggingService
+     * @param AppService $appService
      */
-    public function __construct(IUserManager $userManager, LoggingService $loggingService)
+    public function __construct(IUserManager $userManager, LoggingService $loggingService, AppService $appService)
     {
 
         $this->userManager = $userManager;
         $this->loggingService = $loggingService;
+        $this->appService = $appService;
     }
 
 
@@ -83,6 +91,20 @@ class Backend extends \OC\User\Backend implements \OCP\IUserBackend
      */
     public function checkPassword($uid, $password)
     {
+
+        if (!$this->appService->isCasInitialized()) {
+
+            try {
+
+                $this->appService->init();
+            } catch (PhpUserCasLibraryNotFoundException $e) {
+
+                $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: ' . $e->getCode() . ' and message: ' . $e->getMessage());
+
+                header("Location: " . $this->appService->getAbsoluteURL('/'));
+                die();
+            }
+        }
 
         if (\phpCAS::isInitialized()) {
 

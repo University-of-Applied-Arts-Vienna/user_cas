@@ -86,15 +86,6 @@ class Application extends App
             );
         });
 
-        $container->registerService('Backend', function (IContainer $c) {
-            return new Backend(
-                $c->query('ServerContainer')->getUserManager(),
-                $c->query('LoggingService')
-            );
-        });
-
-
-
         /**
          * Register AppService with config
          */
@@ -106,6 +97,17 @@ class Application extends App
                 $c->query('ServerContainer')->getUserManager(),
                 $c->query('ServerContainer')->getUserSession(),
                 $c->query('ServerContainer')->getURLGenerator()
+            );
+        });
+
+        /**
+         * Register Backend
+         */
+        $container->registerService('Backend', function (IContainer $c) {
+            return new Backend(
+                $c->query('ServerContainer')->getUserManager(),
+                $c->query('LoggingService'),
+                $c->query('AppService')
             );
         });
 
