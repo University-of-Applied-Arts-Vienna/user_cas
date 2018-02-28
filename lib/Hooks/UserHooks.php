@@ -235,6 +235,16 @@ class UserHooks
 
                     $casAttributes = \phpCAS::getAttributes();
 
+                    # Test if an attribute parser added a new dimension to our attributes array
+                    if (array_key_exists('attributes', $casAttributes)) {
+
+                        $newAttributes = $casAttributes['attributes'];
+
+                        unset($casAttributes['attributes']);
+
+                        $casAttributes = array_merge($casAttributes, $newAttributes);
+                    }
+
                     $casAttributesString = '';
                     foreach ($casAttributes as $key => $attribute) {
 
@@ -291,7 +301,7 @@ class UserHooks
                     $groupQuotas = $this->config->getAppValue($this->appName, 'cas_access_group_quotas');
                     $groupQuotas = explode(",", $groupQuotas);
 
-                    foreach($groupQuotas as $groupQuota) {
+                    foreach ($groupQuotas as $groupQuota) {
 
                         $groupQuota = explode(":", $groupQuota);
 
@@ -343,7 +353,6 @@ class UserHooks
         if (!boolval($this->config->getAppValue($this->appName, 'cas_disable_logout'))) {
 
             $this->loggingService->write(\OCP\Util::DEBUG, 'phpCAS logging out.');
-            #\OCP\Util::writeLog('cas', 'phpCAS logging out.', \OCP\Util::DEBUG);
 
             \phpCAS::logout(array("url" => $this->appService->getAbsoluteURL('/')));
         } else {

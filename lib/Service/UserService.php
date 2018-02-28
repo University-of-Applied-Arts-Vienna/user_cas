@@ -144,14 +144,25 @@ class UserService
                 $isAuthorized = FALSE;
 
                 $groupMapping = $this->config->getAppValue($this->appName, 'cas_group_mapping');
+
+                # Test if an attribute parser added a new dimension to our attributes array
+                if (array_key_exists('attributes', $casAttributes)) {
+
+                    $newAttributes = $casAttributes['attributes'];
+
+                    unset($casAttributes['attributes']);
+
+                    $casAttributes = array_merge($casAttributes, $newAttributes);
+                }
+
                 # Test for mapped attribute from settings
-                if (array_key_exists($groupMapping, $casAttributes['attributes'])) {
+                if (array_key_exists($groupMapping, $casAttributes)) {
 
-                    $casGroups = $casAttributes['attributes'][$groupMapping];
+                    $casGroups = $casAttributes[$groupMapping];
                 } # Test for standard 'groups' attribute
-                else if (array_key_exists('groups', $casAttributes['attributes'])) {
+                else if (array_key_exists('groups', $casAttributes)) {
 
-                    $casGroups = $casAttributes['attributes']['groups'];
+                    $casGroups = $casAttributes['groups'];
                 }
 
                 foreach ($casGroups as $casGroup) {
@@ -347,7 +358,7 @@ class UserService
 
                         $group->removeUser($user);
 
-                        $this->loggingService->write(\OCP\Util::INFO, 'Removed "' . $uid . '" from the group "' . $groupId . '"');
+                        $this->loggingService->write(\OCP\Util::INFO, "Removed '" . $uid . "' from the group '" . $groupId . "'");
                         #\OCP\Util::writeLog('cas', 'Removed "' . $uid . '" from the group "' . $groupId . '"', \OCP\Util::DEBUG);
                     }
                 }
@@ -360,7 +371,7 @@ class UserService
 
             if (preg_match('/[^a-zA-Z0-9 _\.@\-]/', $group)) {
 
-                $this->loggingService->write(\OCP\Util::ERROR, 'Invalid group "' . $group . '", allowed chars "a-zA-Z0-9" and "_.@-" ');
+                $this->loggingService->write(\OCP\Util::ERROR, "Invalid group '" . $group . "', allowed chars 'a-zA-Z0-9' and '_.@-' ");
                 #\OCP\Util::writeLog('cas', 'Invalid group "' . $group . '", allowed chars "a-zA-Z0-9" and "_.@-" ', \OCP\Util::DEBUG);
             } else {
 
@@ -379,7 +390,7 @@ class UserService
 
                     $groupObject->addUser($user);
 
-                    $this->loggingService->write(\OCP\Util::INFO, 'Added "' . $uid . '" to the group "' . $group . '"');
+                    $this->loggingService->write(\OCP\Util::INFO, "Added '" . $uid . "' to the group '" . $group . "'");
                     #\OCP\Util::writeLog('cas', 'Added "' . $uid . '" to the group "' . $group . '"', \OCP\Util::DEBUG);
                 }
             }
@@ -403,8 +414,7 @@ class UserService
                 if ($groupQuota === 'none') {
 
                     $collectedQuotas[PHP_INT_MAX] = $groupQuota;
-                }
-                else {
+                } else {
 
                     $groupQuotaComputerFilesize = \OCP\Util::computerFileSize($groupQuota);
                     $collectedQuotas[$groupQuotaComputerFilesize] = $groupQuota;
@@ -415,7 +425,10 @@ class UserService
         # Sort descending by key
         krsort($collectedQuotas);
 
-        $user->setQuota(array_shift($collectedQuotas));
+        $newQuota = array_shift($collectedQuotas);
+        $user->setQuota($newQuota);
+
+        $this->loggingService->write(\OCP\Util::INFO, "User '" . $uid . "' has new Quota: '" . $newQuota . "'");
     }
 
     /**
