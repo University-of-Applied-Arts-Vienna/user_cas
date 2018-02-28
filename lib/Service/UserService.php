@@ -172,7 +172,17 @@ class UserService
                         $this->loggingService->write(\OCP\Util::DEBUG, 'phpCas CAS users login has been authorized with group: ' . $casGroup);
 
                         $isAuthorized = TRUE;
+                    } else {
+
+                        $this->loggingService->write(\OCP\Util::DEBUG, 'phpCas CAS users login has not been authorized with group: ' . $casGroup . ', because the group was not in allowedGroups: ' . implode(", ", $cas_access_allow_groups));
                     }
+                }
+
+                if ($this->groupManager->isInGroup($uid, 'admin')) {
+
+                    $this->loggingService->write(\OCP\Util::DEBUG, 'phpCas CAS users login has been authorized with group: admin');
+
+                    $isAuthorized = TRUE;
                 }
 
                 if (!$isAuthorized) {
