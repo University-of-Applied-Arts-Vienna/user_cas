@@ -33,7 +33,7 @@ $enabled = TRUE;
 $script = $_SERVER['SCRIPT_FILENAME'];
 $requestUri = $_SERVER['REQUEST_URI'];
 
-if (in_array(basename($script), array('console.php', 'cron.php', 'status.php', 'version.php')) /*|| strpos($requestUri, "index.php/apps/oauth2")*/) {
+if (in_array(basename($script), array('console.php', 'cron.php', 'status.php', 'version.php'))) {
     $enabled = FALSE;
 }
 
