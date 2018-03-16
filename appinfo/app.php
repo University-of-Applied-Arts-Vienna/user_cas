@@ -33,7 +33,7 @@ $enabled = TRUE;
 $script = $_SERVER['SCRIPT_FILENAME'];
 $requestUri = $_SERVER['REQUEST_URI'];
 
-if (in_array(basename($script), array('console.php', 'cron.php', 'public.php', 'remote.php', 'status.php', 'version.php'))) {
+if (in_array(basename($script), array('console.php', 'cron.php', 'status.php', 'version.php'))) {
     $enabled = FALSE;
 }
 
@@ -46,7 +46,7 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI && $enabled) {
     // Register User Backend
     $userService->registerBackend();
 
-    if(!strpos($script, "ocs") && !strpos($requestUri, "oc.js")) {
+    if(!strpos($script, "ocs") && !strpos($requestUri, "oc.js") && !in_array(basename($script), array('public.php', 'remote.php'))) {
 
         // Register UserHooks
         $c->query('UserHooks')->register();
