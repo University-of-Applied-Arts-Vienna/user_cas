@@ -96,9 +96,9 @@ class Backend extends \OC\User\Backend implements \OCP\IUserBackend
         $requestUri = $_SERVER['REQUEST_URI'];
 
         // Let all OCS API Users pass
-        if(strpos($script, "ocs") || strpos($requestUri, "oc.js")) {
+        if(strpos($script, "ocs") || strpos($requestUri, "oc.js") || in_array(basename($script), array('public.php', 'remote.php'))) {
 
-            $this->loggingService->write(\OCP\Util::DEBUG, 'Access through OCS. Let it pass.');
+            $this->loggingService->write(\OCP\Util::DEBUG, 'Access through OCS, remote or public API. Let it pass.');
             return TRUE;
         }
 
