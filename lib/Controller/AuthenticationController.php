@@ -134,6 +134,8 @@ class AuthenticationController extends Controller
             $location = $this->appService->getAbsoluteURL("/");
         }
 
+        $this->loggingService->write(\OCP\Util::DEBUG, 'The Redirect URL Parameter in Login Action was: ' . $location);
+
         if (!$this->userService->isLoggedIn()) {
 
             try {

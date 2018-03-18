@@ -45,13 +45,19 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI && $enabled) {
 
     // Register User Backend
     $userService->registerBackend();
-    
+
     // URL params and redirect_url cookie
     setcookie("user_cas_redirect_url", '', time() - 3600);
     setcookie("user_cas_enforce_authentication", "0", null, '/');
     $urlParams = '';
 
     if (isset($_REQUEST['redirect_url'])) {
+
+        $urlParams = $_REQUEST['redirect_url'];
+        // Save the redirect_rul to a cookie
+        $cookie = setcookie("user_cas_redirect_url", "$urlParams", null, '/');
+    }
+    else if (isset($_REQUEST['redirect_uri'])) {
 
         $urlParams = $_REQUEST['redirect_url'];
         // Save the redirect_rul to a cookie
