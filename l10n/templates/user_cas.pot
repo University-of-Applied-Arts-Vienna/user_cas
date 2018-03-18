@@ -182,3 +182,24 @@ msgstr ""
 #: lib/Controller/SettingsController.php:146
 msgid "Your CAS settings could not be updated. Please try again."
 msgstr ""
+
+
+#: templates/cas-error.php:24
+msgid "403"
+msgstr ""
+
+#: templates/cas-error.php:24
+msgid "500"
+msgstr ""
+
+#: templates/cas-error.php:24
+msgid "Forbidden. You do not have access to this application. Please refer to your administrator if something feels wrong to you."
+msgstr ""
+
+#: templates/cas-error.php:24
+msgid "Internal Server Error. The server encountered an error. Please try again."
+msgstr ""
+
+#: templates/cas-error.php:28
+msgid "Go back to the login page"
+msgstr ""

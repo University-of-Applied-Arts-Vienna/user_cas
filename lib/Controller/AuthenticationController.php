@@ -23,6 +23,7 @@
 namespace OCA\UserCAS\Controller;
 
 
+use OCP\AppFramework\Http\TemplateResponse;
 use \OCP\IRequest;
 use \OCP\AppFramework\Http\RedirectResponse;
 use \OCP\AppFramework\Controller;
@@ -106,7 +107,7 @@ class AuthenticationController extends Controller
      * @NoCSRFRequired
      * @PublicPage
      *
-     * @return \OCP\AppFramework\Http\RedirectResponse
+     * @return RedirectResponse|TemplateResponse
      */
     public function casLogin()
     {
@@ -157,10 +158,7 @@ class AuthenticationController extends Controller
 
                         $this->loggingService->write(\OCP\Util::ERROR, "phpCAS user has not been authenticated against owncloud.");
 
-                        $redirectResponse = new RedirectResponse($this->appService->linkToRoute('core.login.showLoginForm'));
-                        $redirectResponse->setStatus(\OCP\AppFramework\Http::STATUS_FORBIDDEN);
-
-                        return $redirectResponse;
+                        return $this->casError(null, \OCP\AppFramework\Http::STATUS_FORBIDDEN);
                     }
                 } else { # Not authenticated against CAS
 
@@ -172,10 +170,7 @@ class AuthenticationController extends Controller
 
                 $this->loggingService->write(\OCP\Util::ERROR, "phpCAS has thrown an exception with code: " . $e->getCode() . " and message: " . $e->getMessage() . ".");
 
-                $redirectResponse = new RedirectResponse($this->appService->linkToRoute('core.login.showLoginForm'));
-                $redirectResponse->setStatus(\OCP\AppFramework\Http::STATUS_INTERNAL_SERVER_ERROR);
-
-                return $redirectResponse;
+                return $this->casError(null, \OCP\AppFramework\Http::STATUS_INTERNAL_SERVER_ERROR);
             }
         } else {
 
@@ -183,5 +178,43 @@ class AuthenticationController extends Controller
 
             return new RedirectResponse($location);
         }
+    }
+
+    /**
+     * Render error view
+     *
+     * @param \Exception|null $exception
+     * @param int $additionalErrorCode
+     *
+     * @return TemplateResponse
+     */
+    private function casError(\Exception $exception = NULL, $additionalErrorCode = 0)
+    {
+        $params = [];
+
+        if ($additionalErrorCode != 0) {
+
+            if ($additionalErrorCode === \OCP\AppFramework\Http::STATUS_FORBIDDEN) {
+
+                $params['errorCode'] = $additionalErrorCode;
+                $params['errorMessage'] = "Forbidden. You do not have access to this application. Please refer to your administrator if something feels wrong to you.";
+            }
+
+            if ($additionalErrorCode === \OCP\AppFramework\Http::STATUS_INTERNAL_SERVER_ERROR) {
+
+                $params['errorCode'] = $additionalErrorCode;
+                $params['errorMessage'] = "Internal Server Error. The server encountered an error. Please try again.";
+            }
+        } else if ($exception instanceof \Exception) {
+
+            $params['errorCode'] = $exception->getCode();
+            $params['errorMessage'] = $exception->getMessage();
+        }
+
+        $params['backUrl'] = $this->appService->getAbsoluteURL('/');
+
+        $response = new TemplateResponse($this->appName, 'cas-error', $params, 'guest');
+
+        return $response;
     }
 }
