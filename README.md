@@ -96,9 +96,13 @@ user_cas since Version 1.5 provides support for using a European Commission ECAS
 
 **Use ECAS Attribute Parser?**: Activate the ECAS attribute parser to enable the parsing of groups provided by the European Commission ECAS implementation (do NOT activate until you know what you are doing).
 
-**ECAS Strength**: Set the authentication strength, used by the ECAS instance (do NOT select until you know what you are doing).
+**Request full user details?**: Activate to request a full user profile in the ECAS callback (do NOT activate until you know what you are doing).
 
-**Query ECAS groups**: Define which ECAS groups should be queried, when validating a user’s ticket. Please provide a comma separated list without blanks (eg.: GROUP1,GROUP2 or use * for all groups). (Do NOT select until you know what you are doing).
+**ECAS Strength**: Set the authentication strength used by the ECAS instance when validating a user’s ticket (do NOT select until you know what you are doing).
+
+**ECAS AssuranceLevel**: Set the assurance level used by the ECAS instance when validating a user’s ticket (do NOT select until you know what you are doing).
+
+**Query ECAS groups**: Define which ECAS groups should be queried when validating a user’s ticket. Please provide a comma separated list without blanks (eg.: GROUP1,GROUP2 or use * for all groups). (Do NOT select until you know what you are doing).
 
 
 <!-- 

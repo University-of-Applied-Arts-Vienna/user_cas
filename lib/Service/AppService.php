@@ -133,6 +133,16 @@ class AppService
     private $cas_ecas_retrieve_groups;
 
     /**
+     * @var string
+     */
+    private $cas_ecas_assurance_level;
+
+    /**
+     * @var boolean
+     */
+    private $cas_ecas_request_full_userdetails;
+
+    /**
      * @var boolean
      */
     private $casInitialized;
@@ -187,8 +197,10 @@ class AppService
 
         # ECAS
         $this->ecasAttributeParserEnabled = boolval($this->config->getAppValue('user_cas', 'cas_ecas_attributeparserenabled', false));
+        $this->cas_ecas_request_full_userdetails = $this->config->getAppValue('user_cas', 'cas_ecas_request_full_userdetails', false);
         $this->cas_ecas_accepted_strengths = $this->config->getAppValue('user_cas', 'cas_ecas_accepted_strengths');
         $this->cas_ecas_retrieve_groups = $this->config->getAppValue('user_cas', 'cas_ecas_retrieve_groups');
+        $this->cas_ecas_assurance_level = $this->config->getAppValue('user_cas', 'cas_ecas_assurance_level');
 
 
         foreach ($logoutServersArray as $casHandleLogoutServer) {
@@ -302,7 +314,9 @@ class AppService
 
 
                 # Register the new ticket validation url
-                if (is_string($this->cas_ecas_retrieve_groups) && strlen($this->cas_ecas_retrieve_groups) > 0) {
+                if ((is_string($this->cas_ecas_retrieve_groups) && strlen($this->cas_ecas_retrieve_groups) > 0)
+                    || ($this->cas_ecas_request_full_userdetails)
+                    || (is_string($this->cas_ecas_assurance_level) && strlen($this->cas_ecas_assurance_level) > 0)) {
 
                     $newProtocol = 'http://';
                     $newUrl = '';
@@ -337,19 +351,37 @@ class AppService
                         $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'TARGET=' . urlencode(\phpCAS::getServiceURL()));
                     }
 
-                    $newUrl = $this->buildQueryUrl($newUrl, 'groups=' . urlencode($this->cas_ecas_retrieve_groups));
-                    $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'groups=' . urlencode($this->cas_ecas_retrieve_groups));
+                    # Add the groups to retrieve
+                    if (is_string($this->cas_ecas_retrieve_groups) && strlen($this->cas_ecas_retrieve_groups) > 0) {
+
+                        $newUrl = $this->buildQueryUrl($newUrl, 'groups=' . urlencode($this->cas_ecas_retrieve_groups));
+                        $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'groups=' . urlencode($this->cas_ecas_retrieve_groups));
+                    }
+
+                    # Add the assurenceLevel
+                    if (is_string($this->cas_ecas_assurance_level) && strlen($this->cas_ecas_assurance_level) > 0) {
+
+                        $newUrl = $this->buildQueryUrl($newUrl, 'assuranceLevel=' . urlencode($this->cas_ecas_assurance_level));
+                        $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'assuranceLevel=' . urlencode($this->cas_ecas_assurance_level));
+                    }
+
+                    # Add the requestFullUserDetails flag
+                    if ($this->cas_ecas_request_full_userdetails) {
+
+                        $newUrl = $this->buildQueryUrl($newUrl, 'userDetails=' . urlencode('true'));
+                        $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'userDetails=' . urlencode('true'));
+                    }
 
                     # Set the new URLs
                     if ($this->getCasVersion() != "S1" && !empty($newUrl)) {
 
                         \phpCAS::setServerServiceValidateURL($newUrl);
-                        $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS groups attribute has been successfully set. New CAS " . $this->getCasVersion() . " service validate URL: " . $newUrl);
+                        $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS additional attributes have been successfully set. New CAS " . $this->getCasVersion() . " service validate URL: " . $newUrl);
 
                     } elseif ($this->getCasVersion() === "S1" && !empty($newSamlUrl)) {
 
                         \phpCAS::setServerSamlValidateURL($newSamlUrl);
-                        $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS groups attribute has been successfully set. New SAML 1.0 service validate URL: " . $newSamlUrl);
+                        $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS ECAS additional attributes have been successfully set. New SAML 1.0 service validate URL: " . $newSamlUrl);
                     }
                 }
 
@@ -650,6 +682,102 @@ class AppService
     public function setCasServiceUrl($casServiceUrl)
     {
         $this->casServiceUrl = $casServiceUrl;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCasDisableLogout(): bool
+    {
+        return $this->casDisableLogout;
+    }
+
+    /**
+     * @param bool $casDisableLogout
+     */
+    public function setCasDisableLogout(bool $casDisableLogout)
+    {
+        $this->casDisableLogout = $casDisableLogout;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCasEcasAcceptedStrengths(): string
+    {
+        return $this->cas_ecas_accepted_strengths;
+    }
+
+    /**
+     * @param string $cas_ecas_accepted_strengths
+     */
+    public function setCasEcasAcceptedStrengths(string $cas_ecas_accepted_strengths)
+    {
+        $this->cas_ecas_accepted_strengths = $cas_ecas_accepted_strengths;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCasEcasRetrieveGroups(): string
+    {
+        return $this->cas_ecas_retrieve_groups;
+    }
+
+    /**
+     * @param string $cas_ecas_retrieve_groups
+     */
+    public function setCasEcasRetrieveGroups(string $cas_ecas_retrieve_groups)
+    {
+        $this->cas_ecas_retrieve_groups = $cas_ecas_retrieve_groups;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCasEcasAssuranceLevel(): string
+    {
+        return $this->cas_ecas_assurance_level;
+    }
+
+    /**
+     * @param string $cas_ecas_assurance_level
+     */
+    public function setCasEcasAssuranceLevel(string $cas_ecas_assurance_level)
+    {
+        $this->cas_ecas_assurance_level = $cas_ecas_assurance_level;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEcasAttributeParserEnabled(): bool
+    {
+        return $this->ecasAttributeParserEnabled;
+    }
+
+    /**
+     * @param bool $ecasAttributeParserEnabled
+     */
+    public function setEcasAttributeParserEnabled(bool $ecasAttributeParserEnabled)
+    {
+        $this->ecasAttributeParserEnabled = $ecasAttributeParserEnabled;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCasEcasRequestFullUserdetails(): bool
+    {
+        return $this->cas_ecas_request_full_userdetails;
+    }
+
+    /**
+     * @param bool $cas_ecas_request_full_userdetails
+     */
+    public function setCasEcasRequestFullUserdetails(bool $cas_ecas_request_full_userdetails)
+    {
+        $this->cas_ecas_request_full_userdetails = $cas_ecas_request_full_userdetails;
     }
 
 

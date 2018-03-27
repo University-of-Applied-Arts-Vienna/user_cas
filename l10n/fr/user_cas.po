@@ -138,9 +138,21 @@ msgstr "Quotas de groupe"
 msgid "Use ECAS Attribute Parser?"
 msgstr "Utiliser ECAS Attribute Parser?"
 
+#: templates/admin.php:85
+msgid "Request full user details?"
+msgstr "Demander des informations complètes sur l'utilisateur?"
+
 #: templates/admin.php:86
 msgid "ECAS Strength"
 msgstr "ECAS Strength"
+
+#: templates/admin.php:86
+msgid "Not set"
+msgstr "Pas encore défini"
+
+#: templates/admin.php:86
+msgid "ECAS AssuranceLevel"
+msgstr "ECAS AssuranceLevel"
 
 #: templates/admin.php:87
 msgid "Query ECAS groups"

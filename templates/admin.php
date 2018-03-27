@@ -163,6 +163,11 @@ style('user_cas', 'settings');
                 <label class='checkbox'
                        for="cas_ecas_attributeparserenabled"><?php p($l->t('Use ECAS Attribute Parser?')); ?></label>
             </p>
+            <p><input type="checkbox" id="cas_ecas_request_full_userdetails"
+                      name="cas_ecas_request_full_userdetails" <?php print_unescaped((($_['cas_ecas_request_full_userdetails'] === 'true' || $_['cas_ecas_request_full_userdetails'] === 'on' || $_['cas_ecas_request_full_userdetails'] === '1') ? 'checked="checked"' : '')); ?>>
+                <label class='checkbox'
+                       for="cas_ecas_request_full_userdetails"><?php p($l->t('Request full user details?')); ?></label>
+            </p>
             <p><label for="cas_ecas_accepted_strengths"><?php p($l->t('ECAS Strength')); ?></label>
                 <select id="cas_ecas_accepted_strengths" name="cas_ecas_accepted_strengths">
                     <?php $strength = $_['cas_ecas_accepted_strengths']; ?>
@@ -170,6 +175,16 @@ style('user_cas', 'settings');
                     <option value="BASIC" <?php echo $strength === 'BASIC' ? 'selected' : ''; ?>>BASIC</option>
                     <option value="MEDIUM" <?php echo $strength === 'MEDIUM' ? 'selected' : ''; ?>>MEDIUM</option>
                     <option value="HIGH" <?php echo $strength === 'HIGH' ? 'selected' : ''; ?>>HIGH</option>
+                </select>
+            </p>
+            <p><label for="cas_ecas_assurance_level"><?php p($l->t('ECAS AssuranceLevel')); ?></label>
+                <select id="cas_ecas_assurance_level" name="cas_ecas_assurance_level">
+                    <?php $assuranceLevel = $_['cas_ecas_assurance_level']; ?>
+                    <option value="" <?php echo $assuranceLevel === '' ? 'selected' : ''; ?>><?php p($l->t('Not set')); ?></option>
+                    <option value="LOW" <?php echo $assuranceLevel === 'LOW' ? 'selected' : ''; ?>>LOW</option>
+                    <option value="MEDIUM" <?php echo $assuranceLevel === 'MEDIUM' ? 'selected' : ''; ?>>MEDIUM</option>
+                    <option value="HIGH" <?php echo $assuranceLevel === 'HIGH' ? 'selected' : ''; ?>>HIGH</option>
+                    <option value="TOP" <?php echo $assuranceLevel === 'TOP' ? 'selected' : ''; ?>>TOP</option>
                 </select>
             </p>
             <p>

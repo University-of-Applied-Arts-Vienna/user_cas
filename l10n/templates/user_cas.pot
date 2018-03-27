@@ -133,8 +133,20 @@ msgstr ""
 msgid "Use ECAS Attribute Parser?"
 msgstr ""
 
+#: templates/admin.php:85
+msgid "Request full user details?"
+msgstr ""
+
 #: templates/admin.php:86
 msgid "ECAS Strength"
+msgstr ""
+
+#: templates/admin.php:86
+msgid "Not set"
+msgstr ""
+
+#: templates/admin.php:86
+msgid "ECAS AssuranceLevel"
 msgstr ""
 
 #: templates/admin.php:87
