@@ -205,7 +205,12 @@ class AppService
 
         foreach ($logoutServersArray as $casHandleLogoutServer) {
 
-            $this->casHandleLogoutServers[] = ltrim(trim($casHandleLogoutServer));
+            $casHandleLogoutServer = ltrim(trim($casHandleLogoutServer));
+
+            if (strlen($casHandleLogoutServer) > 4) {
+
+                $this->casHandleLogoutServers[] = $casHandleLogoutServer;
+            }
         }
 
         $this->casDebugFile = $this->config->getAppValue('user_cas', 'cas_debug_file', '');
@@ -295,7 +300,6 @@ class AppService
                     # Register the parser
                     \phpCAS::setCasAttributeParserCallback(array(new \EcasPhpCASParser\EcasPhpCASParser(), 'parse'));
                     $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS EcasPhpCASParser has been successfully set.");
-
                 }
 
 
