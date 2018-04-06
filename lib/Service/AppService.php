@@ -344,6 +344,11 @@ class AppService
 
                         $newSamlUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/samlValidate';
                     }
+                    //TODO: Add /cas/laxValidate if assurance level is LOW
+                    if (is_string($this->cas_ecas_assurance_level) && $this->cas_ecas_assurance_level === 'LOW') {
+
+                        $newUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/laxValidate';
+                    }
 
                     if (!empty($this->casServiceUrl)) {
 
