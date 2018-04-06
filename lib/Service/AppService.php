@@ -344,10 +344,23 @@ class AppService
 
                         $newSamlUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/samlValidate';
                     }
-                    //TODO: Add /cas/laxValidate if assurance level is LOW
+
+                    # Change validation URL based on ECAS assuranceLevel
                     if (is_string($this->cas_ecas_assurance_level) && $this->cas_ecas_assurance_level === 'LOW') {
 
                         $newUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/laxValidate';
+                    }
+                    else if (is_string($this->cas_ecas_assurance_level) && $this->cas_ecas_assurance_level === 'MEDIUM') {
+
+                        $newUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/sponsorValidate';
+                    }
+                    else if (is_string($this->cas_ecas_assurance_level) && $this->cas_ecas_assurance_level === 'HIGH') {
+
+                        $newUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/interinstitutionalValidate';
+                    }
+                    else if (is_string($this->cas_ecas_assurance_level) && $this->cas_ecas_assurance_level === 'TOP') {
+
+                        $newUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/strictValidate';
                     }
 
                     if (!empty($this->casServiceUrl)) {
@@ -365,13 +378,6 @@ class AppService
 
                         $newUrl = $this->buildQueryUrl($newUrl, 'groups=' . urlencode($this->cas_ecas_retrieve_groups));
                         $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'groups=' . urlencode($this->cas_ecas_retrieve_groups));
-                    }
-
-                    # Add the assurenceLevel
-                    if (is_string($this->cas_ecas_assurance_level) && strlen($this->cas_ecas_assurance_level) > 0) {
-
-                        $newUrl = $this->buildQueryUrl($newUrl, 'assuranceLevel=' . urlencode($this->cas_ecas_assurance_level));
-                        $newSamlUrl = $this->buildQueryUrl($newSamlUrl, 'assuranceLevel=' . urlencode($this->cas_ecas_assurance_level));
                     }
 
                     # Add the requestFullUserDetails flag
