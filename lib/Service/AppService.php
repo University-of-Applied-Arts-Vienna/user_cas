@@ -433,40 +433,36 @@ class AppService
     public function registerLogIn()
     {
 		
-		/** @var \OCP\Defaults $defaults */
-		$defaults = new \OCP\Defaults();
-		if(strpos(strtolower($defaults->getName()), 'next') !== FALSE) {
+	/** @var \OCP\Defaults $defaults */
+	$defaults = new \OCP\Defaults();
+	if(strpos(strtolower($defaults->getName()), 'next') !== FALSE) {
 
-			// Workaround for Nextcloud 12 or newer, as it does not support alternate logins via config.php
-			if (\OCP\Util::getVersion()[0] >= 12) {
+		// Workaround for Nextcloud 12 or newer, as it does not support alternate logins via config.php
+		if (\OCP\Util::getVersion()[0] >= 12) {
 
-				$this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Nextcloud detected.");
-				\OC_App::registerLogIn(array('href' => $this->linkToRoute($this->appName . '.authentication.casLogin'), 'name' => 'CAS Login'));
-			} else {
+			$this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Nextcloud detected.");
+			\OC_App::registerLogIn(array('href' => $this->linkToRoute($this->appName . '.authentication.casLogin'), 'name' => 'CAS Login'));
+		} else {
 
-				$loginAlternatives[] = ['href' => $this->linkToRoute($this->appName . '.authentication.casLogin'), 'name' => 'CAS Login', 'img' => substr($_SERVER['REQUEST_URI'], 0, strpos($_SERVER['REQUEST_URI'], "/index.php/")) . '/apps/user_cas/img/cas-logo.png'];
+			$loginAlternatives[] = ['href' => $this->linkToRoute($this->appName . '.authentication.casLogin'), 'name' => 'CAS Login', 'img' => substr($_SERVER['REQUEST_URI'], 0, strpos($_SERVER['REQUEST_URI'], "/index.php/")) . '/apps/user_cas/img/cas-logo.png'];
+			$this->config->setSystemValue('login.alternatives', $loginAlternatives);
+		}
 
+	}else{
+
+		/** @var array $loginAlternatives */
+		$loginAlternatives = $this->config->getSystemValue('login.alternatives', []);
+
+		foreach ($loginAlternatives as $key => $loginAlternative) {
+
+			if (isset($loginAlternative['name']) && $loginAlternative['name'] === 'CAS Login') {
+
+				$loginAlternatives[$key]['href'] = $this->linkToRoute($this->appName . '.authentication.casLogin');
 				$this->config->setSystemValue('login.alternatives', $loginAlternatives);
 			}
-			
-		}else{
-			
-			/** @var array $loginAlternatives */
-			$loginAlternatives = $this->config->getSystemValue('login.alternatives', []);
-
-			$loginAlreadyRegistered = FALSE;
-
-			foreach ($loginAlternatives as $key => $loginAlternative) {
-
-				if (isset($loginAlternative['name']) && $loginAlternative['name'] === 'CAS Login') {
-
-					$loginAlternatives[$key]['href'] = $this->linkToRoute($this->appName . '.authentication.casLogin');
-					$this->config->setSystemValue('login.alternatives', $loginAlternatives);
-					$loginAlreadyRegistered = TRUE;
-				}
-			}
-
 		}
+
+	}
     }
 
     /**
