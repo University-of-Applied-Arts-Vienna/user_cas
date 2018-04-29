@@ -444,7 +444,7 @@ class AppService
      */
     public function registerLogIn()
     {
-		
+
         // Workaround for Nextcloud >= 12.0.0, as it does not support alternate logins via config.php
         /** @var \OCP\Defaults $defaults */
         $defaults = new \OCP\Defaults();
@@ -452,7 +452,7 @@ class AppService
 
         if (strpos(strtolower($defaults->getName()), 'next') !== FALSE && $version[0] >= 12) {
 
-            $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Nextcloud ".$version[0].".".$version[1].".".$version[2]."."." detected.");
+            $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Nextcloud " . $version[0] . "." . $version[1] . "." . $version[2] . "." . " detected.");
             \OC_App::registerLogIn(array('href' => $this->linkToRoute($this->appName . '.authentication.casLogin'), 'name' => 'CAS Login'));
         } else {
 
