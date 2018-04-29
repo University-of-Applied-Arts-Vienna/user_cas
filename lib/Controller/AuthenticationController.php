@@ -129,7 +129,15 @@ class AuthenticationController extends Controller
         # Handle redirect based on cookie value
         if (isset($_COOKIE['user_cas_redirect_url'])) {
 
-            $location = $this->appService->getAbsoluteURL(urldecode($_COOKIE['user_cas_redirect_url']));
+            $url = urldecode($_COOKIE['user_cas_redirect_url']);
+
+            if(strpos($url, 'http') !== FALSE || strpos($url, 'https') !== FALSE) {
+
+                $location = $url;
+            } else {
+
+                $location = $this->appService->getAbsoluteURL($url);
+            }
         } else {
 
             $location = $this->appService->getAbsoluteURL("/");
@@ -152,6 +160,9 @@ class AuthenticationController extends Controller
                     if ($isLoggedIn) {
 
                         $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS user has been authenticated against owncloud.");
+
+                        # Reset cookie
+                        setcookie("user_cas_redirect_url", '/', null, '/');
 
                         return new RedirectResponse($location);
                     } else { # Not authenticated against owncloud
@@ -176,6 +187,9 @@ class AuthenticationController extends Controller
 
             $this->loggingService->write(\OCP\Util::INFO, "phpCAS user is already authenticated against owncloud.");
 
+            # Reset cookie
+            setcookie("user_cas_redirect_url", '/', null, '/');
+
             return new RedirectResponse($location);
         }
     }
@@ -192,7 +206,7 @@ class AuthenticationController extends Controller
     {
         $params = [];
 
-        if ($additionalErrorCode != 0) {
+        if ($additionalErrorCode !== 0) {
 
             if ($additionalErrorCode === \OCP\AppFramework\Http::STATUS_FORBIDDEN) {
 
