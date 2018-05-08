@@ -414,7 +414,12 @@ class UserService
     private function updateQuota($user, $groupQuotas)
     {
 
-        $defaultQuota = $this->config->getAppValue('files', 'default_quota', '0 B');
+        $defaultQuota = $this->config->getAppValue('files', 'default_quota');
+
+        if ($defaultQuota === '' || $defaultQuota === 'none') {
+
+            $defaultQuota = '0 B';
+        }
 
         $uid = $user->getUID();
         $collectedQuotas = array();
@@ -449,12 +454,10 @@ class UserService
         if ($usersOldQuota === 'none') {
 
             $usersOldQuota = PHP_INT_MAX;
-        }
-        elseif ($usersOldQuota === 'default') {
+        } elseif ($usersOldQuota === 'default') {
 
             $usersOldQuota = \OCP\Util::computerFileSize($defaultQuota);
-        }
-        else {
+        } else {
 
             $usersOldQuota = \OCP\Util::computerFileSize($usersOldQuota);
         }
