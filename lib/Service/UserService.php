@@ -238,7 +238,7 @@ class UserService
     {
 
         $randomPassword = $this->getNewPassword();
-
+        //TODO: Update this to make login compatible with 10.0.8
         return $this->userManager->createUser($userId, $randomPassword);
     }
 
