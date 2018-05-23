@@ -86,16 +86,6 @@ class Backend extends Database
     public function checkPassword($uid, $password)
     {
 
-        $script = $_SERVER['SCRIPT_FILENAME'];
-        $requestUri = $_SERVER['REQUEST_URI'];
-
-        // Let all OCS API Users pass
-        /*if(strpos($script, "ocs") || strpos($requestUri, "oc.js") || in_array(basename($script), array('public.php', 'remote.php'))) {
-
-            $this->loggingService->write(\OCP\Util::DEBUG, 'Access through OCS, remote or public API. Let it pass.');
-            return $uid;
-        }*/
-
         if (!$this->appService->isCasInitialized()) {
 
             try {
