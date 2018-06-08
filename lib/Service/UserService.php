@@ -23,11 +23,13 @@
 
 namespace OCA\UserCAS\Service;
 
-use OCA\UserCAS\User\Backend;
+use OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException;
 use \OCP\IConfig;
 use \OCP\IUserManager;
 use \OCP\IGroupManager;
 use \OCP\IUserSession;
+
+use OCA\UserCAS\User\Backend;
 
 /**
  * Class UserService
@@ -77,6 +79,11 @@ class UserService
      */
     private $backend;
 
+    /**
+     * @var \OCA\UserCAS\Service\LoggingService $loggingService
+     */
+    private $loggingService;
+
 
     /**
      * UserService constructor.
@@ -88,8 +95,9 @@ class UserService
      * @param IGroupManager $groupManager
      * @param AppService $appService
      * @param Backend $backend
+     * @param LoggingService $loggingService
      */
-    public function __construct($appName, IConfig $config, IUserManager $userManager, IUserSession $userSession, IGroupManager $groupManager, AppService $appService, Backend $backend)
+    public function __construct($appName, IConfig $config, IUserManager $userManager, IUserSession $userSession, IGroupManager $groupManager, AppService $appService, Backend $backend, LoggingService $loggingService)
     {
 
         $this->appName = $appName;
@@ -99,6 +107,7 @@ class UserService
         $this->groupManager = $groupManager;
         $this->appService = $appService;
         $this->backend = $backend;
+        $this->loggingService = $loggingService;
     }
 
     /**
@@ -112,32 +121,98 @@ class UserService
     public function login($request, $uid, $password = '')
     {
 
-        \OCP\Util::writeLog('cas', 'phpCAS login function step 1.', \OCP\Util::DEBUG);
+        $this->loggingService->write(\OCP\Util::INFO, 'phpCAS login function step 1.');
+        #\OCP\Util::writeLog('cas', 'phpCAS login function step 1.', \OCP\Util::DEBUG);
 
         try {
 
             if (!boolval($this->config->getAppValue($this->appName, 'cas_autocreate')) && !$this->userExists($uid)) {
 
-                \OCP\Util::writeLog('cas', 'phpCas autocreate disabled, and OC User does not exist, phpCas based login not possible. Bye.', \OCP\Util::DEBUG);
+                $this->loggingService->write(\OCP\Util::DEBUG, 'phpCas autocreate disabled, and OC User does not exist, phpCas based login not possible. Bye.');
 
                 return FALSE;
             }
 
+
+            # Check if user may be authorized based on groups or not
+            $cas_access_allow_groups = $this->config->getAppValue($this->appName, 'cas_access_allow_groups');
+            if (is_string($cas_access_allow_groups) && strlen($cas_access_allow_groups) > 0) {
+
+                $cas_access_allow_groups = explode(',', $cas_access_allow_groups);
+                $casAttributes = \phpCAS::getAttributes();
+                $casGroups = array();
+                $isAuthorized = FALSE;
+
+                $groupMapping = $this->config->getAppValue($this->appName, 'cas_group_mapping');
+
+                # Test if an attribute parser added a new dimension to our attributes array
+                if (array_key_exists('attributes', $casAttributes)) {
+
+                    $newAttributes = $casAttributes['attributes'];
+
+                    unset($casAttributes['attributes']);
+
+                    $casAttributes = array_merge($casAttributes, $newAttributes);
+                }
+
+                # Test for mapped attribute from settings
+                if (array_key_exists($groupMapping, $casAttributes)) {
+
+                    $casGroups = (array)$casAttributes[$groupMapping];
+                } # Test for standard 'groups' attribute
+                else if (array_key_exists('groups', $casAttributes)) {
+
+                    $casGroups = (array)$casAttributes['groups'];
+                }
+
+                foreach ($casGroups as $casGroup) {
+
+                    if (in_array($casGroup, $cas_access_allow_groups)) {
+
+                        $this->loggingService->write(\OCP\Util::DEBUG, 'phpCas CAS users login has been authorized with group: ' . $casGroup);
+
+                        $isAuthorized = TRUE;
+                    } else {
+
+                        $this->loggingService->write(\OCP\Util::DEBUG, 'phpCas CAS users login has not been authorized with group: ' . $casGroup . ', because the group was not in allowedGroups: ' . implode(", ", $cas_access_allow_groups));
+                    }
+                }
+
+                if ($this->groupManager->isInGroup($uid, 'admin')) {
+
+                    $this->loggingService->write(\OCP\Util::DEBUG, 'phpCas CAS users login has been authorized with group: admin');
+
+                    $isAuthorized = TRUE;
+                }
+
+                if (!$isAuthorized) {
+
+                    $this->loggingService->write(\OCP\Util::DEBUG, 'phpCas CAS user is not authorized to log into ownCloud. Bye.');
+
+                    return FALSE;
+                }
+            }
+
+
+            # Log in the user
             $loginSuccessful = $this->userSession->login($uid, $password);
 
-            \OCP\Util::writeLog('cas', 'phpCAS login function result: ' . $loginSuccessful, \OCP\Util::DEBUG);
+            $this->loggingService->write(\OCP\Util::INFO, 'phpCAS login function result: ' . $loginSuccessful);
+            #\OCP\Util::writeLog('cas', 'phpCAS login function result: ' . $loginSuccessful, \OCP\Util::DEBUG);
 
             if ($loginSuccessful) {
 
                 return $this->userSession->createSessionToken($request, $this->userSession->getUser()->getUID(), $uid, $password);
             }
 
-            \OCP\Util::writeLog('cas', 'phpCAS login function not successful.', \OCP\Util::DEBUG);
+            $this->loggingService->write(\OCP\Util::INFO, 'phpCAS login function not successful.');
+            #\OCP\Util::writeLog('cas', 'phpCAS login function not successful.', \OCP\Util::DEBUG);
 
             return FALSE;
         } catch (\OC\User\LoginException $e) {
 
-            \OCP\Util::writeLog('cas', 'Owncloud could not log in the user with UID: ' . $uid . '. Exception thrown with code: ' . $e->getCode() . ' and message: ' . $e->getMessage() . '.', \OCP\Util::ERROR);
+            $this->loggingService->write(\OCP\Util::ERROR, 'Owncloud could not log in the user with UID: ' . $uid . '. Exception thrown with code: ' . $e->getCode() . ' and message: ' . $e->getMessage() . '.');
+            #\OCP\Util::writeLog('cas', 'Owncloud could not log in the user with UID: ' . $uid . '. Exception thrown with code: ' . $e->getCode() . ' and message: ' . $e->getMessage() . '.', \OCP\Util::ERROR);
 
             return FALSE;
         }
@@ -157,12 +232,13 @@ class UserService
     /**
      * @param string $userId
      * @return boolean|\OCP\IUser the created user or false
+     * @throws \Exception
      */
     public function create($userId)
     {
 
-        $randomPassword = \OC::$server->getSecureRandom()->getMediumStrengthGenerator()->generate(20);
-
+        $randomPassword = $this->getNewPassword();
+        //TODO: Update this to make login compatible with 10.0.8
         return $this->userManager->createUser($userId, $randomPassword);
     }
 
@@ -193,7 +269,8 @@ class UserService
             $attributesString .= $key . ': ' . $attribute . '; ';
         }*/
 
-        \OCP\Util::writeLog('cas', 'Updating data of the user: ' . $userId, \OCP\Util::DEBUG);
+        $this->loggingService->write(\OCP\Util::INFO, 'Updating data of the user: ' . $userId);
+        #\OCP\Util::writeLog('cas', 'Updating data of the user: ' . $userId, \OCP\Util::DEBUG);
         #\OCP\Util::writeLog('cas', 'Attributes: ' . $attributesString, \OCP\Util::DEBUG);
 
         if (isset($attributes['cas_email']) && is_object($user)) {
@@ -208,8 +285,13 @@ class UserService
 
             $this->updateGroups($user, $attributes['cas_groups'], $this->config->getAppValue($this->appName, 'cas_protected_groups'));
         }
+        if (isset($attributes['cas_group_quota']) && is_object($user)) {
 
-        \OCP\Util::writeLog('cas', 'Updating data finished.', \OCP\Util::DEBUG);
+            $this->updateQuota($user, $attributes['cas_group_quota']);
+        }
+
+        $this->loggingService->write(\OCP\Util::INFO, 'Updating data finished.');
+        #\OCP\Util::writeLog('cas', 'Updating data finished.', \OCP\Util::DEBUG);
     }
 
     /**
@@ -229,7 +311,8 @@ class UserService
         if ($email !== $user->getEMailAddress()) {
 
             $user->setEMailAddress($email);
-            \OCP\Util::writeLog('cas', 'Set email "' . $email . '" for the user: ' . $user->getUID(), \OCP\Util::DEBUG);
+            $this->loggingService->write(\OCP\Util::INFO, 'Set email "' . $email . '" for the user: ' . $user->getUID());
+            #\OCP\Util::writeLog('cas', 'Set email "' . $email . '" for the user: ' . $user->getUID(), \OCP\Util::DEBUG);
         }
     }
 
@@ -250,7 +333,8 @@ class UserService
         if ($name !== $user->getDisplayName()) {
 
             $user->setDisplayName($name);
-            \OCP\Util::writeLog('cas', 'Set Name: ' . $name . ' for the user: ' . $user->getUID(), \OCP\Util::DEBUG);
+            $this->loggingService->write(\OCP\Util::INFO, 'Set Name: ' . $name . ' for the user: ' . $user->getUID());
+            #\OCP\Util::writeLog('cas', 'Set Name: ' . $name . ' for the user: ' . $user->getUID(), \OCP\Util::DEBUG);
         }
     }
 
@@ -284,7 +368,8 @@ class UserService
 
                         $group->removeUser($user);
 
-                        \OCP\Util::writeLog('cas', 'Removed "' . $uid . '" from the group "' . $groupId . '"', \OCP\Util::DEBUG);
+                        $this->loggingService->write(\OCP\Util::INFO, "Removed '" . $uid . "' from the group '" . $groupId . "'");
+                        #\OCP\Util::writeLog('cas', 'Removed "' . $uid . '" from the group "' . $groupId . '"', \OCP\Util::DEBUG);
                     }
                 }
             }
@@ -296,7 +381,8 @@ class UserService
 
             if (preg_match('/[^a-zA-Z0-9 _\.@\-]/', $group)) {
 
-                \OCP\Util::writeLog('cas', 'Invalid group "' . $group . '", allowed chars "a-zA-Z0-9" and "_.@-" ', \OCP\Util::DEBUG);
+                $this->loggingService->write(\OCP\Util::ERROR, "Invalid group '" . $group . "', allowed chars 'a-zA-Z0-9' and '_.@-' ");
+                #\OCP\Util::writeLog('cas', 'Invalid group "' . $group . '", allowed chars "a-zA-Z0-9" and "_.@-" ', \OCP\Util::DEBUG);
             } else {
 
                 if (!$this->groupManager->isInGroup($uid, $group)) {
@@ -304,16 +390,87 @@ class UserService
                     if (!$this->groupManager->groupExists($group)) {
 
                         $groupObject = $this->groupManager->createGroup($group);
-                        \OCP\Util::writeLog('cas', 'New group created: ' . $group, \OCP\Util::DEBUG);
+
+                        $this->loggingService->write(\OCP\Util::DEBUG, 'New group created: ' . $group);
+                        #\OCP\Util::writeLog('cas', 'New group created: ' . $group, \OCP\Util::DEBUG);
                     } else {
 
                         $groupObject = $this->groupManager->get($group);
                     }
 
                     $groupObject->addUser($user);
-                    \OCP\Util::writeLog('cas', 'Added "' . $uid . '" to the group "' . $group . '"', \OCP\Util::DEBUG);
+
+                    $this->loggingService->write(\OCP\Util::INFO, "Added '" . $uid . "' to the group '" . $group . "'");
+                    #\OCP\Util::writeLog('cas', 'Added "' . $uid . '" to the group "' . $group . '"', \OCP\Util::DEBUG);
                 }
             }
+        }
+    }
+
+    /**
+     * @param \OCP\IUser $user
+     * @param array $groupQuotas
+     */
+    private function updateQuota($user, $groupQuotas)
+    {
+
+        $defaultQuota = $this->config->getAppValue('files', 'default_quota');
+
+        if ($defaultQuota === '' || $defaultQuota === 'none') {
+
+            $defaultQuota = '0 B';
+        }
+
+        $uid = $user->getUID();
+        $collectedQuotas = array();
+
+        foreach ($groupQuotas as $groupName => $groupQuota) {
+
+            if ($this->groupManager->isInGroup($uid, $groupName)) {
+
+                if ($groupQuota === 'none') {
+
+                    $collectedQuotas[PHP_INT_MAX] = $groupQuota;
+                } elseif ($groupQuota === 'default') {
+
+                    $defaultQuotaFilesize = \OCP\Util::computerFileSize($defaultQuota);
+
+                    $collectedQuotas[$defaultQuotaFilesize] = $groupQuota;
+                } else {
+
+                    $groupQuotaComputerFilesize = \OCP\Util::computerFileSize($groupQuota);
+                    $collectedQuotas[$groupQuotaComputerFilesize] = $groupQuota;
+                }
+            }
+        }
+
+        # Sort descending by key
+        krsort($collectedQuotas);
+
+        $newQuota = \OCP\Util::computerFileSize(array_shift($collectedQuotas));
+
+        $usersOldQuota = $user->getQuota();
+
+        if ($usersOldQuota === 'none') {
+
+            $usersOldQuota = PHP_INT_MAX;
+        } elseif ($usersOldQuota === 'default') {
+
+            $usersOldQuota = \OCP\Util::computerFileSize($defaultQuota);
+        } else {
+
+            $usersOldQuota = \OCP\Util::computerFileSize($usersOldQuota);
+        }
+
+        $this->loggingService->write(\OCP\Util::INFO, "Default System Quota is: '" . $defaultQuota . "'");
+        $this->loggingService->write(\OCP\Util::INFO, "User '" . $uid . "' old computerized Quota is: '" . $usersOldQuota . "'");
+        $this->loggingService->write(\OCP\Util::INFO, "User '" . $uid . "' new computerized Quota would be: '" . $newQuota . "'");
+
+        if ($usersOldQuota < $newQuota) {
+
+            $user->setQuota($newQuota);
+
+            $this->loggingService->write(\OCP\Util::INFO, "User '" . $uid . "' has new Quota: '" . $newQuota . "'");
         }
     }
 
@@ -323,8 +480,23 @@ class UserService
     public function registerBackend()
     {
 
-        if (!$this->appService->isCasInitialized()) $this->appService->init();
-
         $this->userManager->registerBackend($this->backend);
+    }
+
+
+    /**
+     * Generate a random PW with special char symbol characters
+     *
+     * @return string New Password
+     */
+    protected function getNewPassword()
+    {
+
+        $newPasswordCharsLower = \OC::$server->getSecureRandom()->generate(8, \OCP\Security\ISecureRandom::CHAR_LOWER);
+        $newPasswordCharsUpper = \OC::$server->getSecureRandom()->generate(4, \OCP\Security\ISecureRandom::CHAR_UPPER);
+        $newPasswordNumbers = \OC::$server->getSecureRandom()->generate(4, \OCP\Security\ISecureRandom::CHAR_DIGITS);
+        $newPasswordSymbols = \OC::$server->getSecureRandom()->generate(4, \OCP\Security\ISecureRandom::CHAR_SYMBOLS);
+
+        return str_shuffle($newPasswordCharsLower . $newPasswordCharsUpper . $newPasswordNumbers . $newPasswordSymbols);
     }
 }

@@ -23,7 +23,11 @@
 
 namespace OCA\UserCAS\User;
 
-use \OC\User\Manager;
+use OC\User\Database;
+use OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException;
+use OCA\UserCAS\Service\AppService;
+use \OCP\IUserManager;
+use OCA\UserCAS\Service\LoggingService;
 
 
 /**
@@ -36,31 +40,36 @@ use \OC\User\Manager;
  *
  * @since 1.4.0
  */
-class Backend extends \OC\User\Backend implements \OCP\IUserBackend
+class Backend extends Database
 {
 
     /**
-     * @var \OC\User\Manager $userManager
+     * @var \OCA\UserCAS\Service\LoggingService $loggingService
      */
-    private $userManager;
+    private $loggingService;
 
+    /**
+     * @var \OCA\UserCAS\Service\AppService $appService
+     */
+    private $appService;
 
     /**
      * Backend constructor.
-     *
-     * @param \OC\User\Manager $userManager
+     * @param LoggingService $loggingService
+     * @param AppService $appService
      */
-    public function __construct(Manager $userManager)
+    public function __construct(LoggingService $loggingService, AppService $appService)
     {
 
-        $this->userManager = $userManager;
+        parent::__construct();
+        $this->loggingService = $loggingService;
+        $this->appService = $appService;
     }
 
 
     /**
      * Backend name to be shown in user management
      * @return string the name of the backend to be shown
-     * @since 8.0.0
      */
     public function getBackendName()
     {
@@ -72,91 +81,61 @@ class Backend extends \OC\User\Backend implements \OCP\IUserBackend
     /**
      * @param string $uid
      * @param string $password
-     * @return bool
+     * @return string|bool The users UID or false
      */
     public function checkPassword($uid, $password)
     {
+
+        if (!$this->appService->isCasInitialized()) {
+
+            try {
+
+                $this->appService->init();
+            } catch (PhpUserCasLibraryNotFoundException $e) {
+
+                $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: ' . $e->getCode() . ' and message: ' . $e->getMessage());
+
+                header("Location: " . $this->appService->getAbsoluteURL('/'));
+                die();
+            }
+        }
 
         if (\phpCAS::isInitialized()) {
 
             if (!\phpCAS::isAuthenticated()) {
 
-                \OCP\Util::writeLog('cas', 'phpCAS user has not been authenticated.', \OCP\Util::ERROR);
-                return FALSE;
+                $this->loggingService->write(\OCP\Util::ERROR, 'phpCAS user has not been authenticated.');
+
+                return parent::checkPassword($uid, $password);
+
+                #\OCP\Util::writeLog('cas', 'phpCAS user has not been authenticated.', \OCP\Util::ERROR);
             }
 
             if ($uid === FALSE) {
 
-                \OCP\Util::writeLog('cas', 'phpCAS returned no user.', \OCP\Util::ERROR);
-                return FALSE;
+                $this->loggingService->write(\OCP\Util::ERROR, 'phpCAS returned no user.');
+                #\OCP\Util::writeLog('cas', 'phpCAS returned no user.', \OCP\Util::ERROR);
             }
 
-            $casUid = \phpCAS::getUser();
+            if(\phpCAS::checkAuthentication()) {
 
-            if ($casUid === $uid) {
+                $casUid = \phpCAS::getUser();
 
-                \OCP\Util::writeLog('cas', 'phpCAS user password has been checked.', \OCP\Util::ERROR);
+                if ($casUid === $uid) {
 
-                return $uid;
+                    $this->loggingService->write(\OCP\Util::ERROR, 'phpCAS user password has been checked.');
+                    #\OCP\Util::writeLog('cas', 'phpCAS user password has been checked.', \OCP\Util::ERROR);
+
+                    return $uid;
+                }
             }
+
+            return FALSE;
         } else {
 
-            \OCP\Util::writeLog('cas', 'phpCAS has not been initialized.', \OCP\Util::ERROR);
+            $this->loggingService->write(\OCP\Util::ERROR, 'phpCAS has not been initialized.');
+            #\OCP\Util::writeLog('cas', 'phpCAS has not been initialized.', \OCP\Util::ERROR);
             return FALSE;
         }
-    }
-
-    /**
-     * @param string $uid
-     * @return NULL|string
-     */
-    public function getDisplayName($uid)
-    {
-        $user = $this->userManager->get($uid);
-
-        if (!is_null($user)) return $user->getDisplayName();
-
-        return NULL;
-    }
-
-    /**
-     * @param string $uid
-     * @param string $displayName
-     */
-    public function setDisplayName($uid, $displayName)
-    {
-        $user = $this->userManager->get($uid);
-
-        if (!is_null($user)) $user->setDisplayName($displayName);
-    }
-
-    /**
-     * Delete a user.
-     *
-     * @param string $uid The username of the user to delete
-     * @return bool
-     *
-     * Deletes a user
-     */
-    public function deleteUser($uid)
-    {
-        $user = $this->userManager->get($uid);
-
-        return $user->delete();
-    }
-
-    /**
-     * Get the user's home directory.
-     *
-     * @param string $uid the username
-     * @return boolean|string
-     */
-    public function getHome($uid)
-    {
-        $user = $this->userManager->get($uid);
-
-        if (!is_null($user)) return $user->getHome();
-
-        return FALSE;
     }
 }

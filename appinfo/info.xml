@@ -2,17 +2,23 @@
 <info>
     <id>user_cas</id>
     <name>CAS user and group backend</name>
-    <description>Authenticate Users against a jasig/apero CAS Server (https://github.com/apereo/cas)</description>
+    <description>This app provides in-depth features to authenticate and authorize users against a [jasig/apereo Central Authentication Server (CAS)](https://www.apereo.org/projects/cas). The app provides all necessary options needed to connect to your CAS instance and also advanced features to manage the groups accessible by your CAS infrastructure to implement an authorization feature. Additionally this version supports ECAS instances used by the European Commission. Commercial support for user_cas is available through ownCloud GmbH and myself personally.</description>
+    <summary>Authenticate against and manage users with a jasig/apereo CAS Server (https://github.com/apereo/cas)</summary>
     <licence>AGPL</licence>
-    <author>Felix Rupp, Leonis Holding, Sixto Martin</author>
+    <screenshot>http://stuff.felixrupp.com/user_cas/1.5/splashscreen.png</screenshot>
+    <screenshot>http://stuff.felixrupp.com/user_cas/1.4/user_cas-1.png</screenshot>
+    <screenshot>http://stuff.felixrupp.com/user_cas/1.4/user_cas-2.png</screenshot>
+    <screenshot>http://stuff.felixrupp.com/user_cas/1.4/user_cas-3.png</screenshot>
+    <screenshot>http://stuff.felixrupp.com/user_cas/1.4/user_cas-4.png</screenshot>
+    <author>Felix Rupp</author>
     <namespace>UserCAS</namespace>
-    <version>1.4.9</version>
+    <version>1.5.0</version>
     <types>
         <prelogin/>
         <authentication/>
     </types>
 
-    <category>tool</category>
+    <category>security</category>
 
     <website>https://github.com/felixrupp/user_cas</website>
 
@@ -27,10 +33,13 @@
     <repository type="git">https://github.com/felixrupp/user_cas.git</repository>
 
     <dependencies>
-        <php min-version="5.6" max-version="7.0.99"/>
+        <php min-version="5.6" max-version="7.1.99"/>
 
-        <lib>curl</lib>
-
-        <owncloud min-version="9.1.6" max-version="10.0.99"/>
+        <owncloud min-version="10.0" max-version="10.0.7"/>
+        <nextcloud min-version="13" max-version="13"/>
     </dependencies>
+
+    <settings>
+        <admin>OCA\UserCAS\Panels\Admin</admin>
+    </settings>
 </info>

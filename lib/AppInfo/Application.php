@@ -32,6 +32,7 @@ use OCA\UserCAS\Hooks\UserHooks;
 use OCA\UserCAS\Controller\SettingsController;
 use OCA\UserCAS\Controller\AuthenticationController;
 use OCA\UserCAS\User\Backend;
+use OCA\UserCAS\Service\LoggingService;
 
 /**
  * Class Application
@@ -74,22 +75,38 @@ class Application extends App
             return $c->query('ServerContainer')->getLogger();
         });
 
-        $container->registerService('Backend', function (IContainer $c) {
-            return new Backend(
-                $c->query('ServerContainer')->getUserManager()
+        /**
+         * Register LoggingService
+         */
+        $container->registerService('LoggingService', function (IContainer $c) {
+            return new LoggingService(
+                $c->query('AppName'),
+                $c->query('Config'),
+                $c->query('Logger')
             );
         });
 
         /**
          * Register AppService with config
          */
-        $container->registerService('AppService', function ($c) {
+        $container->registerService('AppService', function (IContainer $c) {
             return new AppService(
                 $c->query('AppName'),
                 $c->query('Config'),
+                $c->query('LoggingService'),
                 $c->query('ServerContainer')->getUserManager(),
                 $c->query('ServerContainer')->getUserSession(),
                 $c->query('ServerContainer')->getURLGenerator()
+            );
+        });
+
+        /**
+         * Register Backend
+         */
+        $container->registerService('Backend', function (IContainer $c) {
+            return new Backend(
+                $c->query('LoggingService'),
+                $c->query('AppService')
             );
         });
 
@@ -104,7 +121,8 @@ class Application extends App
                 $c->query('ServerContainer')->getUserSession(),
                 $c->query('ServerContainer')->getGroupManager(),
                 $c->query('AppService'),
-                $c->query('Backend')
+                $c->query('Backend'),
+                $c->query('LoggingService')
             );
         });
 
@@ -130,7 +148,8 @@ class Application extends App
                 $c->query('Config'),
                 $c->query('UserService'),
                 $c->query('AppService'),
-                $c->query('ServerContainer')->getUserSession()
+                $c->query('ServerContainer')->getUserSession(),
+                $c->query('LoggingService')
             );
         });
 
@@ -144,7 +163,8 @@ class Application extends App
                 $c->query('ServerContainer')->getUserSession(),
                 $c->query('Config'),
                 $c->query('UserService'),
-                $c->query('AppService')
+                $c->query('AppService'),
+                $c->query('LoggingService')
             );
         });
     }

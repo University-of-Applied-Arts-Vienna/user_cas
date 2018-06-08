@@ -3,11 +3,7 @@
 /**
  * ownCloud - user_cas
  *
- * @author Sixto Martin <sixto.martin.garcia@gmail.com>
  * @author Felix Rupp <kontakt@felixrupp.com>
- *
- * @copyright Sixto Martin Garcia. 2012
- * @copyright Leonis. 2014 <devteam@leonis.at>
  * @copyright Felix Rupp <kontakt@felixrupp.com>
  *
  * This library is free software; you can redistribute it and/or
@@ -22,67 +18,81 @@
  *
  * You should have received a copy of the GNU Affero General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 $app = new \OCA\UserCAS\AppInfo\Application();
 $c = $app->getContainer();
 
-$enable = TRUE;
+$enabled = TRUE;
 
-$script = $_SERVER['SCRIPT_FILENAME'];
-$requestUri = $_SERVER['REQUEST_URI'];
+$script = (isset($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : '');
+$requestUri = (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '');
 
-if (in_array(basename($script), array('console.php', 'cron.php', 'public.php', 'remote.php', 'status.php', 'version.php')) || strpos($script, "ocs") || strpos($requestUri, "oc.js")) {
-    $enable = FALSE;
+if (in_array(basename($script), array('console.php', 'cron.php', 'status.php', 'version.php')) || strpos($requestUri, "/oauth2/") || strpos($requestUri, "/s/")) {
+    $enabled = FALSE;
 }
 
-if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI && $enable) {
+if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI && $enabled) {
 
     $appService = $c->query('AppService');
     $userService = $c->query('UserService');
+    $loggingService = $c->query("LoggingService");
 
     // Register User Backend
     $userService->registerBackend();
 
-    // Register UserHooks
-    $c->query('UserHooks')->register();
+    if(!strpos($script, "ocs") && !strpos($requestUri, "oc.js") && !in_array(basename($script), array('public.php', 'remote.php'))) {
 
-    // Register Admin Panel
-    \OCP\App::registerAdmin($c->getAppName(), 'admin');
+        // URL params and redirect_url cookie
+        setcookie("user_cas_enforce_authentication", "0", null, '/');
+        $urlParams = '';
 
+        if (isset($_REQUEST['redirect_url'])) {
 
-    // URL params
-    $urlParams = "";
-    if (isset($_GET['redirect_url'])) {
+            $urlParams = $_REQUEST['redirect_url'];
+            // Save the redirect_rul to a cookie
+            $cookie = setcookie("user_cas_redirect_url", "$urlParams", null, '/');
+        }/*
+        else {
 
-        $urlParams .= "?redirect_url=" . $_GET['redirect_url'];
-    }
+            setcookie("user_cas_redirect_url", '/', null, '/');
+        }*/
 
-    // Register alternative LogIn
-    \OC_App::registerLogIn(array('href' => $appService->linkToRoute($c->getAppName() . '.authentication.casLogin') . $urlParams, 'name' => 'CAS Login'));
+        // Register alternative LogIn
+        $appService->registerLogIn();
 
-    // Check for enforced authentication
-    if ($appService->isEnforceAuthentication() && (!isset($_GET["cas_enforce_authentication"]) || (isset($_GET["cas_enforce_authentication"]) && $_GET["cas_enforce_authentication"] === '0'))) {
+        // Register UserHooks
+        $c->query('UserHooks')->register();
 
-        if (is_string($urlParams) && strlen($urlParams) > 0) {
+        // Check for enforced authentication
+        if ($appService->isEnforceAuthentication() && (!isset($_COOKIE['user_cas_enforce_authentication']) || (isset($_COOKIE['user_cas_enforce_authentication']) && $_COOKIE['user_cas_enforce_authentication'] === '0'))) {
 
-            $urlParams .= "&cas_enforce_authentication=1";
-        } else {
-            $urlParams .= "?cas_enforce_authentication=1";
-        }
+            $loggingService->write(\OCP\Util::DEBUG, 'Enforce Authentication was: ' . $appService->isEnforceAuthentication());
+            setcookie("user_cas_enforce_authentication", '1', null, '/');
 
-        \OCP\Util::writeLog('cas', 'Enforce Authentication was: ' . $appService->isEnforceAuthentication(), \OCP\Util::DEBUG);
+            // Initialize app
+            if (!$appService->isCasInitialized()) {
 
-        // Initialize app
-        if (!$appService->isCasInitialized()) $appService->init();
+                try {
+                    $appService->init();
+                } catch (\OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException $e) {
 
-        if (!\phpCAS::isAuthenticated()) {
+                    $loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: ' . $e->getCode() . ' and message: ' . $e->getMessage());
 
-            \OCP\Util::writeLog('cas', 'Enforce Authentication was on and phpCAS is not authenticated. Redirecting to CAS Server.', \OCP\Util::DEBUG);
+                    header("Location: " . $appService->getAbsoluteURL('/'));
+                    die();
+                }
+            }
 
-            header("Location: " . $appService->linkToRouteAbsolute($c->getAppName() . '.authentication.casLogin') . $urlParams);
-            die();
+            if (!\phpCAS::isAuthenticated()) {
+
+                $loggingService->write(\OCP\Util::DEBUG, 'Enforce Authentication was on and phpCAS is not authenticated. Redirecting to CAS Server.');
+
+                $cookie = setcookie("user_cas_redirect_url", urlencode($requestUri), null, '/');
+
+                header("Location: " . $appService->linkToRouteAbsolute($c->getAppName() . '.authentication.casLogin'));
+                die();
+            }
         }
     }
 }
