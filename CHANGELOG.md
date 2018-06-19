@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+Version 1.5.1
+-------------
+* Hotfixes wrong links in 403 error page if enforce authentication was on
+* Hotfixes wrong translation in 403 error page for ECAS instances
+* Removes return type hints not compatible with PHP 5.6
+* Adds functionality to provide more than one mapping field to ownCloud userdata fields (e.g. DisplayName can now be concatenated by a firstname and a lastname CAS-field)
+
 Version 1.5.0
 -------------
 * Drop ownCloud 9 support

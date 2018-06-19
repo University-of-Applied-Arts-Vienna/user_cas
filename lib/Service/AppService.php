@@ -707,7 +707,7 @@ class AppService
     /**
      * @return bool
      */
-    public function isCasDisableLogout(): bool
+    public function isCasDisableLogout()
     {
         return $this->casDisableLogout;
     }
@@ -715,7 +715,7 @@ class AppService
     /**
      * @param bool $casDisableLogout
      */
-    public function setCasDisableLogout(bool $casDisableLogout)
+    public function setCasDisableLogout($casDisableLogout)
     {
         $this->casDisableLogout = $casDisableLogout;
     }
@@ -723,7 +723,7 @@ class AppService
     /**
      * @return string
      */
-    public function getCasEcasAcceptedStrengths(): string
+    public function getCasEcasAcceptedStrengths()
     {
         return $this->cas_ecas_accepted_strengths;
     }
@@ -731,7 +731,7 @@ class AppService
     /**
      * @param string $cas_ecas_accepted_strengths
      */
-    public function setCasEcasAcceptedStrengths(string $cas_ecas_accepted_strengths)
+    public function setCasEcasAcceptedStrengths($cas_ecas_accepted_strengths)
     {
         $this->cas_ecas_accepted_strengths = $cas_ecas_accepted_strengths;
     }
@@ -739,7 +739,7 @@ class AppService
     /**
      * @return string
      */
-    public function getCasEcasRetrieveGroups(): string
+    public function getCasEcasRetrieveGroups()
     {
         return $this->cas_ecas_retrieve_groups;
     }
@@ -747,7 +747,7 @@ class AppService
     /**
      * @param string $cas_ecas_retrieve_groups
      */
-    public function setCasEcasRetrieveGroups(string $cas_ecas_retrieve_groups)
+    public function setCasEcasRetrieveGroups($cas_ecas_retrieve_groups)
     {
         $this->cas_ecas_retrieve_groups = $cas_ecas_retrieve_groups;
     }
@@ -755,7 +755,7 @@ class AppService
     /**
      * @return string
      */
-    public function getCasEcasAssuranceLevel(): string
+    public function getCasEcasAssuranceLevel()
     {
         return $this->cas_ecas_assurance_level;
     }
@@ -763,7 +763,7 @@ class AppService
     /**
      * @param string $cas_ecas_assurance_level
      */
-    public function setCasEcasAssuranceLevel(string $cas_ecas_assurance_level)
+    public function setCasEcasAssuranceLevel($cas_ecas_assurance_level)
     {
         $this->cas_ecas_assurance_level = $cas_ecas_assurance_level;
     }
@@ -771,7 +771,7 @@ class AppService
     /**
      * @return bool
      */
-    public function isEcasAttributeParserEnabled(): bool
+    public function isEcasAttributeParserEnabled()
     {
         return $this->ecasAttributeParserEnabled;
     }
@@ -779,7 +779,7 @@ class AppService
     /**
      * @param bool $ecasAttributeParserEnabled
      */
-    public function setEcasAttributeParserEnabled(bool $ecasAttributeParserEnabled)
+    public function setEcasAttributeParserEnabled($ecasAttributeParserEnabled)
     {
         $this->ecasAttributeParserEnabled = $ecasAttributeParserEnabled;
     }
@@ -787,7 +787,7 @@ class AppService
     /**
      * @return bool
      */
-    public function isCasEcasRequestFullUserdetails(): bool
+    public function isCasEcasRequestFullUserdetails()
     {
         return $this->cas_ecas_request_full_userdetails;
     }
@@ -795,7 +795,7 @@ class AppService
     /**
      * @param bool $cas_ecas_request_full_userdetails
      */
-    public function setCasEcasRequestFullUserdetails(bool $cas_ecas_request_full_userdetails)
+    public function setCasEcasRequestFullUserdetails($cas_ecas_request_full_userdetails)
     {
         $this->cas_ecas_request_full_userdetails = $cas_ecas_request_full_userdetails;
     }

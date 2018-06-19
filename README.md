@@ -1,7 +1,7 @@
 INTRODUCTION
 ============
 
-This App provides CAS authentication support, using the phpcas library of jasig/apereo.
+This App provides CAS authentication support, using the phpCAS library of jasig/apereo.
 
 INSTALLATION
 ============
@@ -9,14 +9,14 @@ INSTALLATION
 DEPENDENCIES
 -------------------
 
-* ownCloud 10.0.0 or higher
+* ownCloud 10.0.0 to 10.0.7 and Nextcloud 13.0.0 to 13.0.3
 * PHP >= 5.6, PHP 7.0 or 7.1 if possible
-* [Composer Dependency Manager](https://getcomposer.org/), if you want to install via GIT.
+* Optional: [Composer Dependency Manager](https://getcomposer.org/), if you want to install via GIT.
 
-This app does not require a standalone version of jasig’s/apereo’s phpcas any longer. The library is shipped within composer dependencies or in the archive file you downloaded. Although you can configure to use your own version of jasig’s/apereo’s phpcas library later on.
+This app does not require a standalone version of jasig’s/apereo’s phpCAS any longer. The library is shipped within composer dependencies, in the archive file you downloaded or the Market/App-Store version if used. Although you can configure to use your own version of jasig’s/apereo’s phpCAS library later on.
 
 
-STEPS
+GIT: STEPS
 -----
 
 1. Git clone/copy the downloaded `user_cas` folder into the ownCloud's apps folder and make sure to set correct permissions for your Webserver.
@@ -24,7 +24,7 @@ STEPS
 3. Adjust the settings for the `user_cas` folder according to your webserver setup.
 4. Access the ownCloud web interface with a locally created ownCloud user with admin privileges.
 5. Access the administrations panel => Apps and enable the **CAS user and group backend** app.
-6. Access the administration panel => Authentication and configure the app.
+6. Access the administration panel => Authentication (Additional on Nextcloud) and configure the app.
 
 
 CONFIGURATION
@@ -72,7 +72,7 @@ If CAS provides extra attributes, `user_cas` can retrieve the values of them. Si
 
 **Email**: Name of email attribute in CAS. Default: empty
 
-**Display Name**: Name of display name attribute in CAS (this might be the "real name" of a user). Default: empty
+**Display Name**: Name of display name attribute(s) in CAS (this might be the "real name" of a user or a combination of two fields like: firstnames+surnames). Default: empty
 
 **Group**: Name of group attribute in CAS. Default: empty
 
@@ -92,7 +92,7 @@ Groups
 ECAS Settings:
 --------------
 
-user_cas since Version 1.5 provides support for using a European Commission ECAS-Server implementation.
+Since Version 1.5 user_cas provides support for using a European Commission ECAS-Server implementation.
 
 **Use ECAS Attribute Parser?**: Activate the ECAS attribute parser to enable the parsing of groups provided by the European Commission ECAS implementation (do NOT activate until you know what you are doing).
 
@@ -138,18 +138,6 @@ Bugs and Support
 ==============
 
 Please contribute bug reports and feedback to [GitHub Issues](https://github.com/felixrupp/user_cas/issues).  
-If you are observing undesired behaviour, think it is a bug and want to tell me about, please include following parts:
-* What led up to the situation?
-* What exactly did you do (or not do) that was effective (or ineffective)?
-* What was the outcome of this action?
-* What outcome did you expect instead?
-
-Also please provide basic information of your ownCloud instance:
-* ownCloud Version
-* PHP Version
-* CAS Version
-* phpCAS library version
-* The part of the owncloud.log file, from -5min. before and +5min. after the bug happened
 
 ABOUT
 =====

@@ -251,15 +251,31 @@ class UserHooks
                     $attributes = array();
                     $this->loggingService->write(\OCP\Util::DEBUG, 'Attributes for the user: ' . $uid . ' => ' . $casAttributesString);
 
-                    $displayNameMapping = $this->config->getAppValue($this->appName, 'cas_displayName_mapping');
-                    if (array_key_exists($displayNameMapping, $casAttributes)) {
 
-                        $attributes['cas_name'] = $casAttributes[$displayNameMapping];
-                    } else if (array_key_exists('displayName', $casAttributes)) {
+                    // DisplayName
+                    $displayNameMapping = $this->config->getAppValue($this->appName, 'cas_displayName_mapping');
+
+                    $displayNameMappingArray = explode("+", $displayNameMapping);
+
+                    $attributes['cas_name'] = '';
+
+                    foreach($displayNameMappingArray as $displayNameMapping) {
+
+                        if (array_key_exists($displayNameMapping, $casAttributes)) {
+
+                            $attributes['cas_name'] .= $casAttributes[$displayNameMapping]." ";
+                        }
+                    }
+
+                    $attributes['cas_name'] = trim($attributes['cas_name']);
+
+                    if ($attributes['cas_name'] === '' && array_key_exists('displayName', $casAttributes)) {
 
                         $attributes['cas_name'] = $casAttributes['displayName'];
                     }
 
+
+                    // E-Mail
                     $mailMapping = $this->config->getAppValue($this->appName, 'cas_email_mapping');
                     if (array_key_exists($mailMapping, $casAttributes)) {
 
