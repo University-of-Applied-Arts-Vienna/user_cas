@@ -131,7 +131,7 @@ class AuthenticationController extends Controller
 
             $url = urldecode($_COOKIE['user_cas_redirect_url']);
 
-            if(strpos($url, 'http') !== FALSE || strpos($url, 'https') !== FALSE) {
+            if (strpos($url, 'http') !== FALSE || strpos($url, 'https') !== FALSE) {
 
                 $location = $url;
             } else {
@@ -210,8 +210,15 @@ class AuthenticationController extends Controller
 
             if ($additionalErrorCode === \OCP\AppFramework\Http::STATUS_FORBIDDEN) {
 
-                $params['errorCode'] = $additionalErrorCode;
-                $params['errorMessage'] = "Forbidden. You do not have access to this application. Please refer to your administrator if something feels wrong to you.";
+                if (boolval($this->config->getAppValue('user_cas', 'cas_ecas_attributeparserenabled', false))) {
+
+                    $params['errorCode'] = '';
+                    $params['errorMessage'] = "You do not have access to the JRCbox application. Please contact the JRCbox administrator if something feels wrong to you.";
+                } else {
+
+                    $params['errorCode'] = $additionalErrorCode;
+                    $params['errorMessage'] = "Forbidden. You do not have access to this application. Please refer to your administrator if something feels wrong to you.";
+                }
             }
 
             if ($additionalErrorCode === \OCP\AppFramework\Http::STATUS_INTERNAL_SERVER_ERROR) {
@@ -225,7 +232,20 @@ class AuthenticationController extends Controller
             $params['errorMessage'] = $exception->getMessage();
         }
 
-        $params['backUrl'] = $this->appService->getAbsoluteURL('/');
+        if ($this->config->getAppValue($this->appName, 'cas_force_login') === '1') {
+
+            $newProtocol = 'http://';
+
+            if (intval($this->config->getAppValue($this->appName, 'cas_server_port')) === 443) {
+
+                $newProtocol = 'https://';
+            }
+
+            $params['backUrl'] = $newProtocol . $this->config->getAppValue($this->appName, 'cas_server_hostname') . $this->config->getAppValue($this->appName, 'cas_server_path');
+        } else {
+
+            $params['backUrl'] = $this->appService->getAbsoluteURL('/');
+        }
 
         $response = new TemplateResponse($this->appName, 'cas-error', $params, 'guest');
 
