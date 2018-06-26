@@ -452,11 +452,11 @@ class AppService
 
                 if (isset($forceLoginExceptionRanges[0])) {
 
-                    $baseIpComponents = explode('.', $forceLoginExceptionRanges[0]);
-
-                    $baseIp = $baseIpComponents[0] . '.' . $baseIpComponents[1] . '.';
-
                     if (isset($forceLoginExceptionRanges[1])) {
+
+                        $baseIpComponents = explode('.', $forceLoginExceptionRanges[0]);
+
+                        $baseIp = $baseIpComponents[0] . '.' . $baseIpComponents[1] . '.';
 
                         $additionalIpComponents = explode('.', $forceLoginExceptionRanges[1]);
 
@@ -470,6 +470,7 @@ class AppService
 
                                     $ipFourthPartMax = 254;
                                 } else {
+
                                     $ipFourthPartMax = intval($additionalIpComponents[1]);
                                 }
 
@@ -496,7 +497,7 @@ class AppService
 
                             for ($ipFourthPart = intval($baseIpComponents[3]); $ipFourthPart <= intval($additionalIpComponents[0]); $ipFourthPart++) {
 
-                                $endIp = $baseIp . $ipFourthPart;
+                                $endIp = $newIp . $ipFourthPart;
 
                                 if ($remoteAddress === $endIp) {
 
@@ -505,6 +506,15 @@ class AppService
                                     $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Enforce Login NOT triggered. Test Address: " . $endIp . " | Users Remote Address: " . $remoteAddress);
                                 }
                             }
+                        }
+                    } else {
+
+                        # Single IP-Adress given
+                        if ($remoteAddress === $forceLoginExceptionRanges[0]) {
+
+                            $isEnforced = FALSE;
+
+                            $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Enforce Login NOT triggered. Test Address: " . $forceLoginExceptionRanges[0] . " | Users Remote Address: " . $remoteAddress);
                         }
                     }
                 }
