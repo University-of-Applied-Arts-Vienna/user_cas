@@ -448,7 +448,7 @@ class AppService
             # Check enforce IP ranges
             foreach ($forceLoginExceptionsArray as $forceLoginException) {
 
-                $forceLoginExceptionRanges = explode('/', $forceLoginException);
+                $forceLoginExceptionRanges = explode('-', $forceLoginException);
 
                 if (isset($forceLoginExceptionRanges[0])) {
 

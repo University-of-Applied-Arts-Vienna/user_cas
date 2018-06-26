@@ -239,6 +239,16 @@ class UserService
 
         $randomPassword = $this->getNewPassword();
         //TODO: Update this to make login compatible with 10.0.8
+
+        $backendsString = "";
+
+        foreach ($this->userManager->getBackends() as $userBackend) {
+
+            $backendsString .= $userBackend->getBackendName() . ", ";
+        }
+
+        $this->loggingService->write(\OCP\Util::DEBUG, 'Registered Backends: ' . $backendsString);
+
         return $this->userManager->createUser($userId, $randomPassword);
     }
 
@@ -480,7 +490,9 @@ class UserService
     public function registerBackend()
     {
 
+        #$this->userManager->clearBackends();
         $this->userManager->registerBackend($this->backend);
+        #$this->userManager->registerBackend(new \OC\User\Database());
     }
 
 

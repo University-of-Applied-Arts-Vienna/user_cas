@@ -43,6 +43,9 @@ use OCA\UserCAS\Service\LoggingService;
 class Backend extends Database
 {
 
+    /** @var \OCP\UserInterface[] */
+    private static $backends = [];
+
     /**
      * @var \OCA\UserCAS\Service\LoggingService $loggingService
      */
@@ -117,7 +120,7 @@ class Backend extends Database
                 #\OCP\Util::writeLog('cas', 'phpCAS returned no user.', \OCP\Util::ERROR);
             }
 
-            if(\phpCAS::checkAuthentication()) {
+            if (\phpCAS::checkAuthentication()) {
 
                 $casUid = \phpCAS::getUser();
 

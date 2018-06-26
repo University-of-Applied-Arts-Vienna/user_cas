@@ -1,10 +1,14 @@
 CHANGELOG
 =========
 
+Version 1.5.3
+-------------
+* Hotfixes the IP address range separator in the exclude specific IPs field and changes it from "/" to "-"
+
 Version 1.5.2
 -------------
 * Add settings field to exclude specific Ips and/or IP-ranges from force login
-* Nextclouod: Move settings panel to section "Security" (was in "Additional" before)
+* Nextcloud: Move settings panel to section "Security" (was in "Additional" before)
 * Remove the signature from repo (if you need a signed version, please use one of the release packages or download from ownCloud Market/Nextcloud AppStore)
 
 Version 1.5.1

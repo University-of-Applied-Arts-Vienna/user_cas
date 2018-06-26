@@ -54,7 +54,7 @@ Basic
 
 **Force user login using CAS?**: If checked, users will immediately be redirected to CAS login page, after visiting the ownCloud URL. If checked, **Disable CAS logout** is automatically disabled. Default: off
 
-**Don’t use force login on these client-IPs**: Comma separated list of client IP addresses (or address ranges), which won’t be forced to login if "Force user login" is enabled (e.g. 192.168.1.1/254,192.168.2.5). Default: empty
+**Don’t use force login on these client-IPs**: Comma separated list of client IP addresses (or address ranges), which won’t be forced to login if "Force user login" is enabled (e.g. 192.168.1.1-254,192.168.2.5). Default: empty
 
 **Disable CAS logout**: If checked, you will only be logged out from ownCloud and not from your CAS instance. Default: off
 
