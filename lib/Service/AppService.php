@@ -483,7 +483,7 @@ class AppService
 
                                         $isEnforced = FALSE;
 
-                                        $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Enforce Login NOT triggered. Base Address: " . $endIp . " | Remote Address: " . $remoteAddress);
+                                        $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Enforce Login NOT triggered. Test Address: " . $endIp . " | Users Remote Address: " . $remoteAddress);
                                     }
                                 }
                             }
@@ -502,7 +502,7 @@ class AppService
 
                                     $isEnforced = FALSE;
 
-                                    $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Enforce Login NOT triggered. Base Address: " . $endIp . " | Remote Address: " . $remoteAddress);
+                                    $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Enforce Login NOT triggered. Test Address: " . $endIp . " | Users Remote Address: " . $remoteAddress);
                                 }
                             }
                         }
