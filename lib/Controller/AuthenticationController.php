@@ -157,9 +157,7 @@ class AuthenticationController extends Controller
 
                     $this->loggingService->write(\OCP\Util::INFO, "phpCAS user " . $userName . " has been authenticated.");
 
-                    $this->userService->registerBackend();
                     $isLoggedIn = $this->userService->login($this->request, $userName, '');
-                    $this->userService->resetBackend();
 
                     if ($isLoggedIn) {
 

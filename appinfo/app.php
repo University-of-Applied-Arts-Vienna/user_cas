@@ -38,6 +38,9 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI && $enabled) {
     $userService = $c->query('UserService');
     $loggingService = $c->query("LoggingService");
 
+    // Register User Backend
+    $userService->registerBackend();
+
     if(!strpos($script, "ocs") && !strpos($requestUri, "oc.js") && !in_array(basename($script), array('public.php', 'remote.php'))) {
 
         // URL params and redirect_url cookie

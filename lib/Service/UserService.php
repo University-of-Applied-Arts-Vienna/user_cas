@@ -483,26 +483,8 @@ class UserService
     public function registerBackend()
     {
 
-        $this->oldBackends = $this->userManager->getBackends();
-        $this->userManager->clearBackends();
         $this->userManager->registerBackend($this->backend);
     }
-
-
-    /**
-     * Reset the User Backends
-     */
-    public function resetBackend()
-    {
-
-        $this->userManager->removeBackend($this->backend);
-
-        foreach ($this->oldBackends as $backend) {
-
-            $this->userManager->registerBackend($backend);
-        }
-    }
-
 
     /**
      * Generate a random PW with special char symbol characters
