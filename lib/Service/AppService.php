@@ -452,23 +452,59 @@ class AppService
 
                 if (isset($forceLoginExceptionRanges[0])) {
 
-                    $baseIp = substr($forceLoginExceptionRanges[0], 0, strrpos($forceLoginExceptionRanges[0], "."));
+                    $baseIpComponents = explode('.', $forceLoginExceptionRanges[0]);
 
-                    $startingIp = intval(substr($forceLoginExceptionRanges[0], strrpos($forceLoginExceptionRanges[0], ".")+1, strlen($forceLoginExceptionRanges[0])));
-                    $endingIp = $startingIp;
+                    $baseIp = $baseIpComponents[0] . '.' . $baseIpComponents[1] . '.';
 
                     if (isset($forceLoginExceptionRanges[1])) {
 
-                        $endingIp = intval($forceLoginExceptionRanges[1]);
-                    }
+                        $additionalIpComponents = explode('.', $forceLoginExceptionRanges[1]);
 
-                    for ($ip = $startingIp; $ip <= $endingIp; $ip++) {
+                        if (isset($additionalIpComponents[1]) && $additionalIpComponents[0]) {
 
-                        if ($remoteAddress === $baseIp . "." . $ip) {
+                            # We have a two part range here (eg. 127.0.0.1-1.19) which means, we have to cover 127.0.0.1-127.0.0.254 and 127.0.1.1-127.0.1.19
 
-                            $isEnforced = FALSE;
+                            for ($ipThirdPart = intval($baseIpComponents[2]); $ipThirdPart <= intval($additionalIpComponents[0]); $ipThirdPart++) {
 
-                            $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Enforce Login NOT triggered. Base Address: " . $baseIp . " | Starting IP: " . $startingIp . " | Ending IP: " . $endingIp . " | Remote Address: " . $remoteAddress);
+                                if ($ipThirdPart !== intval($additionalIpComponents[0])) {
+
+                                    $ipFourthPartMax = 254;
+                                } else {
+                                    $ipFourthPartMax = intval($additionalIpComponents[1]);
+                                }
+
+                                for ($ipFourthPart = intval($baseIpComponents[3]); $ipFourthPart <= $ipFourthPartMax; $ipFourthPart++) {
+
+                                    $endIp = $baseIp . $ipThirdPart . '.' . $ipFourthPart;
+
+                                    $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Enforce Login IP checked: " . $endIp);
+
+                                    if ($remoteAddress === $endIp) {
+
+                                        $isEnforced = FALSE;
+
+                                        $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Enforce Login NOT triggered. Base Address: " . $endIp . " | Remote Address: " . $remoteAddress);
+                                    }
+                                }
+                            }
+
+                        } elseif ($additionalIpComponents[0]) {
+
+                            # We have a one part range here (eg. 127.0.0.1-19)
+
+                            $newIp = $baseIp . $baseIpComponents[2] . '.';
+
+                            for ($ipFourthPart = intval($baseIpComponents[3]); $ipFourthPart <= intval($additionalIpComponents[0]); $ipFourthPart++) {
+
+                                $endIp = $baseIp . $ipFourthPart;
+
+                                if ($remoteAddress === $endIp) {
+
+                                    $isEnforced = FALSE;
+
+                                    $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Enforce Login NOT triggered. Base Address: " . $endIp . " | Remote Address: " . $remoteAddress);
+                                }
+                            }
                         }
                     }
                 }

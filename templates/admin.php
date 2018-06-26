@@ -85,7 +85,7 @@ style('user_cas', 'settings');
                         name="cas_force_login_exceptions"
                         value="<?php p($_['cas_force_login_exceptions']); ?>"
                     <?php print_unescaped((($_['cas_force_login'] === 'false' || $_['cas_force_login'] === 'off' || $_['cas_force_login'] === '0') ? 'disabled="disabled"' : '')); ?> />
-                <span class="csh"><?php p($l->t('Comma separated list of client IP addresses (or address ranges), which won’t be forced to login if "Force user login" is enabled (e.g. 192.168.1.1/254,192.168.2.5)')) ?></span>
+                <span class="csh"><?php p($l->t('Comma separated list of client IP addresses (or address ranges), which won’t be forced to login if "Force user login" is enabled (e.g. 192.168.1.1-254,192.168.2.5)')) ?></span>
             </p>
             <p><input type="checkbox" id="cas_disable_logout"
                       name="cas_disable_logout" <?php print_unescaped((($_['cas_disable_logout'] === 'true' || $_['cas_disable_logout'] === 'on' || $_['cas_disable_logout'] === '1') ? 'checked="checked"' : ''));
