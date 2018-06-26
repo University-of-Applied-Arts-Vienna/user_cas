@@ -477,7 +477,7 @@ class AppService
 
                                     $endIp = $baseIp . $ipThirdPart . '.' . $ipFourthPart;
 
-                                    $this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Enforce Login IP checked: " . $endIp);
+                                    #$this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Enforce Login IP checked: " . $endIp);
 
                                     if ($remoteAddress === $endIp) {
 
