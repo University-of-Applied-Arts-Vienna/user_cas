@@ -26,8 +26,10 @@ namespace OCA\UserCAS\User;
 use OC\User\Database;
 use OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException;
 use OCA\UserCAS\Service\AppService;
-use \OCP\IUserManager;
 use OCA\UserCAS\Service\LoggingService;
+use OCP\IUserBackend;
+use OCP\User\IProvidesDisplayNameBackend;
+use OCP\User\IProvidesHomeBackend;
 
 
 /**
@@ -40,11 +42,8 @@ use OCA\UserCAS\Service\LoggingService;
  *
  * @since 1.4.0
  */
-class Backend extends Database
+class Backend extends Database implements IUserBackend, IProvidesHomeBackend, IProvidesDisplayNameBackend
 {
-
-    /** @var \OCP\UserInterface[] */
-    private static $backends = [];
 
     /**
      * @var \OCA\UserCAS\Service\LoggingService $loggingService

@@ -106,6 +106,8 @@ class AuthenticationController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      * @PublicPage
+     * @UseSession
+     * @OnlyUnauthenticatedUsers
      *
      * @return RedirectResponse|TemplateResponse
      */
@@ -155,7 +157,9 @@ class AuthenticationController extends Controller
 
                     $this->loggingService->write(\OCP\Util::INFO, "phpCAS user " . $userName . " has been authenticated.");
 
+                    $this->userService->registerBackend();
                     $isLoggedIn = $this->userService->login($this->request, $userName, '');
+                    $this->userService->resetBackend();
 
                     if ($isLoggedIn) {
 
@@ -196,6 +200,12 @@ class AuthenticationController extends Controller
 
     /**
      * Render error view
+     *
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     * @PublicPage
+     * @UseSession
+     * @OnlyUnauthenticatedUsers
      *
      * @param \Exception|null $exception
      * @param int $additionalErrorCode

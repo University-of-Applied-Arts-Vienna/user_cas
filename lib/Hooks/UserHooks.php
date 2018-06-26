@@ -154,8 +154,10 @@ class UserHooks
 
                 if ($casUid === $uid) {
 
-                    // Autocreate user if needed
-                    if (!$this->userService->userExists($uid)) {
+                    $oldUserObject = $this->userManager->get($uid);
+
+                    // Autocreate user if needed or create a new account in CAS Backend
+                    if (is_null($oldUserObject)) {
 
                         // create users if they do not exist
                         if (preg_match('/[^a-zA-Z0-9 _\.@\-]/', $uid)) {
@@ -175,7 +177,15 @@ class UserHooks
                                 $this->loggingService->write(\OCP\Util::DEBUG, 'phpCAS created new user with UID: ' . $uid);
                             }
                         }
-                    } else {
+                    }
+                    elseif(!is_null($oldUserObject) && $oldUserObject->getBackendClassName() === "OC\\User\\Database") {
+
+                        $query = \OC_DB::prepare('UPDATE `*PREFIX*accounts` SET `backend` = ? WHERE LOWER(`user_id`) = LOWER(?)');
+                        $result = $query->execute([get_class($this->userService->getBackend()), $uid]);
+
+                        $this->loggingService->write(\OCP\Util::DEBUG, 'phpCAS user existing in database backend, move to CAS-Backend with result: ' . $result);
+                    }
+                    else {
 
                         $this->loggingService->write(\OCP\Util::DEBUG, 'phpCAS no new user has been created.');
                     }

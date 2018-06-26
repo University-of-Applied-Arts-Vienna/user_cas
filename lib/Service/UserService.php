@@ -84,6 +84,9 @@ class UserService
      */
     private $loggingService;
 
+    /** @var \OCP\UserInterface[] */
+    private $oldBackends;
+
 
     /**
      * UserService constructor.
@@ -238,16 +241,6 @@ class UserService
     {
 
         $randomPassword = $this->getNewPassword();
-        //TODO: Update this to make login compatible with 10.0.8
-
-        $backendsString = "";
-
-        foreach ($this->userManager->getBackends() as $userBackend) {
-
-            $backendsString .= $userBackend->getBackendName() . ", ";
-        }
-
-        $this->loggingService->write(\OCP\Util::DEBUG, 'Registered Backends: ' . $backendsString);
 
         return $this->userManager->createUser($userId, $randomPassword);
     }
@@ -490,9 +483,24 @@ class UserService
     public function registerBackend()
     {
 
-        #$this->userManager->clearBackends();
+        $this->oldBackends = $this->userManager->getBackends();
+        $this->userManager->clearBackends();
         $this->userManager->registerBackend($this->backend);
-        #$this->userManager->registerBackend(new \OC\User\Database());
+    }
+
+
+    /**
+     * Reset the User Backends
+     */
+    public function resetBackend()
+    {
+
+        $this->userManager->removeBackend($this->backend);
+
+        foreach ($this->oldBackends as $backend) {
+
+            $this->userManager->registerBackend($backend);
+        }
     }
 
 
@@ -510,5 +518,13 @@ class UserService
         $newPasswordSymbols = \OC::$server->getSecureRandom()->generate(4, \OCP\Security\ISecureRandom::CHAR_SYMBOLS);
 
         return str_shuffle($newPasswordCharsLower . $newPasswordCharsUpper . $newPasswordNumbers . $newPasswordSymbols);
+    }
+
+    /**
+     * @return Backend
+     */
+    public function getBackend()
+    {
+        return $this->backend;
     }
 }
