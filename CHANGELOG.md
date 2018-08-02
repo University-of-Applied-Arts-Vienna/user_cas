@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+Version 1.5.4
+-------------
+* Hotfixes Nextcloud log flood bug
+* Removes hardcoded PHP version requirements
+* Fixes documentation links in info.xml
+
 Version 1.5.3
 -------------
 * Hotfixes the IP address range separator in the exclude specific IPs field and changes it from "/" to "-"

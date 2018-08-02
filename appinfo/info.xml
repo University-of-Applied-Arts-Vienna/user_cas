@@ -8,7 +8,7 @@
     <screenshot>https://raw.githubusercontent.com/felixrupp/user_cas/master/.github/SCREENSHOTS/splashscreen.png</screenshot>
     <author>Felix Rupp</author>
     <namespace>UserCAS</namespace>
-    <version>1.5.3</version>
+    <version>1.5.4</version>
     <types>
         <prelogin/>
         <authentication/>
@@ -19,9 +19,9 @@
     <website>https://github.com/felixrupp/user_cas</website>
 
     <documentation>
-        <user>https://github.com/felixrupp/user_cas/wiki</user>
-        <admin>https://github.com/felixrupp/user_cas/wiki</admin>
-        <developer>https://github.com/felixrupp/user_cas/wiki</developer>
+        <user>https://github.com/felixrupp/user_cas/blob/master/README.md</user>
+        <admin>https://github.com/felixrupp/user_cas/blob/master/README.md</admin>
+        <developer>https://github.com/felixrupp/user_cas/blob/master/README.md</developer>
     </documentation>
 
     <bugs>https://github.com/felixrupp/user_cas/issues</bugs>
@@ -29,8 +29,6 @@
     <repository type="git">https://github.com/felixrupp/user_cas.git</repository>
 
     <dependencies>
-        <php min-version="5.6" max-version="7.1.99"/>
-
         <owncloud min-version="10.0.0" max-version="10.0.8"/>
         <nextcloud min-version="13.0.0" max-version="13.0.4"/>
     </dependencies>

@@ -28,7 +28,7 @@ $enabled = TRUE;
 $script = (isset($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : '');
 $requestUri = (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '');
 
-if (in_array(basename($script), array('console.php', 'cron.php', 'status.php', 'version.php')) || strpos($requestUri, "/oauth2/") || strpos($requestUri, "/s/")) {
+if (in_array(basename($script), array('console.php', 'cron.php', 'status.php', 'version.php')) || strpos($requestUri, "/oauth2/") || strpos($requestUri, "/s/") || strpos($requestUri, 'logreader')) {
     $enabled = FALSE;
 }
 
@@ -41,7 +41,7 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI && $enabled) {
     // Register User Backend
     $userService->registerBackend();
 
-    if(!strpos($script, "ocs") && !strpos($requestUri, "oc.js") && !in_array(basename($script), array('public.php', 'remote.php'))) {
+    if (!strpos($script, "ocs") && !strpos($requestUri, "oc.js") && !in_array(basename($script), array('public.php', 'remote.php'))) {
 
         // URL params and redirect_url cookie
         setcookie("user_cas_enforce_authentication", "0", null, '/');
