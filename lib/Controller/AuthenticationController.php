@@ -157,7 +157,7 @@ class AuthenticationController extends Controller
 
                     $this->loggingService->write(\OCP\Util::INFO, "phpCAS user " . $userName . " has been authenticated.");
 
-                    $isLoggedIn = $this->userService->login($this->request, $userName, '');
+                    $isLoggedIn = $this->userService->login($this->request, $userName);
 
                     if ($isLoggedIn) {
 

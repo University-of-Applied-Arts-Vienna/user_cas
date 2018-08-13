@@ -118,10 +118,10 @@ class UserService
      *
      * @param $request
      * @param string $uid
-     * @param string $password
+     * @param string|null $password
      * @return bool
      */
-    public function login($request, $uid, $password = '')
+    public function login($request, $uid, $password = NULL)
     {
 
         $this->loggingService->write(\OCP\Util::INFO, 'phpCAS login function step 1.');
@@ -198,14 +198,14 @@ class UserService
 
 
             # Log in the user
-            $loginSuccessful = $this->userSession->login($uid, NULL);
+            $loginSuccessful = $this->userSession->login($uid, $password);
 
             $this->loggingService->write(\OCP\Util::INFO, 'phpCAS login function result: ' . $loginSuccessful);
             #\OCP\Util::writeLog('cas', 'phpCAS login function result: ' . $loginSuccessful, \OCP\Util::DEBUG);
 
             if ($loginSuccessful) {
 
-                return $this->userSession->createSessionToken($request, $this->userSession->getUser()->getUID(), $uid, NULL);
+                return $this->userSession->createSessionToken($request, $this->userSession->getUser()->getUID(), $uid, $password);
             }
 
             $this->loggingService->write(\OCP\Util::INFO, 'phpCAS login function not successful.');
