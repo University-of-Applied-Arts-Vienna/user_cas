@@ -58,7 +58,7 @@ Basic
 
 **Disable CAS logout**: If checked, you will only be logged out from ownCloud and not from your CAS instance. Default: off
 
-**Autocreate user after first CAS login?**: Ich checked, users authenticated against CAS are automatically created. This means, users which did not exist in the database yet, authenticate against CAS and the app will create and store them in the ownCloud database on their first login. Default: off
+**Autocreate user after first CAS login?**: If checked, users authenticated against CAS are automatically created. This means, users which did not exist in the database yet who authenticate against CAS will be created and stored in the ownCloud database on their first login. Default: off
 
 **Update user data after each CAS login?**: If checked, the data provided by CAS is used to update ownCloud user attributes each time the user logs in. Default: off
 
@@ -84,11 +84,11 @@ Groups
 
 **Groups that will not be unlinked**: These groups are preserved, when updating a user after login and are not unlinked. Please provide a comma separated list without blanks (eg.: group1,group2). Default: empty
 
-**Default group when autocreating users**: When auto creating users after authentication, these groups are set as default if the user has no CAS groups. Please provide a comma separated list without blanks (eg.: group1,group2). Default: empty
+**Default groups when autocreating users**: When auto creating users after authentication, these groups are set as default if the user has no CAS groups. Please provide a comma separated list without blanks (eg.: group1,group2). Default: empty
 
-**Authorized CAS Groups**: Members of these groups are authorized to use the ownCloud instance. This setting is helpful, when your CAS instance is not handling authorization. Please provide a comma separated list without blanks (eg.: group1,group2). Default: empty
+**Authorized CAS Groups**: Members of these groups are authorized to use the ownCloud instance. This setting is especially helpful, if your CAS instance is not handling authorization itself. Please provide a comma separated list without blanks (eg.: group1,group2). Default: empty
 
-**Group Quotas**: Define quotas for groups of the users authenticated via CAS. Please provide a comma separated list without blanks and with : between (eg.: group1:10GB,group2:500MB). Default: empty
+**Group Quotas**: Define quotas for groups of the users authenticated via CAS. Please provide a comma separated list without blanks and with : between group names and quotas (eg.: group1:10GB,group2:500MB). Default: empty
 
 
 ECAS Settings:
@@ -96,15 +96,15 @@ ECAS Settings:
 
 Since Version 1.5 user_cas provides support for using a European Commission ECAS-Server implementation.
 
-**Use ECAS Attribute Parser?**: Activate the ECAS attribute parser to enable the parsing of groups provided by the European Commission ECAS implementation (do NOT activate until you know what you are doing).
+**Use ECAS Attribute Parser?**: Activate the ECAS attribute parser to enable the parsing of groups provided by the European Commission ECAS implementation (do **NOT** activate until you know what you are doing).
 
-**Request full user details?**: Activate to request a full user profile in the ECAS callback (do NOT activate until you know what you are doing).
+**Request full user details?**: Activate to request a full user profile in the ECAS callback (do **NOT** activate until you know what you are doing).
 
-**ECAS Strength**: Set the authentication strength used by the ECAS instance when validating a user’s ticket (do NOT select until you know what you are doing).
+**ECAS Strength**: Set the authentication strength used by the ECAS instance when validating a user’s ticket (do **NOT** select until you know what you are doing).
 
-**ECAS AssuranceLevel**: Set the assurance level used by the ECAS instance when validating a user’s ticket (do NOT select until you know what you are doing).
+**ECAS AssuranceLevel**: Set the assurance level used by the ECAS instance when validating a user’s ticket (do **NOT** select until you know what you are doing).
 
-**Query ECAS groups**: Define which ECAS groups should be queried when validating a user’s ticket. Please provide a comma separated list without blanks (eg.: GROUP1,GROUP2 or use * for all groups). (Do NOT select until you know what you are doing).
+**Query ECAS groups**: Define which ECAS groups should be queried when validating a user’s ticket. Please provide a comma separated list without blanks (eg.: GROUP1,GROUP2 or use * for all groups). (Do **NOT** select until you know what you are doing).
 
 
 <!-- 
