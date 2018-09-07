@@ -3,10 +3,19 @@ CHANGELOG
 
 Version 1.5.4
 -------------
-* Hotfixes Nextcloud log flood bug
-* Removes hardcoded PHP version requirements
+* Fixes Nextcloud log flood bug
 * Fixes documentation links in info.xml
 * Fixes ownCloud/Nextcloud Session Token-Password bug
+* Fixes enforce authentication issues with Database Backend
+* Fixes enforce authentication issues with public gallery interface
+
+
+* Adds support for ownCloud until version 10.0.9 and Nextcloud until version 13.0.6
+* Adds documentation for basic installation via release archive
+
+
+* Removes hardcoded PHP version requirements
+
 
 Version 1.5.3
 -------------

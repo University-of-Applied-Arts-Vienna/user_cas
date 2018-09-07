@@ -170,25 +170,27 @@ class UserHooks
                             $this->loggingService->write(\OCP\Util::DEBUG, 'phpCAS creating a new user with UID: ' . $uid);
 
                             /** @var bool|\OCP\IUser the created user or false $uid */
-                            $user = $this->userService->create($uid);
+                            $oldUserObject = $this->userService->create($uid);
 
-                            if ($user instanceof \OCP\IUser) {
+                            if ($oldUserObject instanceof \OCP\IUser) {
 
                                 $this->loggingService->write(\OCP\Util::DEBUG, 'phpCAS created new user with UID: ' . $uid);
                             }
                         }
+                    } else {
+
+                        $this->loggingService->write(\OCP\Util::DEBUG, 'phpCAS no new user has been created.');
                     }
-                    elseif(!is_null($oldUserObject) && ($oldUserObject->getBackendClassName() === "OC\\User\\Database" || $oldUserObject->getBackendClassName() === "Database")) {
+
+
+                    if (!is_null($oldUserObject) && ($oldUserObject->getBackendClassName() === "OC\\User\\Database" || $oldUserObject->getBackendClassName() === "Database")) {
 
                         $query = \OC_DB::prepare('UPDATE `*PREFIX*accounts` SET `backend` = ? WHERE LOWER(`user_id`) = LOWER(?)');
                         $result = $query->execute([get_class($this->userService->getBackend()), $uid]);
 
                         $this->loggingService->write(\OCP\Util::DEBUG, 'phpCAS user existing in database backend, move to CAS-Backend with result: ' . $result);
                     }
-                    else {
 
-                        $this->loggingService->write(\OCP\Util::DEBUG, 'phpCAS no new user has been created.');
-                    }
                 }
             }
         } else {
@@ -269,11 +271,11 @@ class UserHooks
 
                     $attributes['cas_name'] = '';
 
-                    foreach($displayNameMappingArray as $displayNameMapping) {
+                    foreach ($displayNameMappingArray as $displayNameMapping) {
 
                         if (array_key_exists($displayNameMapping, $casAttributes)) {
 
-                            $attributes['cas_name'] .= $casAttributes[$displayNameMapping]." ";
+                            $attributes['cas_name'] .= $casAttributes[$displayNameMapping] . " ";
                         }
                     }
 

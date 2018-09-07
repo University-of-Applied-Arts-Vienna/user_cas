@@ -6,23 +6,46 @@ This App provides CAS authentication support, using the phpCAS library of jasig/
 INSTALLATION
 ============
 
-DEPENDENCIES
--------------------
+1\. DEPENDENCIES
+---------------
 
-* ownCloud 10.0.0 to 10.0.8 and Nextcloud 13.0.0 to 13.0.4
+* ownCloud 10.0.0 to 10.0.9 and Nextcloud 13.0.0 to 13.0.6
 * PHP >= 5.6, PHP 7.0 if possible
 * Optional: [Composer Dependency Manager](https://getcomposer.org/), if you want to install via GIT.
 
 This app does not require a standalone version of jasig’s/apereo’s phpCAS any longer. The library is shipped within composer dependencies, in the archive file you downloaded or the Market/App-Store version if used. Although you can configure to use your own version of jasig’s/apereo’s phpCAS library later on.
 
+3\. Recommended - ownCloud Market:
+----------------------------
 
-GIT: STEPS
------
+1. Access the ownCloud web interface with a locally created ownCloud user with admin privileges.
+2. Navigate to the market in your ownCloud instance.
+3. Navigate to the Security category and find **CAS user and group backend**.
+4. Install the app.
+5. Access the administrations panel => Apps and enable the **CAS user and group backend** app.
+6. Access the administration panel => Authentication (Security on Nextcloud) and configure the app.
 
-1. Git clone/copy the downloaded `user_cas` folder into the ownCloud's apps folder and make sure to set correct permissions for your Webserver.
+
+3\. Basic - Release archive/Nextcloud Appstore:
+---------------------------
+
+1. Download the current stable release from [the github releases page](https://github.com/felixrupp/user_cas/releases) according to your platform (ownCloud or Nextcloud) or use the link provided on [https://apps.nextcloud.com/apps/user_cas](apps.nextcloud.com) for Nextcloud.
+2. Unzip/Untar the archive.
+3. Rename the unarchived folder to `user_cas` if not already named like that.
+4. Move the `user_cas` folder to the apps folder of your platform installation.
+5. Adjust the settings for the `user_cas` folder according to your webserver setup.
+6. Access the platform web interface with a locally created platform user with admin privileges.
+7. Access the administrations panel => Apps and enable the **CAS user and group backend** app.
+8. Access the administration panel => Authentication (Security on Nextcloud) and configure the app.
+
+
+4\. Advanced – GIT clone with composer:
+-------------------------
+
+1. Git clone/copy the downloaded `user_cas` folder into the platform’s apps folder and make sure to set correct permissions for your webserver.
 2. Change directory inside `user_cas` folder after cloning and perform a `composer update` command if you installed via GIT. The dependencies will be installed. Attention: You will need the [composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx) binary to be installed.
 3. Adjust the settings for the `user_cas` folder according to your webserver setup.
-4. Access the ownCloud web interface with a locally created ownCloud user with admin privileges.
+4. Access the platform web interface with a locally created platform user with admin privileges.
 5. Access the administrations panel => Apps and enable the **CAS user and group backend** app.
 6. Access the administration panel => Authentication (Security on Nextcloud) and configure the app.
 

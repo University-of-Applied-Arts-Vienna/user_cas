@@ -29,8 +29,8 @@
     <repository type="git">https://github.com/felixrupp/user_cas.git</repository>
 
     <dependencies>
-        <owncloud min-version="10.0.0" max-version="10.0.8"/>
-        <nextcloud min-version="13.0.0" max-version="13.0.4"/>
+        <owncloud min-version="10.0.0" max-version="10.0.9"/>
+        <nextcloud min-version="13.0.0" max-version="13.0.6"/>
     </dependencies>
 
     <settings>
