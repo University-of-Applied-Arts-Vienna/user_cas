@@ -24,6 +24,7 @@
 namespace OCA\UserCAS\Service;
 
 use OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException;
+use OCA\UserCAS\User\UserCasBackendInterface;
 use \OCP\IConfig;
 use \OCP\IUserManager;
 use \OCP\IGroupManager;
@@ -97,10 +98,10 @@ class UserService
      * @param IUserSession $userSession
      * @param IGroupManager $groupManager
      * @param AppService $appService
-     * @param Backend $backend
+     * @param UserCasBackendInterface $backend
      * @param LoggingService $loggingService
      */
-    public function __construct($appName, IConfig $config, IUserManager $userManager, IUserSession $userSession, IGroupManager $groupManager, AppService $appService, Backend $backend, LoggingService $loggingService)
+    public function __construct($appName, IConfig $config, IUserManager $userManager, IUserSession $userSession, IGroupManager $groupManager, AppService $appService, UserCasBackendInterface $backend, LoggingService $loggingService)
     {
 
         $this->appName = $appName;
@@ -198,6 +199,15 @@ class UserService
 
 
             # Log in the user
+            // Workaround for Nextcloud >= 14.0.0
+            /** @var \OCP\Defaults $defaults */
+            $defaults = new \OCP\Defaults();
+            $version = \OCP\Util::getVersion();
+            if (strpos(strtolower($defaults->getName()), 'next') !== FALSE && $version[0] >= 14) {
+
+                $password = '';
+            }
+
             $loginSuccessful = $this->userSession->login($uid, $password);
 
             $this->loggingService->write(\OCP\Util::INFO, 'phpCAS login function result: ' . $loginSuccessful);

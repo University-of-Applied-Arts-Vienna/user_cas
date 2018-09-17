@@ -42,7 +42,7 @@ use OCP\User\IProvidesHomeBackend;
  *
  * @since 1.4.0
  */
-class Backend extends Database implements UserCasBackendInterface
+class NextBackend extends Database implements \OCP\User\Backend\ICheckPasswordBackend, UserCasBackendInterface
 {
 
     /**
@@ -81,11 +81,11 @@ class Backend extends Database implements UserCasBackendInterface
 
 
     /**
-     * @param string $uid
+     * @param string $loginName
      * @param string $password
      * @return string|bool The users UID or false
      */
-    public function checkPassword($uid, $password)
+    public function checkPassword(string $loginName, string $password)
     {
 
         if (!$this->appService->isCasInitialized()) {
@@ -108,12 +108,12 @@ class Backend extends Database implements UserCasBackendInterface
 
                 $this->loggingService->write(\OCP\Util::ERROR, 'phpCAS user has not been authenticated.');
 
-                return parent::checkPassword($uid, $password);
+                return parent::checkPassword($loginName, $password);
 
                 #\OCP\Util::writeLog('cas', 'phpCAS user has not been authenticated.', \OCP\Util::ERROR);
             }
 
-            if ($uid === FALSE) {
+            if ($loginName === FALSE) {
 
                 $this->loggingService->write(\OCP\Util::ERROR, 'phpCAS returned no user.');
                 #\OCP\Util::writeLog('cas', 'phpCAS returned no user.', \OCP\Util::ERROR);
@@ -123,12 +123,12 @@ class Backend extends Database implements UserCasBackendInterface
 
                 $casUid = \phpCAS::getUser();
 
-                if ($casUid === $uid) {
+                if ($casUid === $loginName) {
 
                     $this->loggingService->write(\OCP\Util::ERROR, 'phpCAS user password has been checked.');
                     #\OCP\Util::writeLog('cas', 'phpCAS user password has been checked.', \OCP\Util::ERROR);
 
-                    return $uid;
+                    return $loginName;
                 }
             }
 

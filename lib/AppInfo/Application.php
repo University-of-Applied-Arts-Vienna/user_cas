@@ -32,6 +32,7 @@ use OCA\UserCAS\Hooks\UserHooks;
 use OCA\UserCAS\Controller\SettingsController;
 use OCA\UserCAS\Controller\AuthenticationController;
 use OCA\UserCAS\User\Backend;
+use OCA\UserCAS\User\NextBackend;
 use OCA\UserCAS\Service\LoggingService;
 
 /**
@@ -100,15 +101,36 @@ class Application extends App
             );
         });
 
-        /**
-         * Register Backend
-         */
-        $container->registerService('Backend', function (IContainer $c) {
-            return new Backend(
-                $c->query('LoggingService'),
-                $c->query('AppService')
-            );
-        });
+
+        // Workaround for Nextcloud >= 14.0.0
+        /** @var \OCP\Defaults $defaults */
+        $defaults = new \OCP\Defaults();
+        $version = \OCP\Util::getVersion();
+
+        if (strpos(strtolower($defaults->getName()), 'next') !== FALSE && $version[0] >= 14) {
+
+            #$this->loggingService->write(\OCP\Util::DEBUG, "phpCAS Nextcloud " . $version[0] . "." . $version[1] . "." . $version[2] . "." . " detected.");
+            /**
+             * Register Nextcloud 14 Backend
+             */
+            $container->registerService('Backend', function (IContainer $c) {
+                return new NextBackend(
+                    $c->query('LoggingService'),
+                    $c->query('AppService')
+                );
+            });
+        } else {
+
+            /**
+             * Register regular Backend
+             */
+            $container->registerService('Backend', function (IContainer $c) {
+                return new Backend(
+                    $c->query('LoggingService'),
+                    $c->query('AppService')
+                );
+            });
+        }
 
         /**
          * Register UserService with UserSession for login/logout and UserManager for create
