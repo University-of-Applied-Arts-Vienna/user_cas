@@ -9,13 +9,13 @@ INSTALLATION
 1\. DEPENDENCIES
 ---------------
 
-* ownCloud 10.0.0 to 10.0.9 and Nextcloud 13.0.0 to 13.0.6
+* ownCloud 10.0.0 to 10.0.10 and Nextcloud 13.0.0 to 14.0.0
 * PHP >= 5.6, PHP 7.0 if possible
 * Optional: [Composer Dependency Manager](https://getcomposer.org/), if you want to install via GIT.
 
 This app does not require a standalone version of jasig’s/apereo’s phpCAS any longer. The library is shipped within composer dependencies, in the archive file you downloaded or the Market/App-Store version if used. Although you can configure to use your own version of jasig’s/apereo’s phpCAS library later on.
 
-3\. Recommended - ownCloud Market:
+2\. Recommended - ownCloud Market:
 ----------------------------
 
 1. Access the ownCloud web interface with a locally created ownCloud user with admin privileges.
