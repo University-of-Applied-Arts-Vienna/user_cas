@@ -134,8 +134,7 @@ class UserHooks
 
                 $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: ' . $e->getCode() . ' and message: ' . $e->getMessage());
 
-                header("Location: " . $this->appService->getAbsoluteURL('/'));
-                die();
+                return FALSE;
             }
         };
 
@@ -225,8 +224,7 @@ class UserHooks
 
                 $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: ' . $e->getCode() . ' and message: ' . $e->getMessage());
 
-                header("Location: " . $this->appService->getAbsoluteURL('/'));
-                die();
+                return FALSE;
             }
         };
 
@@ -366,8 +364,7 @@ class UserHooks
 
                 $this->loggingService->write(\OCP\Util::FATAL, 'Fatal error with code: ' . $e->getCode() . ' and message: ' . $e->getMessage());
 
-                header("Location: " . $this->appService->getAbsoluteURL('/'));
-                die();
+                return FALSE;
             }
         };
 
