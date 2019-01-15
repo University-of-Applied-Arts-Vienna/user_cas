@@ -13,6 +13,7 @@ OC.L10N.register(
         "Service URL": "Dienst URL",
         "Certification file path (.crt).": "Pfad zur Zertifikatsdatei (.crt).",
         "Leave empty if you don’t want to validate your CAS server instance": "Nicht ausfüllen, wenn Sie ihren CAS-Server nicht validieren möchten",
+        "Use CAS proxy initialization": "CAS Proxy Initialisierung verwenden",
         "Force user login using CAS?": "CAS Login erzwingen?",
         "Don’t use force login on these client-IPs": "Login bei diesen Client-IPs nicht erzwingen",
         "Comma separated list of client IP addresses (or address ranges), which won’t be forced to login if \"Force user login\" is enabled (e.g. 192.168.1.1-254,192.168.2.5)": "Kommagetrennte Liste an Client-IP-Adressen (oder Adressräumen), die nicht zum Login gezwungen werden, wenn \"CAS Login erzwingen\" aktiviert ist (z.B: 192.168.1.1-254,192.168.2.5)",

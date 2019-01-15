@@ -39,6 +39,7 @@ style('user_cas', 'settings');
             <p><label for="cas_server_version"><?php p($l->t('CAS Server Version')); ?></label>
                 <select id="cas_server_version" name="cas_server_version">
                     <?php $version = $_['cas_server_version']; ?>
+                    <option value="3.0" <?php echo $version === '3.0' ? 'selected' : ''; ?>>CAS 3.0</option>
                     <option value="2.0" <?php echo $version === '2.0' ? 'selected' : ''; ?>>CAS 2.0</option>
                     <option value="1.0" <?php echo $version === '1.0' ? 'selected' : ''; ?>>CAS 1.0</option>
                     <option value="S1" <?php echo $version === 'S1' ? 'selected' : ''; ?>>SAML 1.1</option>
@@ -70,6 +71,12 @@ style('user_cas', 'settings');
                         for="cas_cert_path"><?php p($l->t('Certification file path (.crt).')); ?></label><input
                         id="cas_cert_path" name="cas_cert_path" value="<?php p($_['cas_cert_path']); ?>"> <span
                         class="csh"><?php p($l->t('Leave empty if you don’t want to validate your CAS server instance')); ?></span>
+            </p>
+            <p>
+                <input type="checkbox" id="cas_use_proxy"
+                      name="cas_use_proxy" <?php print_unescaped((($_['cas_use_proxy'] === 'true' || $_['cas_use_proxy'] === 'on' || $_['cas_use_proxy'] === '1') ? 'checked="checked"' : '')); ?>>
+                <label class='checkbox'
+                       for="cas_use_proxy"><?php p($l->t('Use CAS proxy initialization')); ?></label>
             </p>
         </fieldset>
         <!-- Basic Settings -->

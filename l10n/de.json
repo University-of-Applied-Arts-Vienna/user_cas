@@ -12,6 +12,7 @@
     "Service URL": "Dienst URL",
     "Certification file path (.crt).": "Pfad zur Zertifikatsdatei (.crt).",
     "Leave empty if you don’t want to validate your CAS server instance": "Nicht ausfüllen, wenn Sie ihren CAS-Server nicht validieren möchten",
+    "Use CAS proxy initialization": "CAS Proxy Initialisierung verwenden",
     "Force user login using CAS?": "CAS Login erzwingen?",
     "Disable CAS logout (do only OwnCloud logout)": "CAS Logout deaktivieren (nur bei Owncloud ausloggen)",
     "Don’t use force login on these client-IPs": "Login bei diesen Client-IPs nicht erzwingen",

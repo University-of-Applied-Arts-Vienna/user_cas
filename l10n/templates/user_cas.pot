@@ -65,6 +65,10 @@ msgstr ""
 msgid "Leave empty if you don’t want to validate your CAS server instance"
 msgstr ""
 
+#: templates/admin.php:52
+msgid "Use CAS proxy initialization"
+msgstr ""
+
 #: templates/admin.php:54
 msgid "Force user login using CAS?"
 msgstr ""

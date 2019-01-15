@@ -189,24 +189,24 @@ class AppService
         $serverHostName = (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : '';
 
         // Gather all app config values
-        $this->casVersion = $this->config->getAppValue('user_cas', 'cas_server_version', '2.0');
-        $this->casHostname = $this->config->getAppValue('user_cas', 'cas_server_hostname', $serverHostName);
-        $this->casPort = intval($this->config->getAppValue('user_cas', 'cas_server_port', 443));
-        $this->casPath = $this->config->getAppValue('user_cas', 'cas_server_path', '/cas');
-        $this->casServiceUrl = $this->config->getAppValue('user_cas', 'cas_service_url', '');
-        $this->casCertPath = $this->config->getAppValue('user_cas', 'cas_cert_path', '');
-        $this->casUseProxy = $this->config->getAppValue('user_cas', 'cas_use_proxy', '');
+        $this->casVersion = $this->config->getAppValue($this->appName, 'cas_server_version', '3.0');
+        $this->casHostname = $this->config->getAppValue($this->appName, 'cas_server_hostname', $serverHostName);
+        $this->casPort = intval($this->config->getAppValue($this->appName, 'cas_server_port', 443));
+        $this->casPath = $this->config->getAppValue($this->appName, 'cas_server_path', '/cas');
+        $this->casServiceUrl = $this->config->getAppValue($this->appName, 'cas_service_url', '');
+        $this->casCertPath = $this->config->getAppValue($this->appName, 'cas_cert_path', '');
 
+        $this->casUseProxy = boolval($this->config->getAppValue($this->appName, 'cas_use_proxy', false));
         $this->casDisableLogout = boolval($this->config->getAppValue($this->appName, 'cas_disable_logout', false));
-        $logoutServersArray = explode(",", $this->config->getAppValue('user_cas', 'cas_handlelogout_servers', ''));
+        $logoutServersArray = explode(",", $this->config->getAppValue($this->appName, 'cas_handlelogout_servers', ''));
         $this->casHandleLogoutServers = array();
 
         # ECAS
-        $this->ecasAttributeParserEnabled = boolval($this->config->getAppValue('user_cas', 'cas_ecas_attributeparserenabled', false));
-        $this->cas_ecas_request_full_userdetails = $this->config->getAppValue('user_cas', 'cas_ecas_request_full_userdetails', false);
-        $this->cas_ecas_accepted_strengths = $this->config->getAppValue('user_cas', 'cas_ecas_accepted_strengths');
-        $this->cas_ecas_retrieve_groups = $this->config->getAppValue('user_cas', 'cas_ecas_retrieve_groups');
-        $this->cas_ecas_assurance_level = $this->config->getAppValue('user_cas', 'cas_ecas_assurance_level');
+        $this->ecasAttributeParserEnabled = boolval($this->config->getAppValue($this->appName, 'cas_ecas_attributeparserenabled', false));
+        $this->cas_ecas_request_full_userdetails = boolval($this->config->getAppValue($this->appName, 'cas_ecas_request_full_userdetails', false));
+        $this->cas_ecas_accepted_strengths = $this->config->getAppValue($this->appName, 'cas_ecas_accepted_strengths');
+        $this->cas_ecas_retrieve_groups = $this->config->getAppValue($this->appName, 'cas_ecas_retrieve_groups');
+        $this->cas_ecas_assurance_level = $this->config->getAppValue($this->appName, 'cas_ecas_assurance_level');
 
 
         foreach ($logoutServersArray as $casHandleLogoutServer) {
@@ -219,8 +219,8 @@ class AppService
             }
         }
 
-        $this->casDebugFile = $this->config->getAppValue('user_cas', 'cas_debug_file', '');
-        $this->casPhpFile = $this->config->getAppValue('user_cas', 'cas_php_cas_path', '');
+        $this->casDebugFile = $this->config->getAppValue($this->appName, 'cas_debug_file', '');
+        $this->casPhpFile = $this->config->getAppValue($this->appName, 'cas_php_cas_path', '');
 
         if (is_string($this->casPhpFile) && strlen($this->casPhpFile) > 0) {
 
@@ -267,10 +267,13 @@ class AppService
 
 
                 # Initialize client
-                if($this->casUseProxy)
+                if ($this->casUseProxy) {
+
                     \phpCAS::proxy($this->casVersion, $this->casHostname, intval($this->casPort), $this->casPath);
-                else
+                } else {
+
                     \phpCAS::client($this->casVersion, $this->casHostname, intval($this->casPort), $this->casPath);
+                }
 
                 # Handle logout servers
                 if (!$this->casDisableLogout && count($this->casHandleLogoutServers) > 0) {

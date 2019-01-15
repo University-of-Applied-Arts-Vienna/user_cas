@@ -64,6 +64,10 @@ msgstr "Chemin du fichier de certification (.crt)."
 msgid "Leave empty if you don’t want to validate your CAS server instance"
 msgstr "Laissez vide si vous ne voulez pas valider votre instance de serveur CAS"
 
+#: templates/admin.php:52
+msgid "Use CAS proxy initialization"
+msgstr "Utiliser l'initialisation du proxy CAS"
+
 #: templates/admin.php:54
 msgid "Force user login using CAS?"
 msgstr "Forcer la connexion de l'utilisateur en utilisant CAS?"
