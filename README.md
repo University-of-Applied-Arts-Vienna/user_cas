@@ -71,6 +71,8 @@ CAS Server
 
 **Certification file path (.crt)**: If you don't want to validate the certificate (i.e. self-signed certificates) then leave this blank. Otherwise enter the path to the certificate (.crt) on your server, beginning at root level.
 
+**Use CAS proxy initialization**: If active, the CAS-Client is initialized as a proxy. Default off. Activate only, if you know what you’re doing.
+
 
 Basic
 -----
