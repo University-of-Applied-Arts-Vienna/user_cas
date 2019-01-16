@@ -181,7 +181,7 @@ class UserHooks
                         $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, 'phpCAS no new user has been created.');
                     }
 
-                    // Don’t do that for Cextcloud
+                    // Don’t do that for Nextcloud
                     /** @var \OCP\Defaults $defaults */
                     $defaults = new \OCP\Defaults();
 
