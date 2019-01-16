@@ -32,7 +32,7 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI) {
     // Register User Backend
     $userService->registerBackend();
 
-    if (strpos($requestUri, '/index.php/login') !== FALSE || strpos($requestUri, '/index.php/logout') !== FALSE) {
+    if (strpos($requestUri, '/login') !== FALSE || strpos($requestUri, '/logout') !== FALSE) {
 
         // URL params and redirect_url cookie
         setcookie("user_cas_enforce_authentication", "0", null, '/');
