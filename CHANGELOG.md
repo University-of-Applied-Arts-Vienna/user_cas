@@ -3,25 +3,27 @@ CHANGELOG
 
 Version 1.6.1
 -------------
-* Fix 5min logout bug on Nextcloud
+* Fixes 5min logout bug on Nextcloud
+* Unifies log levels in LoggingService
+* Moves hook registration to a higher level to ensure working postLoginHook
 
 
 Version 1.6.0
 -------------
-* Add compatibility for ownCloud 10.1 and Nextcloud 15
-* Fix app initialization to minimize incompatibilities with other apps
-* Remove hard app stopping when no phpCAS library is found
-* Update jasig/phpcas to 1.3.6
+* Adds compatibility for ownCloud 10.1 and Nextcloud 15
+* Fixes app initialization to minimize incompatibilities with other apps
+* Removes hard app stopping when no phpCAS library is found
+* Updates jasig/phpcas to 1.3.6
 
 
 Version 1.5.6
 -------------
-* Change most of the INFO log writes to DEBUG
+* Changes most of the INFO log writes to DEBUG
 
 
 Version 1.5.5
 -------------
-* Add Support for ownCloud 10.0.10 and Nextcloud 14.0.0
+* Adds Support for ownCloud 10.0.10 and Nextcloud 14.0.0
 
 
 Version 1.5.4
