@@ -209,10 +209,11 @@ class UserHooks
     /**
      * postLogin method to update user data.
      *
-     * @param \OCP\IUser $user
+     * @param $uid
+     * @param $password
      * @return bool
      */
-    public function postLogin(\OCP\IUser $user, $password)
+    public function postLogin($uid, $password)
     {
 
         if (!$this->appService->isCasInitialized()) {
@@ -228,7 +229,15 @@ class UserHooks
             }
         };
 
-        $uid = $user->getUID();
+        if ($uid instanceof \OCP\IUser) {
+
+            $user = $uid;
+            $uid = $user->getUID();
+        }
+        else {
+
+            $user = $this->userManager->get($uid);
+        }
 
         if (\phpCAS::isAuthenticated() && $this->userSession->isLoggedIn()) {
 
