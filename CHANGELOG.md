@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+Version 1.7.0
+-------------
+
+* Adds a filter to disable multi-factor-authentication for internal IP addresses on ECAS instances
+* Raises the ECAS client-version to 2.1.3
+
+
 Version 1.6.1
 -------------
 * Fixes 5min logout bug on Nextcloud

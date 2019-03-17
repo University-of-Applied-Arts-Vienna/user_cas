@@ -131,6 +131,9 @@ Since Version 1.5 user_cas provides support for using a European Commission ECAS
 
 **Query ECAS groups**: Define which ECAS groups should be queried when validating a user’s ticket. Please provide a comma separated list without blanks (eg.: GROUP1,GROUP2 or use * for all groups). (Do **NOT** select until you know what you are doing).
 
+**Don’t use Multi-Factor-Authentication on these client-IPs**: Comma separated list of client IP addresses (or address ranges), which won’t be forced to use Multi-Factor-Authentication if "ECAS AssuranceLevel" is at least MEDIUM (e.g. 192.168.1.1-254,192.168.2.5). (Do **NOT** fill until you know what you are doing).
+
+
 
 <!-- 
 LDAP-Backend:
