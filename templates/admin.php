@@ -207,6 +207,13 @@ style('user_cas', 'settings');
                        title=""><?php p($l->t('Query ECAS groups')); ?></label><input
                         id="cas_ecas_retrieve_groups" name="cas_ecas_retrieve_groups" placeholder="*"
                         value="<?php p($_['cas_ecas_retrieve_groups']); ?>"> <span class="csh"><?php p($l->t('Note down all groups which you want to receive from your ECAS instance, * returns all groups')); ?></span></p>
+            <p>
+                <label for="cas_ecas_internal_ip_range"><?php p($l->t('Don’t use Multi-Factor-Authentication on these client-IPs')); ?></label><input
+                        id="cas_ecas_internal_ip_range"
+                        name="cas_ecas_internal_ip_range"
+                        value="<?php p($_['cas_ecas_internal_ip_range']); ?>" />
+                <span class="csh"><?php p($l->t('Comma separated list of client IP addresses (or address ranges), which won’t be forced to use Multi-Factor-Authentication if "ECAS AssuranceLevel" is at least MEDIUM (e.g. 192.168.1.1-254,192.168.2.5)')) ?></span>
+            </p>
         </fieldset>
         <!-- phpCAS Settings -->
         <fieldset id="casSettings-6">

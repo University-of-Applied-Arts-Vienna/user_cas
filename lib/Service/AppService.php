@@ -143,6 +143,11 @@ class AppService
     private $cas_ecas_request_full_userdetails;
 
     /**
+     * @var string
+     */
+    private $cas_ecas_internal_ip_range;
+
+    /**
      * @var boolean
      */
     private $casInitialized;
@@ -207,6 +212,7 @@ class AppService
         $this->cas_ecas_accepted_strengths = $this->config->getAppValue($this->appName, 'cas_ecas_accepted_strengths');
         $this->cas_ecas_retrieve_groups = $this->config->getAppValue($this->appName, 'cas_ecas_retrieve_groups');
         $this->cas_ecas_assurance_level = $this->config->getAppValue($this->appName, 'cas_ecas_assurance_level');
+        $this->cas_ecas_internal_ip_range = $this->config->getAppValue($this->appName, 'cas_ecas_internal_ip_range');
 
 
         foreach ($logoutServersArray as $casHandleLogoutServer) {
@@ -357,6 +363,96 @@ class AppService
                         $newSamlUrl = $newProtocol . $this->getCasHostname() . $this->getCasPath() . '/samlValidate';
                     }
 
+
+
+                    ## Check for external IP Ranges to en-/disable the Two-Factor-Authentication (AssuranceLevel at least MEDIUM)
+                    $remoteAddress = $_SERVER['REMOTE_ADDR'];
+                    $internalIps = $this->cas_ecas_internal_ip_range;
+                    $internalIpsArray = explode(',', $internalIps);
+
+                    # Check enforce IP ranges
+                    foreach ($internalIpsArray as $internalIp) {
+
+                        $internalIpRanges = explode('-', $internalIp);
+
+                        if (isset($internalIpRanges[0])) {
+
+                            if (isset($internalIpRanges[1])) {
+
+                                $baseIpComponents = explode('.', $internalIpRanges[0]);
+
+                                $baseIp = $baseIpComponents[0] . '.' . $baseIpComponents[1] . '.';
+
+                                $additionalIpComponents = explode('.', $internalIpRanges[1]);
+
+                                if (isset($additionalIpComponents[1]) && $additionalIpComponents[0]) {
+
+                                    # We have a two part range here (eg. 127.0.0.1-1.19) which means, we have to cover 127.0.0.1-127.0.0.254 and 127.0.1.1-127.0.1.19
+
+                                    for ($ipThirdPart = intval($baseIpComponents[2]); $ipThirdPart <= intval($additionalIpComponents[0]); $ipThirdPart++) {
+
+                                        if ($ipThirdPart !== intval($additionalIpComponents[0])) {
+
+                                            $ipFourthPartMax = 254;
+                                        } else {
+
+                                            $ipFourthPartMax = intval($additionalIpComponents[1]);
+                                        }
+
+                                        for ($ipFourthPart = intval($baseIpComponents[3]); $ipFourthPart <= $ipFourthPartMax; $ipFourthPart++) {
+
+                                            $endIp = $baseIp . $ipThirdPart . '.' . $ipFourthPart;
+
+                                            #$this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS Enforce Login IP checked: " . $endIp);
+
+                                            if ($remoteAddress === $endIp) {
+
+                                                if($this->cas_ecas_assurance_level !== '') {
+
+                                                    $this->cas_ecas_assurance_level = 'LOW';
+                                                    $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS ECAS Assurance Level is forced to LOW, because the user is in the internal network. Test Address: " . $endIp . " | Users Remote Address: " . $remoteAddress);
+                                                }
+
+                                            }
+                                        }
+                                    }
+
+                                } elseif ($additionalIpComponents[0]) {
+
+                                    # We have a one part range here (eg. 127.0.0.1-19)
+
+                                    $newIp = $baseIp . $baseIpComponents[2] . '.';
+
+                                    for ($ipFourthPart = intval($baseIpComponents[3]); $ipFourthPart <= intval($additionalIpComponents[0]); $ipFourthPart++) {
+
+                                        $endIp = $newIp . $ipFourthPart;
+
+                                        if ($remoteAddress === $endIp) {
+
+                                            if($this->cas_ecas_assurance_level !== '') {
+
+                                                $this->cas_ecas_assurance_level = 'LOW';
+                                                $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS ECAS Assurance Level is forced to LOW, because the user is in the internal network. Test Address: " . $endIp . " | Users Remote Address: " . $remoteAddress);
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+
+                                # Single IP-Adress given
+                                if ($remoteAddress === $internalIpRanges[0]) {
+
+                                    if($this->cas_ecas_assurance_level !== '') {
+
+                                        $this->cas_ecas_assurance_level = 'LOW';
+                                        $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS ECAS Assurance Level is forced to LOW, because the user is in the internal network. Test Address: " . $internalIpRanges[0] . " | Users Remote Address: " . $remoteAddress);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
                     # Change validation URL based on ECAS assuranceLevel
                     if (is_string($this->cas_ecas_assurance_level) && $this->cas_ecas_assurance_level === 'LOW') {
 
@@ -398,7 +494,7 @@ class AppService
 
                     # Set the user agent to mimic an ecas client
                     $userAgent = sprintf("ECAS PHP Client (%s, %s)",
-                        '2.0.0-BETA-0004',
+                        '2.1.3',
                         $_SERVER['SERVER_SOFTWARE']);
                     \phpCAS::setExtraCurlOption(CURLOPT_USERAGENT, $userAgent);
 

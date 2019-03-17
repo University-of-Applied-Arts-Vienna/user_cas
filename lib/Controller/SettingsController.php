@@ -95,6 +95,7 @@ class SettingsController extends Controller
      * @param string $cas_ecas_assurance_level
      * @param string $cas_access_group_quotas
      * @param string $cas_force_login_exceptions
+     * @param string $cas_ecas_internal_ip_range
      * @param string|null $cas_ecas_attributeparserenabled
      * @param string|null $cas_ecas_request_full_userdetails
      * @param string|null $cas_force_login
@@ -102,11 +103,12 @@ class SettingsController extends Controller
      * @param string|null $cas_update_user_data
      * @param string|null $cas_link_to_ldap_backend
      * @param string|null $cas_disable_logout
+     * @param string|null $cas_use_proxy
      * @return mixed
      */
     public function saveSettings($cas_server_version, $cas_server_hostname, $cas_server_port, $cas_server_path, $cas_protected_groups, $cas_default_group,
                                  $cas_email_mapping, $cas_displayName_mapping, $cas_group_mapping, $cas_cert_path, $cas_debug_file, $cas_php_cas_path, $cas_service_url, $cas_handlelogout_servers,
-                                 $cas_access_allow_groups, $cas_ecas_accepted_strengths, $cas_ecas_retrieve_groups, $cas_ecas_assurance_level, $cas_access_group_quotas, $cas_force_login_exceptions,
+                                 $cas_access_allow_groups, $cas_ecas_accepted_strengths, $cas_ecas_retrieve_groups, $cas_ecas_assurance_level, $cas_access_group_quotas, $cas_force_login_exceptions, $cas_ecas_internal_ip_range,
                                  $cas_ecas_attributeparserenabled = NULL, $cas_ecas_request_full_userdetails = NULL, $cas_force_login = NULL, $cas_autocreate = NULL, $cas_update_user_data = NULL, $cas_link_to_ldap_backend = NULL, $cas_disable_logout = NULL, $cas_use_proxy = NULL)
     {
 
@@ -137,6 +139,7 @@ class SettingsController extends Controller
             $this->config->setAppValue($this->appName, 'cas_ecas_accepted_strengths', $cas_ecas_accepted_strengths);
             $this->config->setAppValue($this->appName, 'cas_ecas_retrieve_groups', $cas_ecas_retrieve_groups, '*');
             $this->config->setAppValue($this->appName, 'cas_ecas_assurance_level', $cas_ecas_assurance_level);
+            $this->config->setAppValue($this->appName, 'cas_ecas_internal_ip_range', $cas_ecas_internal_ip_range);
 
             # Checkbox settings
             $this->config->setAppValue($this->appName, 'cas_force_login', ($cas_force_login !== NULL) ? '1' : '0');

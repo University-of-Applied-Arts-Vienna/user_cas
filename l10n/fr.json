@@ -37,6 +37,8 @@
     "ECAS AssuranceLevel": "ECAS AssuranceLevel",
     "Query ECAS groups": "ECAS groupes de requêtes",
     "Note down all groups which you want to receive from your ECAS instance, * returns all groups": "Notez tous les groupes que vous souhaitez recevoir de votre instance ECAS, * renvoie tous les groupes",
+    "Don’t use Multi-Factor-Authentication on these client-IPs": "N'utilisez pas l'authentification multi-facteurs sur ces IP client",
+    "Comma separated list of client IP addresses (or address ranges), which won’t be forced to use Multi-Factor-Authentication if \"ECAS AssuranceLevel\" is at least MEDIUM (e.g. 192.168.1.1-254,192.168.2.5)": "Liste d'adresses IP client (ou plages d'adresses), séparées par des virgules, qui ne seront pas obligées d'utiliser l'authentification à plusieurs facteurs si \"ECAS AssuranceLevel\" est au moins de MEDIUM (par exemple 192.168.1.1-254, 192.168.2.5)",
     "Email": "Email",
     "Display Name": "Nom affiché",
     "Groups": "Groupes",
