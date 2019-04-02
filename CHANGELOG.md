@@ -10,6 +10,12 @@ Version 1.7.0
 * Fixes postLogin signals signature
 
 
+Version 1.6.2
+-------------
+* Changes default value of the autocreate option to "on"
+* Fixes postLogin signals signature
+
+
 Version 1.6.1
 -------------
 * Fixes 5min logout bug on Nextcloud
