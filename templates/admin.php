@@ -101,7 +101,7 @@ style('user_cas', 'settings');
                        for="cas_disable_logout"><?php p($l->t('Disable CAS logout (do only OwnCloud logout)')); ?></label>
             </p>
             <p><input type="checkbox" id="cas_autocreate"
-                      name="cas_autocreate" <?php print_unescaped((($_['cas_autocreate'] === 'true' || $_['cas_autocreate'] === 'on' || $_['cas_autocreate'] === '1') ? 'checked="checked"' : '')); ?>>
+                      name="cas_autocreate" <?php print_unescaped((($_['cas_autocreate'] === 'true' || $_['cas_autocreate'] === 'on' || $_['cas_autocreate'] === '1' || $_['cas_autocreate'] === '') ? 'checked="checked"' : '')); ?>>
                 <label class='checkbox'
                        for="cas_autocreate"><?php p($l->t('Autocreate user after first CAS login?')); ?></label>
             </p>
