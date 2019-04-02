@@ -33,6 +33,12 @@
         <nextcloud min-version="13" max-version="15"/>
     </dependencies>
 
+    <commands>
+        <command>OCA\UserCAS\Command\CreateUser</command>
+        <!-- <command>OCA\UserCAS\Command\UpdateUser</command>
+        <command>OCA\UserCAS\Command\DeleteUser</command> -->
+    </commands>
+
     <settings>
         <admin>OCA\UserCAS\Panels\Admin</admin>
     </settings>
