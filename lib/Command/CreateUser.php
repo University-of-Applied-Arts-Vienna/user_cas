@@ -36,11 +36,6 @@ class CreateUser extends Command
     protected $userService;
 
     /**
-     * @var LoggingService
-     */
-    protected $loggingService;
-
-    /**
      * @var IUserManager
      */
     protected $userManager;
@@ -57,19 +52,17 @@ class CreateUser extends Command
 
 
     /**
-     * @param string $AppName
      * @param UserService $userService
      * @param LoggingService $loggingService
      * @param IUserManager $userManager
      * @param IGroupManager $groupManager
      * @param IMailer $mailer
      */
-    public function __construct($AppName, UserService $userService, LoggingService $loggingService, IUserManager $userManager, IGroupManager $groupManager, IMailer $mailer)
+    public function __construct(UserService $userService, IUserManager $userManager, IGroupManager $groupManager, IMailer $mailer)
     {
         parent::__construct();
 
         $this->userService = $userService;
-        $this->loggingService = $loggingService;
         $this->userManager = $userManager;
         $this->groupManager = $groupManager;
         $this->mailer = $mailer;
