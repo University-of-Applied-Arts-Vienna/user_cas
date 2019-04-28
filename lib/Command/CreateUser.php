@@ -279,7 +279,7 @@ class CreateUser extends Command
                 $query = \OC_DB::prepare('UPDATE `*PREFIX*accounts` SET `backend` = ? WHERE LOWER(`user_id`) = LOWER(?)');
                 $result = $query->execute([get_class($this->userService->getBackend()), $uid]);
 
-                $output->writeln('Existing user in old backend has been converted to CAS-Backend.');
+                $output->writeln('New user added to CAS backend.');
             }
         }
     }
