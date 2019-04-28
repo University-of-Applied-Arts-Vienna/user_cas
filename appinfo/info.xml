@@ -35,8 +35,7 @@
 
     <commands>
         <command>OCA\UserCAS\Command\CreateUser</command>
-        <!-- <command>OCA\UserCAS\Command\UpdateUser</command>
-        <command>OCA\UserCAS\Command\DeleteUser</command> -->
+        <command>OCA\UserCAS\Command\UpdateUser</command>
     </commands>
 
     <settings>

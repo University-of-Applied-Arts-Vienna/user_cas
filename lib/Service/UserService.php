@@ -351,11 +351,11 @@ class UserService
      * Gets an array of groups and will try to add the group to OC and then add the user to the groups.
      *
      * @param \OCP\IUser $user
-     * @param string $groups
-     * @param string $protectedGroups
+     * @param string|array $groups
+     * @param string|array $protectedGroups
      * @param bool $justCreated
      */
-    private function updateGroups($user, $groups, $protectedGroups = '', $justCreated = false)
+    public function updateGroups($user, $groups, $protectedGroups = '', $justCreated = false)
     {
 
         if (is_string($groups)) $groups = explode(",", $groups);

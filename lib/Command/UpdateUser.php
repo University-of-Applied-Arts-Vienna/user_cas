@@ -21,7 +21,7 @@ use Symfony\Component\Console\Input\InputArgument;
 
 
 /**
- * Class CreateUser
+ * Class UpdateUser
  *
  * @package OCA\UserCAS\Command
  *
@@ -30,7 +30,7 @@ use Symfony\Component\Console\Input\InputArgument;
  *
  * @since 1.7.0
  */
-class CreateUser extends Command
+class UpdateUser extends Command
 {
 
     /**
@@ -57,6 +57,11 @@ class CreateUser extends Command
      * @var LoggingService
      */
     protected $loggingService;
+
+    /**
+     * @var \OCP\IConfig
+     */
+    protected $config;
 
 
     /**
@@ -111,6 +116,7 @@ class CreateUser extends Command
         $this->groupManager = $groupManager;
         $this->mailer = $mailer;
         $this->loggingService = $loggingService;
+        $this->config = $config;
     }
 
 
@@ -120,8 +126,8 @@ class CreateUser extends Command
     protected function configure()
     {
         $this
-            ->setName('usercas:create-user')
-            ->setDescription('adds a user_cas user')
+            ->setName('usercas:update-user')
+            ->setDescription('updates a user_cas user')
             ->addArgument(
                 'uid',
                 InputArgument::REQUIRED,
@@ -170,8 +176,8 @@ class CreateUser extends Command
     {
 
         $uid = $input->getArgument('uid');
-        if ($this->userManager->userExists($uid)) {
-            $output->writeln('<error>The user "' . $uid . '" already exists.</error>');
+        if (!$this->userManager->userExists($uid)) {
+            $output->writeln('<error>The user "' . $uid . '" does not exist.</error>');
             return 1;
         }
 
@@ -195,14 +201,14 @@ class CreateUser extends Command
         /**
          * @var IUser
          */
-        $user = $this->userService->create($uid);
+        $user = $this->userManager->get($uid);
 
         if ($user instanceof IUser) {
 
-            $output->writeln('<info>The user "' . $user->getUID() . '" was created successfully</info>');
+            $output->writeln('<info>The user "' . $user->getUID() . '" has been found</info>');
         } else {
 
-            $output->writeln('<error>An error occurred while creating the user</error>');
+            $output->writeln('<error>An error occurred while finding the user</error>');
             return 1;
         }
 
@@ -221,26 +227,11 @@ class CreateUser extends Command
         }
 
         # Set Groups
-        $groups = $input->getOption('group');
+        $groups = (array)$input->getOption('group');
 
-        if (!empty($groups)) {
+        $this->userService->updateGroups($user, $groups, $this->config->getAppValue('user_cas', 'cas_protected_groups'));
 
-            // Make sure we init the Filesystem for the user, in case we need to
-            // init some group shares.
-            Filesystem::init($user->getUID(), '');
-        }
-
-        foreach ($groups as $groupName) {
-
-            $group = $this->groupManager->get($groupName);
-            if (!$group) {
-                $this->groupManager->createGroup($groupName);
-                $group = $this->groupManager->get($groupName);
-                $output->writeln('Created group "' . $group->getGID() . '"');
-            }
-            $group->addUser($user);
-            $output->writeln('User "' . $user->getUID() . '" added to group "' . $group->getGID() . '"');
-        }
+        $output->writeln('Groups have been updated.');
 
         # Set Quota
         $quota = $input->getOption('quota');
