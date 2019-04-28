@@ -249,10 +249,17 @@ class CreateUser extends Command
 
             if(is_numeric($quota)) {
 
-                $quota = \OCP\Util::humanFileSize(intval($quota));
+                $newQuota  = $quota;
+            }
+            elseif ($quota === 'default') {
+
+                $newQuota = 'default';
+            } else {
+
+                $newQuota = \OCP\Util::computerFileSize($quota);
             }
 
-            $this->userService->updateQuota($user, FALSE, $quota);
+            $user->setQuota($newQuota);
             $output->writeln('Quota set to "' . $user->getQuota() . '"');
         }
 
