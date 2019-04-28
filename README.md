@@ -103,8 +103,10 @@ If CAS provides extra attributes, `user_cas` can retrieve the values of them. Si
 
 **Group**: Name of group attribute in CAS. Default: empty
 
-**Quota**: Name of quota attribute in CAS. Default: empty
+**Quota**: Name of quota attribute in CAS. Quota can be a numeric byte value or a human readable string, like 1GB or 512MB. Default: empty
 
+
+<a name="groups"></a>
 
 Groups
 ------
@@ -165,6 +167,54 @@ EXTRA INFO
 
 By default the CAS App will unlink all the groups from a user and will provide the groups defined at the [**Mapping**](#mapping) attributes. If this mapping is not defined, the value of the **Default group when autocreating users** field will be used instead. If both are undefined, then the user will be set with no groups.
 If you set the "protected groups" field, those groups will not be unlinked from the user.
+
+
+OCC Commands
+============
+
+user_cas has the following OCC commands implemented:
+
+* cas
+    * cas:create-user (Adds a user_cas user to the database.)
+    * cas:update-user (Updates an existing user and (if not yet a CAS user( converts the record to CAS backend.)
+
+
+Create a user:
+--------------
+
+    cas:create-user [--display-name [DISPLAY-NAME]] [--email [EMAIL]] [-g|--group [GROUP]] [-o|--quota [QUOTA]] [-e|--enabled [ENABLED]] [--] <uid>
+    
+- Parameters (required):
+    - uid: the uid of the user
+    
+- Options (optional):
+    - --display-name: The new display name of the user.
+    - --email: The new email of the user.
+    - -g | --group: The new group of the user, can be used multiple times (e.g. `-g Family -g Work`) to add multiple groups.
+    - -o | --quota: The new quota of the user, either as numerical byte value or human readable value (e.g. 1GB)).
+    - -e | --enabled: Enable or disable the user. Setting `-e 1` enables the user, setting `-e 0` disables the user.
+    
+**Notice: Protected groups will never be unlinked from the user! See also [Groups](#groups).**
+    
+
+Update a user:
+--------------
+
+    cas:update-user [--display-name [DISPLAY-NAME]] [--email [EMAIL]] [-g|--group [GROUP]] [-o|--quota [QUOTA]] [-e|--enabled [ENABLED]] [-c|--convert-backend [CONVERT-BACKEND]] [--] <uid>
+
+- Parameters (required):
+    - uid: the uid of the user
+    
+- Options (optional):
+    - --display-name: The new display name of the user.
+    - --email: The new email of the user.
+    - -g | --group: The new group of the user, can be used multiple times (e.g. `-g Family -g Work`) to add multiple groups.
+    - -o | --quota: The new quota of the user, either as numerical byte value or human readable value (e.g. 1GB)).
+    - -e | --enabled: Enable or disable the user. Setting `-e 1` enables the user, setting `-e 0` disables the user.
+    - -c | --convert-backend: Set if the user’s backend should be converted to CAS backend. Setting `-c 1` converts to backend to CAS. **WARNING: This is not revocable!**
+    
+**Notice: Protected groups will never be unlinked from the user! See also [Groups](#groups).**
+    
 
 Bugs and Support
 ==============
