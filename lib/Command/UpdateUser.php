@@ -127,7 +127,7 @@ class UpdateUser extends Command
     {
         $this
             ->setName('cas:update-user')
-            ->setDescription('Updates an existing user and (if not yet a CAS user( converts the record to CAS backend.')
+            ->setDescription('Updates an existing user and, if not yet a CAS user, converts the record to CAS backend.')
             ->addArgument(
                 'uid',
                 InputArgument::REQUIRED,
