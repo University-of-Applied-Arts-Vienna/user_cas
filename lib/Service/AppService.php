@@ -364,7 +364,6 @@ class AppService
                     }
 
 
-
                     ## Check for external IP Ranges to en-/disable the Two-Factor-Authentication (AssuranceLevel at least MEDIUM)
                     $remoteAddress = $_SERVER['REMOTE_ADDR'];
                     $internalIps = $this->cas_ecas_internal_ip_range;
@@ -407,7 +406,7 @@ class AppService
 
                                             if ($remoteAddress === $endIp) {
 
-                                                if($this->cas_ecas_assurance_level !== '') {
+                                                if ($this->cas_ecas_assurance_level !== '') {
 
                                                     $this->cas_ecas_assurance_level = 'LOW';
                                                     $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS ECAS Assurance Level is forced to LOW, because the user is in the internal network. Test Address: " . $endIp . " | Users Remote Address: " . $remoteAddress);
@@ -429,7 +428,7 @@ class AppService
 
                                         if ($remoteAddress === $endIp) {
 
-                                            if($this->cas_ecas_assurance_level !== '') {
+                                            if ($this->cas_ecas_assurance_level !== '') {
 
                                                 $this->cas_ecas_assurance_level = 'LOW';
                                                 $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS ECAS Assurance Level is forced to LOW, because the user is in the internal network. Test Address: " . $endIp . " | Users Remote Address: " . $remoteAddress);
@@ -442,7 +441,7 @@ class AppService
                                 # Single IP-Adress given
                                 if ($remoteAddress === $internalIpRanges[0]) {
 
-                                    if($this->cas_ecas_assurance_level !== '') {
+                                    if ($this->cas_ecas_assurance_level !== '') {
 
                                         $this->cas_ecas_assurance_level = 'LOW';
                                         $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS ECAS Assurance Level is forced to LOW, because the user is in the internal network. Test Address: " . $internalIpRanges[0] . " | Users Remote Address: " . $remoteAddress);
@@ -531,6 +530,24 @@ class AppService
             $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS has already been initialized.");
             #\OCP\Util::writeLog('cas', "phpCAS has already been initialized.", \OCA\UserCas\Service\LoggingService::DEBUG);
         }
+    }
+
+    /**
+     * Test if the instance is not a Nextcloud instance
+     * TODO: Change logic to use other data than the user editable name
+     *
+     * @see Issue#58
+     *
+     * @return bool|int
+     */
+    public function isNotNextcloud()
+    {
+
+        // Don’t do that for Nextcloud
+        /** @var \OCP\Defaults $defaults */
+        $defaults = new \OCP\Defaults();
+
+        return strpos(strtolower($defaults->getName()), 'next');
     }
 
     /**

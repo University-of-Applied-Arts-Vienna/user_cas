@@ -39,6 +39,11 @@ class CreateUser extends Command
     protected $userService;
 
     /**
+     * @var AppService
+     */
+    protected $appService;
+
+    /**
      * @var IUserManager
      */
     protected $userManager;
@@ -75,7 +80,7 @@ class CreateUser extends Command
         $urlGenerator = \OC::$server->getURLGenerator();
 
         $loggingService = new LoggingService('user_cas', $config, $logger);
-        $appService = new AppService('user_cas', $config, $loggingService, $userManager, $userSession, $urlGenerator);
+        $this->appService = new AppService('user_cas', $config, $loggingService, $userManager, $userSession, $urlGenerator);
 
         /** @var \OCP\Defaults $defaults */
         $defaults = new \OCP\Defaults();
@@ -85,13 +90,13 @@ class CreateUser extends Command
 
             $backend = new NextBackend(
                 $loggingService,
-                $appService
+                $this->appService
             );
         } else {
 
             $backend = new Backend(
                 $loggingService,
-                $appService
+                $this->appService
             );
         }
 
@@ -101,7 +106,7 @@ class CreateUser extends Command
             $userManager,
             $userSession,
             $groupManager,
-            $appService,
+            $this->appService,
             $backend,
             $loggingService
         );
@@ -275,11 +280,7 @@ class CreateUser extends Command
         }
 
 
-        // Don’t do that for Nextcloud
-        /** @var \OCP\Defaults $defaults */
-        $defaults = new \OCP\Defaults();
-
-        if (strpos(strtolower($defaults->getName()), 'next') === FALSE) {
+        if ($this->appService->isNotNextcloud()) {
 
             if (!is_null($user) && $user->getBackendClassName() !== 'CAS' && $user->getBackendClassName() !== get_class($this->userService->getBackend())) {
 
