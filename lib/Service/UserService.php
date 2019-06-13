@@ -242,7 +242,12 @@ class UserService
 
         $randomPassword = $this->getNewPassword();
 
-        return $this->userManager->createUser($userId, $randomPassword);
+        if ($this->backend->implementsActions(\OC\User\Backend::CREATE_USER)) {
+
+            return $this->userManager->createUserFromBackend($userId, $randomPassword, $this->backend);
+        }
+
+        return FALSE;
     }
 
     /**

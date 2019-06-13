@@ -281,10 +281,13 @@ class CreateUser extends Command
         # Set Backend
         if ($this->appService->isNotNextcloud()) {
 
-            $query = \OC_DB::prepare('UPDATE `*PREFIX*accounts` SET `backend` = ? WHERE LOWER(`user_id`) = LOWER(?)');
-            $result = $query->execute([get_class($this->userService->getBackend()), $uid]);
+            if (!is_null($user) && ($user->getBackendClassName() === 'OC\User\Database' || $user->getBackendClassName() === "Database")) {
 
-            $output->writeln('New user added to CAS backend.');
+                $query = \OC_DB::prepare('UPDATE `*PREFIX*accounts` SET `backend` = ? WHERE LOWER(`user_id`) = LOWER(?)');
+                $result = $query->execute([get_class($this->userService->getBackend()), $uid]);
+
+                $output->writeln('New user added to CAS backend.');
+            }
 
         } else {
 
