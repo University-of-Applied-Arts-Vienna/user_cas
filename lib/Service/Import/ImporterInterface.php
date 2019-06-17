@@ -1,14 +1,14 @@
 <?php
 
 
-namespace OCA\UserCAS\Importer;
+namespace OCA\UserCAS\Service\Import;
 
 use Psr\Log\LoggerInterface;
 
 
 /**
  * Interface ImporterInterface
- * @package OCA\UserCAS\Importer
+ * @package OCA\UserCAS\Import
  *
  * @author Felix Rupp <kontakt@felixrupp.com>
  * @copyright Felix Rupp

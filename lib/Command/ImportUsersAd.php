@@ -3,8 +3,9 @@
 
 namespace OCA\UserCAS\Command;
 
-use OCA\UserCAS\Importer\AdImporter;
-use OCA\UserCAS\Importer\ImporterInterface;
+use OC\User\Manager;
+use OCA\UserCAS\Service\Import\AdImporter;
+use OCA\UserCAS\Service\Import\ImporterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -16,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class AdImportUser
- * @package FelixRupp\UserCasImport\Importer
+ * @package FelixRupp\UserCasImport\Import
  *
  * @author Felix Rupp <kontakt@felixrupp.com>
  * @copyright Felix Rupp
@@ -27,7 +28,7 @@ class ImportUsersAd extends Command
 {
 
     /**
-     * @var \OC\User\Manager $userManager
+     * @var Manager $userManager
      */
     private $userManager;
 
@@ -63,50 +64,57 @@ class ImportUsersAd extends Command
          */
         $logger = new ConsoleLogger($output);
 
-        /**
-         * @var ImporterInterface $importer
-         */
-        $importer = new AdImporter();
+        # Check for ldap extension
+        if (extension_loaded("ldap")) {
 
-        $importer->init($logger);
+            /**
+             * @var ImporterInterface $importer
+             */
+            $importer = new AdImporter();
 
-        $allUsers = $importer->getUsers();
+            $importer->init($logger);
 
-        $importer->close();
+            $allUsers = $importer->getUsers();
+
+            $importer->close();
 
 
-        $createCommand = $this->getApplication()->find('cas:create-user');
-        $updateCommand = $this->getApplication()->find('cas:update-user');
+            $createCommand = $this->getApplication()->find('cas:create-user');
+            $updateCommand = $this->getApplication()->find('cas:update-user');
 
-        $returnCode = FALSE;
+            $returnCode = FALSE;
 
-        foreach ($allUsers as $employeeId => $user) {
+            foreach ($allUsers as $user) {
 
-            $arguments = [
-                'command' => 'cas:create-user',
-                'uid' => $user["uid"],
-                '--display-name' => $user["displayName"],
-                '--email' => $user["email"],
-                '--quota' => $user["quota"],
-                '--enabled' => $user["enable"],
-                '--group' => $user["groups"]
-            ];
+                $arguments = [
+                    'command' => 'cas:create-user',
+                    'uid' => $user["uid"],
+                    '--display-name' => $user["displayName"],
+                    '--email' => $user["email"],
+                    '--quota' => $user["quota"],
+                    '--enabled' => $user["enable"],
+                    '--group' => $user["groups"]
+                ];
 
-            # Update user if he already exists
-            if ($this->userManager->userExists($employeeId)) {
+                # Update user if he already exists
+                if ($this->userManager->userExists($user["uid"])) {
 
-                $arguments["--convert-backend"] = 1;
-                $input = new ArrayInput($arguments);
+                    $arguments["--convert-backend"] = 1;
+                    $input = new ArrayInput($arguments);
 
-                $returnCode = $updateCommand->run($input, $output);
-            } else { # Create user if he does not exist
+                    $updateCommand->run($input, new NullOutput());
+                } else { # Create user if he does not exist
 
-                $input = new ArrayInput($arguments);
+                    $input = new ArrayInput($arguments);
 
-                $returnCode = $createCommand->run($input, $output);
+                    $createCommand->run($input, new NullOutput());
+                }
             }
-        }
 
-        $logger->notice("AD import finished with code: " . $returnCode);
+            $logger->notice("AD import finished with code: " . $returnCode);
+        } else {
+
+            $logger->warning("AD import failed. PHP extension 'ldap' is not loaded.");
+        }
     }
 }

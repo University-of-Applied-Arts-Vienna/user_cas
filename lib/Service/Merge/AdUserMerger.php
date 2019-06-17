@@ -1,12 +1,12 @@
 <?php
 
 
-namespace OCA\UserCAS\Merger;
+namespace OCA\UserCAS\Service\Merge;
 
 
 /**
  * Class AdUserMerger
- * @package OCA\UserCAS\Merger
+ * @package OCA\UserCAS\Merge
  *
  * @author Felix Rupp <kontakt@felixrupp.com>
  * @copyright Felix Rupp

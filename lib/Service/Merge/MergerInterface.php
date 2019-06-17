@@ -1,7 +1,7 @@
 <?php
 
 
-namespace OCA\UserCAS\Merger;
+namespace OCA\UserCAS\Service\Merge;
 
 
 /**

@@ -1,16 +1,16 @@
 <?php
 
 
-namespace OCA\UserCAS\Importer;
+namespace OCA\UserCAS\Service\Import;
 
-use OCA\UserCAS\Merger\AdUserMerger;
-use OCA\UserCAS\Merger\MergerInterface;
+use OCA\UserCAS\Service\Merge\AdUserMerger;
+use OCA\UserCAS\Service\Merge\MergerInterface;
 use Psr\Log\LoggerInterface;
 
 
 /**
  * Class AdImporter
- * @package FelixRupp\UserCasImport\Importer
+ * @package OCA\UserCAS\Service\Import
  *
  * @author Felix Rupp <kontakt@felixrupp.com>
  * @copyright Felix Rupp
@@ -169,7 +169,7 @@ class AdImporter implements ImporterInterface
                             }
 
                             if (strlen($groupName) > 0) {
-                                
+
                                 $groupsArray[] = $groupName;
                             }
                         }
@@ -189,7 +189,7 @@ class AdImporter implements ImporterInterface
             }
         }
 
-        $this->exportAsCsv($users);
+        #$this->exportAsCsv($users);
 
         $this->logger->info("Users have been retrieved.");
 
@@ -206,7 +206,7 @@ class AdImporter implements ImporterInterface
      * @param $pageSize
      * @return array
      */
-    public function getLdapList($object_dn, $filter, $keepAtributes, $pageSize)
+    protected function getLdapList($object_dn, $filter, $keepAtributes, $pageSize)
     {
 
         $cookie = '';
@@ -236,7 +236,7 @@ class AdImporter implements ImporterInterface
      * @param bool $keep
      * @return array Attribute list
      */
-    public function getLdapAttributes($user_dn, $keep = false)
+    protected function getLdapAttributes($user_dn, $keep = false)
     {
 
         if (!isset($this->ldapConnection)) die('Error, no LDAP connection established');
