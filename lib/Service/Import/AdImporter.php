@@ -5,6 +5,7 @@ namespace OCA\UserCAS\Service\Import;
 
 use OCA\UserCAS\Service\Merge\AdUserMerger;
 use OCA\UserCAS\Service\Merge\MergerInterface;
+use OCP\IConfig;
 use Psr\Log\LoggerInterface;
 
 
@@ -34,6 +35,22 @@ class AdImporter implements ImporterInterface
      * @var LoggerInterface $logger
      */
     private $logger;
+
+    /**
+     * @var IConfig
+     */
+    private $config;
+
+
+    /**
+     * AdImporter constructor.
+     * @param IConfig $config
+     */
+    public function __construct(IConfig $config)
+    {
+
+        $this->config = $config;
+    }
 
 
     /**
@@ -71,6 +88,8 @@ class AdImporter implements ImporterInterface
     {
 
         # Get all needed attributes from env
+        //TODO: Replace all getenv calls with $this->config->getAppValue($this->appName, ''); calls
+
         $uidAttribute = getenv("MAP_UID");
         $displayNameAttribute1 = getenv("MAP_DISPLAY_NAME_1");
         $displayNameAttribute2 = getenv("MAP_DISPLAY_NAME_2");

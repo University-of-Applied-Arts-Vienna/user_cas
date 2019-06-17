@@ -6,6 +6,7 @@ namespace OCA\UserCAS\Command;
 use OC\User\Manager;
 use OCA\UserCAS\Service\Import\AdImporter;
 use OCA\UserCAS\Service\Import\ImporterInterface;
+use OCP\IConfig;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -32,11 +33,21 @@ class ImportUsersAd extends Command
      */
     private $userManager;
 
+    /**
+     * @var IConfig
+     */
+    private $config;
+
+
+    /**
+     * ImportUsersAd constructor.
+     */
     public function __construct()
     {
         parent::__construct();
 
         $this->userManager = \OC::$server->getUserManager();
+        $this->config = \OC::$server->getConfig();
     }
 
     /**
@@ -70,7 +81,7 @@ class ImportUsersAd extends Command
             /**
              * @var ImporterInterface $importer
              */
-            $importer = new AdImporter();
+            $importer = new AdImporter($this->config);
 
             $importer->init($logger);
 
