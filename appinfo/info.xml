@@ -8,7 +8,7 @@
     <screenshot>https://raw.githubusercontent.com/felixrupp/user_cas/master/.github/SCREENSHOTS/splashscreen.png</screenshot>
     <author>Felix Rupp</author>
     <namespace>UserCAS</namespace>
-    <version>1.7.1</version>
+    <version>1.7.2</version>
     <types>
         <prelogin/>
         <authentication/>
@@ -36,6 +36,7 @@
     <commands>
         <command>OCA\UserCAS\Command\CreateUser</command>
         <command>OCA\UserCAS\Command\UpdateUser</command>
+        <command>OCA\UserCAS\Command\ImportUsersAd</command>
     </commands>
 
     <settings>
