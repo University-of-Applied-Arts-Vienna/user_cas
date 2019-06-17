@@ -140,7 +140,12 @@ class UserHooks
 
         if ($uid instanceof \OCP\IUser) {
 
-            $uid = $uid->getUID();
+            $user = $uid;
+            $uid = $user->getUID();
+        }
+        else {
+
+            $user  = $this->userManager->get($uid);
         }
 
         if (\phpCAS::isAuthenticated() && !$this->userSession->isLoggedIn()) {
@@ -153,10 +158,8 @@ class UserHooks
 
                 if ($casUid === $uid) {
 
-                    $oldUserObject = $this->userManager->get($uid);
-
                     // Autocreate user if needed or create a new account in CAS Backend
-                    if (is_null($oldUserObject)) {
+                    if (is_null($user)) {
 
                         // create users if they do not exist
                         if (preg_match('/[^a-zA-Z0-9 _\.@\-]/', $uid)) {
@@ -169,9 +172,9 @@ class UserHooks
                             $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, 'phpCAS creating a new user with UID: ' . $uid);
 
                             /** @var bool|\OCP\IUser the created user or false $uid */
-                            $oldUserObject = $this->userService->create($uid);
+                            $user = $this->userService->create($uid);
 
-                            if ($oldUserObject instanceof \OCP\IUser) {
+                            if ($user instanceof \OCP\IUser) {
 
                                 $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, 'phpCAS created new user with UID: ' . $uid);
                             }
@@ -180,23 +183,12 @@ class UserHooks
 
                         $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, 'phpCAS no new user has been created.');
                     }
-
-                    // Don’t do that for Nextcloud
-                    /** @var \OCP\Defaults $defaults */
-                    $defaults = new \OCP\Defaults();
-
-                    if (strpos(strtolower($defaults->getName()), 'next') === FALSE) {
-
-                        if (!is_null($oldUserObject) && ($oldUserObject->getBackendClassName() === 'OC\User\Database' || $oldUserObject->getBackendClassName() === "Database")) {
-
-                            $query = \OC_DB::prepare('UPDATE `*PREFIX*accounts` SET `backend` = ? WHERE LOWER(`user_id`) = LOWER(?)');
-                            $result = $query->execute([get_class($this->userService->getBackend()), $uid]);
-
-                            $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, 'phpCAS user existing in database backend, move to CAS-Backend with result: ' . $result);
-                        }
-                    }
                 }
             }
+
+            # Update the Backend of the user if necessary
+            $this->userService->updateBackend($user);
+
         } else {
 
             $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, 'phpCas pre login hook NOT triggered. User: ' . $uid);
@@ -233,8 +225,7 @@ class UserHooks
 
             $user = $uid;
             $uid = $user->getUID();
-        }
-        else {
+        } else {
 
             $user = $this->userManager->get($uid);
         }
@@ -244,6 +235,9 @@ class UserHooks
             if (boolval($this->config->getAppValue($this->appName, 'cas_update_user_data'))) {
 
                 $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, 'phpCas post login hook triggered. User: ' . $uid);
+
+                # Update the Backend of the user if necessary
+                $this->userService->updateBackend($user);
 
                 // $cas_attributes may vary in name, therefore attributes are fetched to $attributes
 

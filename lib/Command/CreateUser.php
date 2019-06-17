@@ -39,6 +39,11 @@ class CreateUser extends Command
     protected $userService;
 
     /**
+     * @var AppService
+     */
+    protected $appService;
+
+    /**
      * @var IUserManager
      */
     protected $userManager;
@@ -75,7 +80,7 @@ class CreateUser extends Command
         $urlGenerator = \OC::$server->getURLGenerator();
 
         $loggingService = new LoggingService('user_cas', $config, $logger);
-        $appService = new AppService('user_cas', $config, $loggingService, $userManager, $userSession, $urlGenerator);
+        $this->appService = new AppService('user_cas', $config, $loggingService, $userManager, $userSession, $urlGenerator);
 
         /** @var \OCP\Defaults $defaults */
         $defaults = new \OCP\Defaults();
@@ -85,13 +90,13 @@ class CreateUser extends Command
 
             $backend = new NextBackend(
                 $loggingService,
-                $appService
+                $this->appService
             );
         } else {
 
             $backend = new Backend(
                 $loggingService,
-                $appService
+                $this->appService
             );
         }
 
@@ -101,7 +106,7 @@ class CreateUser extends Command
             $userManager,
             $userSession,
             $groupManager,
-            $appService,
+            $this->appService,
             $backend,
             $loggingService
         );
@@ -245,13 +250,12 @@ class CreateUser extends Command
         # Set Quota
         $quota = $input->getOption('quota');
 
-        if(!empty($quota)) {
+        if (!empty($quota)) {
 
-            if(is_numeric($quota)) {
+            if (is_numeric($quota)) {
 
-                $newQuota  = $quota;
-            }
-            elseif ($quota === 'default') {
+                $newQuota = $quota;
+            } elseif ($quota === 'default') {
 
                 $newQuota = 'default';
             } else {
@@ -270,24 +274,24 @@ class CreateUser extends Command
 
             $user->setEnabled(boolval($enabled));
 
-            $enabledString =  ($user->isEnabled()) ? 'enabled' : 'not enabled';
+            $enabledString = ($user->isEnabled()) ? 'enabled' : 'not enabled';
             $output->writeln('Enabled set to "' . $enabledString . '"');
         }
 
+        # Set Backend
+        if ($this->appService->isNotNextcloud()) {
 
-        // Don’t do that for Nextcloud
-        /** @var \OCP\Defaults $defaults */
-        $defaults = new \OCP\Defaults();
-
-        if (strpos(strtolower($defaults->getName()), 'next') === FALSE) {
-
-            if (!is_null($user) && $user->getBackendClassName() !== 'CAS' && $user->getBackendClassName() !== get_class($this->userService->getBackend())) {
+            if (!is_null($user) && ($user->getBackendClassName() === 'OC\User\Database' || $user->getBackendClassName() === "Database")) {
 
                 $query = \OC_DB::prepare('UPDATE `*PREFIX*accounts` SET `backend` = ? WHERE LOWER(`user_id`) = LOWER(?)');
                 $result = $query->execute([get_class($this->userService->getBackend()), $uid]);
 
                 $output->writeln('New user added to CAS backend.');
             }
+
+        } else {
+
+            $output->writeln('This is a Nextcloud instance, no backend update needed.');
         }
     }
 }

@@ -39,6 +39,11 @@ class UpdateUser extends Command
     protected $userService;
 
     /**
+     * @var AppService
+     */
+    protected $appService;
+
+    /**
      * @var IUserManager
      */
     protected $userManager;
@@ -80,7 +85,7 @@ class UpdateUser extends Command
         $urlGenerator = \OC::$server->getURLGenerator();
 
         $loggingService = new LoggingService('user_cas', $config, $logger);
-        $appService = new AppService('user_cas', $config, $loggingService, $userManager, $userSession, $urlGenerator);
+        $this->appService = new AppService('user_cas', $config, $loggingService, $userManager, $userSession, $urlGenerator);
 
         /** @var \OCP\Defaults $defaults */
         $defaults = new \OCP\Defaults();
@@ -90,13 +95,13 @@ class UpdateUser extends Command
 
             $backend = new NextBackend(
                 $loggingService,
-                $appService
+                $this->appService
             );
         } else {
 
             $backend = new Backend(
                 $loggingService,
-                $appService
+                $this->appService
             );
         }
 
@@ -106,7 +111,7 @@ class UpdateUser extends Command
             $userManager,
             $userSession,
             $groupManager,
-            $appService,
+            $this->appService,
             $backend,
             $loggingService
         );
@@ -235,7 +240,7 @@ class UpdateUser extends Command
         # Set Groups
         $groups = (array)$input->getOption('group');
 
-        if(count($groups) > 0) {
+        if (count($groups) > 0) {
 
             $this->userService->updateGroups($user, $groups, $this->config->getAppValue('user_cas', 'cas_protected_groups'));
             $output->writeln('Groups have been updated.');
@@ -244,13 +249,12 @@ class UpdateUser extends Command
         # Set Quota
         $quota = $input->getOption('quota');
 
-        if(!empty($quota)) {
+        if (!empty($quota)) {
 
-            if(is_numeric($quota)) {
+            if (is_numeric($quota)) {
 
-                $newQuota  = $quota;
-            }
-            elseif ($quota === 'default') {
+                $newQuota = $quota;
+            } elseif ($quota === 'default') {
 
                 $newQuota = 'default';
             } else {
@@ -269,7 +273,7 @@ class UpdateUser extends Command
 
             $user->setEnabled(boolval($enabled));
 
-            $enabledString =  ($user->isEnabled()) ? 'enabled' : 'not enabled';
+            $enabledString = ($user->isEnabled()) ? 'enabled' : 'not enabled';
             $output->writeln('Enabled set to "' . $enabledString . '"');
         }
 
@@ -278,27 +282,18 @@ class UpdateUser extends Command
 
         if ($convertBackend) {
 
-            // Don’t do that for Nextcloud
-            /** @var \OCP\Defaults $defaults */
-            $defaults = new \OCP\Defaults();
+            # Set Backend
+            if ($this->appService->isNotNextcloud()) {
 
-            if (strpos(strtolower($defaults->getName()), 'next') === FALSE) {
+                $query = \OC_DB::prepare('UPDATE `*PREFIX*accounts` SET `backend` = ? WHERE LOWER(`user_id`) = LOWER(?)');
+                $result = $query->execute([get_class($this->userService->getBackend()), $uid]);
 
-                if (!is_null($user) && $user->getBackendClassName() !== 'CAS' && $user->getBackendClassName() !== get_class($this->userService->getBackend())) {
+                $output->writeln('New user added to CAS backend.');
 
-                    $query = \OC_DB::prepare('UPDATE `*PREFIX*accounts` SET `backend` = ? WHERE LOWER(`user_id`) = LOWER(?)');
-                    $result = $query->execute([get_class($this->userService->getBackend()), $uid]);
+            } else {
 
-                    $output->writeln('Existing user in old backend has been converted to CAS-Backend.');
-                }
-                else {
+                $output->writeln('This is a Nextcloud instance, no backend update needed.');
 
-                    $output->writeln('User’s backend is already CAS.');
-                }
-            }
-            else {
-
-                $output->writeln('This option is not available in Nextcloud.');
             }
         }
     }
