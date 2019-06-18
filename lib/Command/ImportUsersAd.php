@@ -11,6 +11,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -57,7 +58,19 @@ class ImportUsersAd extends Command
     {
         $this
             ->setName('cas:import-users-ad')
-            ->setDescription('Imports users from an ActiveDirectory LDAP.');
+            ->setDescription('Imports users from an ActiveDirectory LDAP.')
+            ->addOption(
+                'delta-update',
+                'd',
+                InputOption::VALUE_OPTIONAL,
+                'Activate updates on existing accounts'
+            )
+            ->addOption(
+                'convert-backend',
+                'c',
+                InputOption::VALUE_OPTIONAL,
+                'Convert the backend to CAS (on update only)'
+            );
     }
 
     /**
@@ -90,11 +103,30 @@ class ImportUsersAd extends Command
 
                 $importer->close();
 
+                $importer->exportAsCsv($allUsers);
+
+                #exit;
+
+                # Convert backend
+                $convertBackend = $input->getOption('convert-backend');
+
+                if ($convertBackend) {
+
+                    $logger->info("Backend conversion: Backends will be converted to CAS-Backend.");
+                }
+
+                # Delta Update
+                $deltaUpdate = $input->getOption('delta-update');
+
+                if ($deltaUpdate) {
+
+                    $logger->info("Delta updates: Existing users will be updated.");
+                }
+
+                $logger->info("Start import of user data …");
 
                 $createCommand = $this->getApplication()->find('cas:create-user');
                 $updateCommand = $this->getApplication()->find('cas:update-user');
-
-                $returnCode = FALSE;
 
                 foreach ($allUsers as $user) {
 
@@ -108,30 +140,37 @@ class ImportUsersAd extends Command
                         '--group' => $user["groups"]
                     ];
 
-                    # Update user if he already exists
-                    if ($this->userManager->userExists($user["uid"])) {
 
-                        $arguments["--convert-backend"] = 1;
-                        $input = new ArrayInput($arguments);
 
-                        $updateCommand->run($input, new NullOutput());
-                    } else { # Create user if he does not exist
+                    # Create user if he does not exist
+                    if (!$this->userManager->userExists($user["uid"])) {
 
                         $input = new ArrayInput($arguments);
 
                         $createCommand->run($input, new NullOutput());
+                    } # Update user if he already exists and delta update is true
+                    else if ($this->userManager->userExists($user["uid"]) && $deltaUpdate) {
+
+                        $arguments['command'] = 'cas:update-user';
+
+                        if ($convertBackend) {
+
+                            $arguments["--convert-backend"] = 1;
+                        }
+                        $input = new ArrayInput($arguments);
+
+                        $updateCommand->run($input, new NullOutput());
                     }
                 }
 
-                $logger->notice("AD import finished with code: " . $returnCode);
+                $logger->notice("User import finished.");
             } else {
 
-                $logger->warning("AD import failed. PHP extension 'ldap' is not loaded.");
+                throw new \Exception("User import failed. PHP extension 'ldap' is not loaded.");
             }
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
 
-            $logger->critical("Fatal Error: ".$e->getMessage());
+            $logger->critical("Fatal Error: " . $e->getMessage());
         }
     }
 }

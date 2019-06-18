@@ -92,14 +92,17 @@ class AdImporter implements ImporterInterface
     public function getUsers()
     {
 
-        # Get all needed attributes from env
-        //TODO: Replace all getenv calls with $this->config->getAppValue($this->appName, ''); calls
-
         $uidAttribute = $this->config->getAppValue($this->appName, 'cas_import_map_uid');
 
-        $displayNameAttributes = explode("+", $this->config->getAppValue($this->appName, 'cas_import_map_displayname'));
-        $displayNameAttribute1 = $displayNameAttributes[0];
-        $displayNameAttribute2 = $displayNameAttributes[1];
+        $displayNameAttribute1 = $this->config->getAppValue($this->appName, 'cas_import_map_displayname');
+        $displayNameAttribute2 = '';
+
+        if(strpos($displayNameAttribute1, "+") !== FALSE) {
+            $displayNameAttributes = explode("+", $displayNameAttribute1);
+            $displayNameAttribute1 = $displayNameAttributes[0];
+            $displayNameAttribute2 = $displayNameAttributes[1];
+        }
+
 
         $emailAttribute = $this->config->getAppValue($this->appName, 'cas_import_map_email');
         $groupsAttribute = $this->config->getAppValue($this->appName, 'cas_import_map_groups');
@@ -140,20 +143,27 @@ class AdImporter implements ImporterInterface
 
                     $displayName = $m[$displayNameAttribute1][0];
 
-                    if (isset($m[$displayNameAttribute2][0])) {
+                    if (strlen($displayNameAttribute2) > 0 && isset($m[$displayNameAttribute2][0])) {
 
                         $displayName .= " " . $m[$displayNameAttribute2][0];
                     }
                 } else {
 
-                    if (isset($m[$displayNameAttribute2][0])) {
+                    if (strlen($displayNameAttribute2) > 0 && isset($m[$displayNameAttribute2][0])) {
 
                         $displayName = $m[$displayNameAttribute2][0];
                     }
                 }
 
                 $quota = isset($m[$quotaAttribute][0]) ? intval($m[$quotaAttribute][0]) : 0;
-                $enable = isset($m[$enableAttribute][0]) ? intval($m[$enableAttribute][0]) : 0;
+
+                if (isset($m[$enableAttribute][0]) && intval($m[$enableAttribute][0]) >= 66080) {
+
+                    $enable = 1;
+                } else {
+
+                    $enable = 0;
+                };
 
                 $groupsArray = [];
 
@@ -167,6 +177,8 @@ class AdImporter implements ImporterInterface
                         # Check if user has MAP_GROUPS attribute
                         if (isset($m[$groupsAttribute][$j])) {
 
+                            $addUser = TRUE; # Only add user if the group has a MAP_GROUPS attribute
+
                             $groupCn = $m[$groupsAttribute][$j];
 
                             # Retrieve the MAP_GROUPS_FIELD attribute of the group
@@ -174,8 +186,6 @@ class AdImporter implements ImporterInterface
                             $groupName = '';
 
                             if (isset($groupAttr[$groupAttrField][0])) {
-
-                                $addUser = TRUE; # Only add user if the group has a description field
 
                                 $groupName = $groupAttr[$groupAttrField][0];
 
@@ -192,7 +202,15 @@ class AdImporter implements ImporterInterface
                                 }
 
                                 # Filter unwanted characters
-                                $groupName = preg_replace("/[^" . getenv("MAP_GROUPS_FILTER") . "]+/", "", $groupName);
+                                $nameFilter = $this->config->getAppValue($this->appName, 'cas_import_map_groups_letter_filter');
+
+                                if (strlen($nameFilter) > 0) {
+
+                                    $groupName = preg_replace("/[^" . $nameFilter . "]+/", "", $groupName);
+                                }
+
+                                # Filter length to max 64 chars
+                                $groupName = substr($groupName, 0, 64);
                             }
 
                             if (strlen($groupName) > 0) {
@@ -201,11 +219,6 @@ class AdImporter implements ImporterInterface
                             }
                         }
                     }
-
-                    $groupsArray = implode(" | ", $groupsArray);
-                } else {
-
-                    $groupsArray = "No " . $this->config->getAppValue($this->appName, 'cas_import_map_groups') . " field found.";
                 }
 
                 # Fill the users array only if we have an employeeId and addUser is true
@@ -215,8 +228,6 @@ class AdImporter implements ImporterInterface
                 }
             }
         }
-
-        #$this->exportAsCsv($users);
 
         $this->logger->info("Users have been retrieved.");
 
@@ -325,7 +336,7 @@ class AdImporter implements ImporterInterface
 
             if ($this->ldapConnection) {
 
-                $ldapIsBound = ldap_bind($this->ldapConnection, $this->config->getAppValue($this->appName, 'cas_import_ad_user') . "@". $this->config->getAppValue($this->appName, 'cas_import_ad_domain'), $this->config->getAppValue($this->appName, 'cas_import_ad_password'));
+                $ldapIsBound = ldap_bind($this->ldapConnection, $this->config->getAppValue($this->appName, 'cas_import_ad_user') . "@" . $this->config->getAppValue($this->appName, 'cas_import_ad_domain'), $this->config->getAppValue($this->appName, 'cas_import_ad_password'));
 
                 if (!$ldapIsBound) {
 
@@ -379,9 +390,9 @@ class AdImporter implements ImporterInterface
     }
 
     /**
-     * @param $exportData
+     * @param array $exportData
      */
-    protected function exportAsCsv($exportData)
+    public function exportAsCsv(array $exportData)
     {
 
         $this->logger->info("Exporting users to .csv …");
@@ -391,6 +402,22 @@ class AdImporter implements ImporterInterface
         fputcsv($fp, ["UID", "displayName", "email", "quota", "groups", "enabled"]);
 
         foreach ($exportData as $fields) {
+
+            for($i = 0; $i < count($fields); $i++) {
+
+                if(is_array($fields[$i])) {
+
+                    for ($j = 0; $j < count($fields[$i]); $j++) {
+
+                        if(is_array($fields[$i][$j])) {
+
+                            $fields[$i][$j] = implode(" ", $fields[$i][$j]);
+                        }
+                    }
+
+                    $fields[$i] = implode(" ", $fields[$i]);
+                }
+            }
 
             fputcsv($fp, $fields);
         }

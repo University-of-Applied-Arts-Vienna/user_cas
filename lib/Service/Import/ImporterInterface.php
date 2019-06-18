@@ -20,11 +20,15 @@ interface ImporterInterface
 
     /**
      * @param LoggerInterface $logger
-     * @return mixed
      */
     public function init(LoggerInterface $logger);
 
     public function close();
 
     public function getUsers();
+
+    /**
+     * @param array $userData
+     */
+    public function exportAsCsv(array $userData);
 }
