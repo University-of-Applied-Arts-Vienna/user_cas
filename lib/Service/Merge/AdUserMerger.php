@@ -6,7 +6,7 @@ namespace OCA\UserCAS\Service\Merge;
 
 /**
  * Class AdUserMerger
- * @package OCA\UserCAS\Merge
+ * @package OCA\UserCAS\Service\Merge
  *
  * @author Felix Rupp <kontakt@felixrupp.com>
  * @copyright Felix Rupp

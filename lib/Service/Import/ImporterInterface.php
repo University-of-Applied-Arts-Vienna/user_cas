@@ -8,7 +8,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Interface ImporterInterface
- * @package OCA\UserCAS\Import
+ * @package OCA\UserCAS\Service\Import
  *
  * @author Felix Rupp <kontakt@felixrupp.com>
  * @copyright Felix Rupp

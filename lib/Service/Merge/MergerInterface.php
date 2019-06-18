@@ -6,7 +6,7 @@ namespace OCA\UserCAS\Service\Merge;
 
 /**
  * Interface MergerInterface
- * @package OCA\UserCAS\Merger
+ * @package OCA\UserCAS\Service\Merge
  *
  * @author Felix Rupp <kontakt@felixrupp.com>
  * @copyright Felix Rupp

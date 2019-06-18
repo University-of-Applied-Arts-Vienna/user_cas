@@ -11,8 +11,7 @@ $(document).ready(function () {
             $("#user_cas #cas_disable_logout").prop('checked', false);
 
             $("#user_cas #cas_force_login_exceptions").attr("disabled", false);
-        }
-        else {
+        } else {
 
             $("#user_cas #cas_disable_logout").attr("disabled", false);
             $("#user_cas #cas_force_login_exceptions").attr("disabled", true);
@@ -24,8 +23,7 @@ $(document).ready(function () {
         if ($(this).is(':checked')) {
 
             $("#user_cas #cas_handlelogout_servers").attr("disabled", true);
-        }
-        else {
+        } else {
 
             $("#user_cas #cas_handlelogout_servers").attr("disabled", false);
         }
@@ -63,5 +61,22 @@ $(document).ready(function () {
                 }, 5000);
             }
         });
+    });
+
+
+    $('input[type=range]').on('input', function () {
+        $(this).trigger('change');
+    });
+
+    $('#cas_import_ad_sync_pagesize').on ('change', function() {
+
+        console.log($(this).val());
+        $("#cas_import_ad_sync_pagesize_value").val($(this).val());
+    });
+
+    $('#cas_import_ad_sync_pagesize_value').on('keyup', function() {
+
+        console.log($(this).val());
+        $("#cas_import_ad_sync_pagesize").val($(this).val());
     });
 });

@@ -41,6 +41,11 @@ class AdImporter implements ImporterInterface
      */
     private $config;
 
+    /**
+     * @var string $appName
+     */
+    private $appName = 'user_cas';
+
 
     /**
      * AdImporter constructor.
@@ -90,27 +95,30 @@ class AdImporter implements ImporterInterface
         # Get all needed attributes from env
         //TODO: Replace all getenv calls with $this->config->getAppValue($this->appName, ''); calls
 
-        $uidAttribute = getenv("MAP_UID");
-        $displayNameAttribute1 = getenv("MAP_DISPLAY_NAME_1");
-        $displayNameAttribute2 = getenv("MAP_DISPLAY_NAME_2");
-        $emailAttribute = getenv("MAP_EMAIL");
-        $groupsAttribute = getenv("MAP_GROUPS");
-        $quotaAttribute = getenv("MAP_QUOTA");
-        $enableAttribute = getenv("MAP_ENABLE");
+        $uidAttribute = $this->config->getAppValue($this->appName, 'cas_import_map_uid');
 
-        $keep = [$uidAttribute, $displayNameAttribute1, $displayNameAttribute2, $emailAttribute, $groupsAttribute, $quotaAttribute, $enableAttribute]; // [getenv("MAP_UID"), explode(",", getenv("MAP_DISPLAY_NAME")), getenv("MAP_EMAIL"), getenv("MAP_GROUPS"), getenv("MAP_QUOTA"), getenv("MAP_ENABLE")]
+        $displayNameAttributes = explode("+", $this->config->getAppValue($this->appName, 'cas_import_map_displayname'));
+        $displayNameAttribute1 = $displayNameAttributes[0];
+        $displayNameAttribute2 = $displayNameAttributes[1];
 
-        $groupAttrField = getenv("MAP_GROUPS_FIELD");
+        $emailAttribute = $this->config->getAppValue($this->appName, 'cas_import_map_email');
+        $groupsAttribute = $this->config->getAppValue($this->appName, 'cas_import_map_groups');
+        $quotaAttribute = $this->config->getAppValue($this->appName, 'cas_import_map_quota');
+        $enableAttribute = $this->config->getAppValue($this->appName, 'cas_import_map_enabled');
+
+        $keep = [$uidAttribute, $displayNameAttribute1, $displayNameAttribute2, $emailAttribute, $groupsAttribute, $quotaAttribute, $enableAttribute];
+
+        $groupAttrField = $this->config->getAppValue($this->appName, 'cas_import_map_groups_description');
         $groupsKeep = [$groupAttrField];
 
-        $pageSize = intval(getenv("AD_SYNC_PAGESIZE"));
+        $pageSize = $this->config->getAppValue($this->appName, 'cas_import_ad_sync_pagesize');
 
         $users = [];
 
         $this->logger->info("Getting all users from the AD …");
 
         # Get all members of the sync group
-        $memberPages = $this->getLdapList(getenv("AD_BASE_DN"), getenv("AD_SYNC_FILTER"), $keep, $pageSize);
+        $memberPages = $this->getLdapList($this->config->getAppValue($this->appName, 'cas_import_ad_base_dn'), $this->config->getAppValue($this->appName, 'cas_import_ad_sync_filter'), $keep, $pageSize);
 
         foreach ($memberPages as $memberPage) {
 
@@ -134,7 +142,7 @@ class AdImporter implements ImporterInterface
 
                     if (isset($m[$displayNameAttribute2][0])) {
 
-                        $displayName .= getenv("MAP_DISPLAY_NAME_DELIMITER") . $m[$displayNameAttribute2][0];
+                        $displayName .= " " . $m[$displayNameAttribute2][0];
                     }
                 } else {
 
@@ -156,7 +164,7 @@ class AdImporter implements ImporterInterface
                     # Cycle all groups of the user
                     for ($j = 0; $j < $m[$groupsAttribute]["count"]; $j++) {
 
-                        # Check if user is in MAP_GROUPS_ADD group
+                        # Check if user has MAP_GROUPS attribute
                         if (isset($m[$groupsAttribute][$j])) {
 
                             $groupCn = $m[$groupsAttribute][$j];
@@ -172,7 +180,7 @@ class AdImporter implements ImporterInterface
                                 $groupName = $groupAttr[$groupAttrField][0];
 
                                 # Replace umlauts
-                                if (getenv("MAP_GROUPS_REPLACE_UMLAUTS")) {
+                                if (boolval($this->config->getAppValue($this->appName, 'cas_import_map_groups_letter_umlauts'))) {
 
                                     $groupName = str_replace("Ä", "Ae", $groupName);
                                     $groupName = str_replace("Ö", "Oe", $groupName);
@@ -197,7 +205,7 @@ class AdImporter implements ImporterInterface
                     $groupsArray = implode(" | ", $groupsArray);
                 } else {
 
-                    $groupsArray = "No " . getenv("MAP_GROUPS") . " field found.";
+                    $groupsArray = "No " . $this->config->getAppValue($this->appName, 'cas_import_map_groups') . " field found.";
                 }
 
                 # Fill the users array only if we have an employeeId and addUser is true
@@ -288,7 +296,9 @@ class AdImporter implements ImporterInterface
     {
         try {
 
-            $this->ldapConnection = ldap_connect("ldaps://" . getenv("AD_HOST") . ":" . intval(getenv("AD_PORT"))) or die("Could not connect to " . getenv("AD_HOST"));
+            $host = $this->config->getAppValue($this->appName, 'cas_import_ad_host');
+
+            $this->ldapConnection = ldap_connect($this->config->getAppValue($this->appName, 'cas_import_ad_protocol') . $host . ":" . $this->config->getAppValue($this->appName, 'cas_import_ad_port')) or die("Could not connect to " . $host);
 
             ldap_set_option($this->ldapConnection, LDAP_OPT_PROTOCOL_VERSION, 3);
             ldap_set_option($this->ldapConnection, LDAP_OPT_REFERRALS, 0);
@@ -315,7 +325,7 @@ class AdImporter implements ImporterInterface
 
             if ($this->ldapConnection) {
 
-                $ldapIsBound = ldap_bind($this->ldapConnection, getenv("AD_USER") . getenv("AD_USER_DOMAIN"), getenv("AD_USER_PW"));
+                $ldapIsBound = ldap_bind($this->ldapConnection, $this->config->getAppValue($this->appName, 'cas_import_ad_user') . "@". $this->config->getAppValue($this->appName, 'cas_import_ad_domain'), $this->config->getAppValue($this->appName, 'cas_import_ad_password'));
 
                 if (!$ldapIsBound) {
 
