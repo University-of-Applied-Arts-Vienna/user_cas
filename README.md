@@ -217,12 +217,23 @@ Update a user:
 **Notice: Protected groups will never be unlinked from the user! See also [Groups](#groups).**
 
 
-Import users from AD:
---------------------
+Import users from ActiveDirectory (LDAP):
+-----------------------------------------
 
     cas:import-users-ad
 
+- Options (optional):
+    - -d | --delta-update: Enable or disable delta updates of accounts. Setting `-d 1` enables account updates.
+    - -c | --convert-backend: Set if the user’s backend should be converted to CAS backend. Setting `-c 1` converts to backend to CAS. **WARNING: This is not revocable!**
 
+
+**Additional Info:** If you want to automate the ActiveDirectory import, call this command in a cronjob of your webservers user (e.g. `www-data` on debian based linux systems).
+
+**Additional Info:** If you want additional debug information, use the options `-vv` or `-vvv` in your command, to raise the debug level. To quiet the output, use the option `-q`
+
+**Example for usage as daily cronjob with delta updates and backend conversion (if needed), output will be zeroed**: 
+
+    0 0 * * * /usr/bin/php /path/to/owncloud/occ cas:import-users-ad -d 1 -c 1 -q >/dev/null 2>&1
 
 Bugs and Support
 ==============

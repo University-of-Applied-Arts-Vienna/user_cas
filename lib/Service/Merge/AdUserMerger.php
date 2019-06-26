@@ -48,29 +48,34 @@ class AdUserMerger implements MergerInterface
         # User already in stack
         if ($merge && isset($userStack[$userToMerge["uid"]])) {
 
-            $this->logger->info("User " . $userToMerge["uid"] . " has to be merged …");
+            $this->logger->debug("User " . $userToMerge["uid"] . " has to be merged …");
 
             // Check if accounts are enabled or disabled
             //      if both disabled, first account stays
             //      if one is enabled, use this account
             //      if both enabled, use information of $primaryAccountDnStartswWith
 
-            if ($preferEnabledAccountsOverDisabled && $userStack[$userToMerge["uid"]]['enabled'] == 0 && $userToMerge['enabled'] == 1) {
+            if ($preferEnabledAccountsOverDisabled && $userStack[$userToMerge["uid"]]['enabled'] == 0 && $userToMerge['enabled'] == 1) { # First disabled, second enabled and $preferEnabledAccountsOverDisabled is true
 
                 $this->logger->info("User " . $userToMerge["uid"] . " is merged because first account was disabled.");
 
                 $userStack[$userToMerge["uid"]] = $userToMerge;
-            } elseif ($userStack[$userToMerge["uid"]]['enabled'] == 1 && $userToMerge['enabled'] == 1) {
+            }
+            elseif(!$preferEnabledAccountsOverDisabled && $userStack[$userToMerge["uid"]]['enabled'] == 0 && $userToMerge['enabled'] == 1) {  # First disabled, second enabled and $preferEnabledAccountsOverDisabled is false
+
+                $this->logger->info("User " . $userToMerge["uid"] . " has not been merged, second enabled account was not preferred, because of preferEnabledAccountsOverDisabled option.");
+            }
+            elseif ($userStack[$userToMerge["uid"]]['enabled'] == 1 && $userToMerge['enabled'] == 1) { # Both enabled
 
                 if (strpos(strtolower($userToMerge['dn']), strtolower($primaryAccountDnStartswWith) !== FALSE)) {
 
-                    $this->logger->info("User " . $userToMerge["uid"] . " is merged because second account is primary, based on DN filter.");
+                    $this->logger->info("User " . $userToMerge["uid"] . " is merged because second account is primary, based on merge filter.");
 
                     $userStack[$userToMerge["uid"]] = $userToMerge;
                 }
                 else {
 
-                    $this->logger->info("User " . $userToMerge["uid"] . " has not been merged, second account was not primary, based on DN filter.");
+                    $this->logger->info("User " . $userToMerge["uid"] . " has not been merged, second account was not primary, based on merge filter.");
                 }
             } else {
 
