@@ -321,23 +321,37 @@ style('user_cas', 'settings');
                         name="cas_import_map_groups_letter_filter"
                         value="<?php p($_['cas_import_map_groups_letter_filter']); ?>" placeholder="a-zA-Z0-9.-_ @"/>
             </p>
-            <p>
-                <input type="checkbox" id="cas_import_map_groups_letter_umlauts"
-                      name="cas_import_map_groups_letter_umlauts" <?php print_unescaped((($_['cas_import_map_groups_letter_umlauts'] === 'true' || $_['cas_import_map_groups_letter_umlauts'] === 'on' || $_['cas_import_map_groups_letter_umlauts'] === '1') ? 'checked="checked"' : '')); ?>>
-                <label class='checkbox'
-                       for="cas_import_map_groups_letter_umlauts"><?php p($l->t('Groups replace umlauts')); ?></label>
-            </p>
             <p><label for="cas_import_map_quota"><?php p($l->t('Quota')); ?></label>
                 <input
                         id="cas_import_map_quota"
                         name="cas_import_map_quota"
                         value="<?php p($_['cas_import_map_quota']); ?>" placeholder="quota"/>
             </p>
-            <p><label for="cas_import_map_enabled"><?php p($l->t('Enable Attribute')); ?></label>
+            <p><label for="cas_import_map_enabled"><?php p($l->t('Enable attribute')); ?></label>
                 <input
                         id="cas_import_map_enabled"
                         name="cas_import_map_enabled"
                         value="<?php p($_['cas_import_map_enabled']); ?>" placeholder="useraccountcontrol"/>
+            </p>
+            <p><label for="cas_import_map_dn"><?php p($l->t('Merge attribute')); ?></label>
+                <input
+                        id="cas_import_map_dn"
+                        name="cas_import_map_dn"
+                        value="<?php p($_['cas_import_map_dn']); ?>" placeholder="dn"/>
+            </p>
+            <p><label for="cas_import_map_dn_filter"><?php p($l->t('Filterstring for merge attribute')); ?></label>
+                <input
+                        id="cas_import_map_dn_filter"
+                        name="cas_import_map_dn_filter"
+                        value="<?php p($_['cas_import_map_dn_filter']); ?>" placeholder="cn=p"/>
+            </p>
+
+
+            <p>
+                <input type="checkbox" id="cas_import_map_groups_letter_umlauts"
+                      name="cas_import_map_groups_letter_umlauts" <?php print_unescaped((($_['cas_import_map_groups_letter_umlauts'] === 'true' || $_['cas_import_map_groups_letter_umlauts'] === 'on' || $_['cas_import_map_groups_letter_umlauts'] === '1') ? 'checked="checked"' : '')); ?>>
+                <label class='checkbox'
+                       for="cas_import_map_groups_letter_umlauts"><?php p($l->t('Groups replace umlauts')); ?></label>
             </p>
             <p>
                 <input type="checkbox" id="cas_import_merge"
@@ -350,18 +364,6 @@ style('user_cas', 'settings');
                       name="cas_import_merge_enabled" <?php print_unescaped((($_['cas_import_merge_enabled'] === 'true' || $_['cas_import_merge_enabled'] === 'on' || $_['cas_import_merge_enabled'] === '1') ? 'checked="checked"' : '')); ?>>
                 <label class='checkbox'
                        for="cas_import_merge_enabled"><?php p($l->t('Prefer enabled over disabled accounts on merge')); ?></label>
-            </p>
-            <p><label for="cas_import_map_dn"><?php p($l->t('Merge Attribute')); ?></label>
-                <input
-                        id="cas_import_map_dn"
-                        name="cas_import_map_dn"
-                        value="<?php p($_['cas_import_map_dn']); ?>" placeholder="dn"/>
-            </p>
-            <p><label for="cas_import_map_dn_filter"><?php p($l->t('Filter string for merge attribute')); ?></label>
-                <input
-                        id="cas_import_map_dn_filter"
-                        name="cas_import_map_dn_filter"
-                        value="<?php p($_['cas_import_map_dn_filter']); ?>" placeholder="cn=p"/>
             </p>
         </fieldset>
         <!-- phpCAS Settings -->

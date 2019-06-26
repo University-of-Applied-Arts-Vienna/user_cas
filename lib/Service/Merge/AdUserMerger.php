@@ -50,10 +50,9 @@ class AdUserMerger implements MergerInterface
 
             $this->logger->info("User " . $userToMerge["uid"] . " has to be merged …");
 
-            // Compare users and select the account to use
             // Check if accounts are enabled or disabled
-            //      if both disabled, account stays disabled
-            //      if one is enabled, use the information of this one
+            //      if both disabled, first account stays
+            //      if one is enabled, use this account
             //      if both enabled, use information of $primaryAccountDnStartswWith
 
             if ($preferEnabledAccountsOverDisabled && $userStack[$userToMerge["uid"]]['enabled'] == 0 && $userToMerge['enabled'] == 1) {
@@ -71,7 +70,7 @@ class AdUserMerger implements MergerInterface
                 }
                 else {
 
-                    $this->logger->info("User " . $userToMerge["uid"] . " has not been merged, second account was not primary, absed on DN filter.");
+                    $this->logger->info("User " . $userToMerge["uid"] . " has not been merged, second account was not primary, based on DN filter.");
                 }
             } else {
 
