@@ -278,9 +278,9 @@ style('user_cas', 'settings');
                         min="1" max="1500" step="1"
                         id="cas_import_ad_sync_pagesize"
                         name="cas_import_ad_sync_pagesize"
-                        value="<?php if(isset($_['cas_import_ad_sync_pagesize'])) { p($_['cas_import_ad_sync_pagesize']); } else { echo 1500; } ?>"
+                        value="<?php if(isset($_['cas_import_ad_sync_pagesize'])) { p($_['cas_import_ad_sync_pagesize']); } else { print_unescaped('1500'); } ?>"
                 onchange="updateRangeInput(this.value, 'cas_import_ad_sync_pagesize_value');"/>
-                <input type="number" id="cas_import_ad_sync_pagesize_value" size="4" maxlength="4" min="1" max="1500" value="<?php if(isset($_['cas_import_ad_sync_pagesize'])) { p($_['cas_import_ad_sync_pagesize']); } else { echo 1500; } ?>">
+                <input type="number" id="cas_import_ad_sync_pagesize_value" size="4" maxlength="4" min="1" max="1500" value="<?php if(isset($_['cas_import_ad_sync_pagesize'])) { p($_['cas_import_ad_sync_pagesize']); } else { print_unescaped('1500'); } ?>">
             </p>
 
             <h3><?php p($l->t('CLI Attribute Mapping')); ?>:</h3>
@@ -319,7 +319,7 @@ style('user_cas', 'settings');
                 <input
                         id="cas_import_map_groups_letter_filter"
                         name="cas_import_map_groups_letter_filter"
-                        value="<?php p($_['cas_import_map_groups_letter_filter']); ?>" placeholder="a-zA-Z0-9.-_ @"/>
+                        value="<?php p($_['cas_import_map_groups_letter_filter']); ?>" placeholder="a-zA-Z0-9\.\-_ @"/>
             </p>
             <p><label for="cas_import_map_quota"><?php p($l->t('Quota')); ?></label>
                 <input

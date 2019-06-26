@@ -9,6 +9,7 @@ use OCA\UserCAS\Service\Import\ImporterInterface;
 use OCP\IConfig;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -103,6 +104,8 @@ class ImportUsersAd extends Command
 
                 $importer->close();
 
+                $progressBar = new ProgressBar($output, count($allUsers));
+
                 #$importer->exportAsCsv($allUsers);
                 #$importer->exportAsText($allUsers);
                 #exit;
@@ -161,9 +164,13 @@ class ImportUsersAd extends Command
 
                         $updateCommand->run($input, new NullOutput());
                     }
+
+                    $progressBar->advance();
                 }
 
-                $logger->notice("User import finished.");
+                $output->writeln('User import finished.');
+
+                $progressBar->finish();
             } else {
 
                 throw new \Exception("User import failed. PHP extension 'ldap' is not loaded.");
