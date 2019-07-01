@@ -88,19 +88,15 @@ class CreateUser extends Command
         $loggingService = new LoggingService('user_cas', $config, $logger);
         $this->appService = new AppService('user_cas', $config, $loggingService, $userManager, $userSession, $urlGenerator);
 
-        /** @var \OCP\Defaults $defaults */
-        $defaults = new \OCP\Defaults();
-        $version = \OCP\Util::getVersion();
+        if ($this->appService->isNotNextcloud()) {
 
-        if (strpos(strtolower($defaults->getName()), 'next') !== FALSE && $version[0] >= 14) {
-
-            $backend = new NextBackend(
+            $backend = new Backend(
                 $loggingService,
                 $this->appService
             );
         } else {
 
-            $backend = new Backend(
+            $backend = new NextBackend(
                 $loggingService,
                 $this->appService
             );

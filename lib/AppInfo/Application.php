@@ -103,18 +103,13 @@ class Application extends App
 
 
         // Workaround for Nextcloud >= 14.0.0
-        /** @var \OCP\Defaults $defaults */
-        $defaults = new \OCP\Defaults();
-        $version = \OCP\Util::getVersion();
+        if ($container->query('AppService')->isNotNextcloud()) {
 
-        if (strpos(strtolower($defaults->getName()), 'next') !== FALSE && $version[0] >= 14) {
-
-            #$this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS Nextcloud " . $version[0] . "." . $version[1] . "." . $version[2] . "." . " detected.");
             /**
-             * Register Nextcloud 14 Backend
+             * Register regular Backend
              */
             $container->registerService('Backend', function (IContainer $c) {
-                return new NextBackend(
+                return new Backend(
                     $c->query('LoggingService'),
                     $c->query('AppService')
                 );
@@ -122,10 +117,10 @@ class Application extends App
         } else {
 
             /**
-             * Register regular Backend
+             * Register Nextcloud Backend
              */
             $container->registerService('Backend', function (IContainer $c) {
-                return new Backend(
+                return new NextBackend(
                     $c->query('LoggingService'),
                     $c->query('AppService')
                 );

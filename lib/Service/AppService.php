@@ -546,6 +546,8 @@ class AppService
          * @var string $vendor The vendor of this instance
          */
 
+        $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS vendor: ".$vendor);
+
         if (strpos(strtolower($vendor), 'next') === FALSE) {
 
             return TRUE;
@@ -666,16 +668,7 @@ class AppService
     public function registerLogIn()
     {
 
-        // Workaround for Nextcloud >= 13.0.0, as it does not support alternate logins via config.php
-        /** @var \OCP\Defaults $defaults */
-        $defaults = new \OCP\Defaults();
-        $version = \OCP\Util::getVersion();
-
-        if (strpos(strtolower($defaults->getName()), 'next') !== FALSE && $version[0] >= 13) {
-
-            #$this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS Nextcloud " . $version[0] . "." . $version[1] . "." . $version[2] . "." . " detected.");
-            \OC_App::registerLogIn(array('href' => $this->linkToRoute($this->appName . '.authentication.casLogin'), 'name' => 'CAS Login'));
-        } else {
+        if ($this->isNotNextcloud()) {
 
             /** @var array $loginAlternatives */
             $loginAlternatives = $this->config->getSystemValue('login.alternatives', []);
@@ -698,6 +691,10 @@ class AppService
 
                 $this->config->setSystemValue('login.alternatives', $loginAlternatives);
             }
+        } else {
+
+            #$this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS Nextcloud " . $version[0] . "." . $version[1] . "." . $version[2] . "." . " detected.");
+            \OC_App::registerLogIn(array('href' => $this->linkToRoute($this->appName . '.authentication.casLogin'), 'name' => 'CAS Login'));
         }
     }
 
