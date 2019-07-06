@@ -228,6 +228,11 @@ class AdImporter implements ImporterInterface
                                 # Filter length to max 64 chars
                                 $groupName = substr($groupName, 0, 64);
                             }
+                            else {
+
+                                $groupCnArray = explode(",", $groupCn);
+                                $groupName = substr($groupCnArray[0], 3,  strlen($groupCnArray[0]));
+                            }
 
                             if (strlen($groupName) > 0) {
 
