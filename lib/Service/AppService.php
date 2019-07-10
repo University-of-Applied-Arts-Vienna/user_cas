@@ -546,7 +546,7 @@ class AppService
          * @var string $vendor The vendor of this instance
          */
 
-        $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS vendor: ".$vendor);
+        #$this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS vendor: ".$vendor);
 
         if (strpos(strtolower($vendor), 'next') === FALSE) {
 
