@@ -147,30 +147,45 @@ Since Version Version 1.7.2 user_cas provides support for importing users from a
 #### ActiveDirectory (LDAP): Provide the necessary information to connect to your AD LDAP Server
 
 **LDAP-Host**: Provide the LDAP-host information. Set the protocol, host and port to use. Default: empty
+
 **LDAP-User and Domain**: Provide the LDAP user and domain to authenticate the LDAP connection Default: empty
+
 **LDAP-User Password**: Set the password for the user (see above). Default: empty
+
 **LDAP Base DN**: Set the LDAP Base Distinguished Name (DN) for the query. Default: empty
+
 **LDAP Sync Filter**: Define the filter to be used when querying the according user’s from LDAP. Default: empty
+
 **LDAP Syn Pagesize (1-1500)**: Define the pagesize of the LDAP query response according to your LDAP server’s settings. Default: 1500
 
 #### CLI Attribute Mapping: Provide the necessary information to map your AD LDAP users to ownCloud
 
 **UID/Username**:  Name of uid/username attribute in your LDAP response. Default: empty
+
 **Display Name**:  Name of display name attribute(s) in your LDAP response (this might be the "real name" of a user or a combination of two fields like: givenname+sn). Default: empty
+
 **Email**: Name of email attribute in your LDAP response. Default: empty
 
 **Group**: Name of group attribute in your LDAP response. Default: empty
+
 **Group Name Field**: Name of the LDAP attribute in your group node to set a group’s name. If no name filed is set or found, the DN of the group will be used as the group’s name. Default: empty
+
 **Group Name Filter**: Define a filter (RegExp syntax!) with only the allowed characters for a group name. Group names are cut after 64 characters per definition by ownCloud/Nextcloud core. Default: empty. E.g.: a-zA-Z0-9\.\-_ @ 
+
 **Group Name Replace Umlauts**: Activate to filter german umlauts out of the group’s name. Only works, if *Group* and *Group Name Field* are filled. Default: off
 
 **Quota**: Name of quota attribute in your LDAP response. Quota can be a numeric byte value or a human readable string, like 1GB or 512MB. Default: empty
+
 **Enable**: Name of the enable attribute in your LDAP response. This sets the account to enabled/disabled on import, while enabled = 1 and disabled = 0. Default: empty
+
 **Calculate Enable Attribute Bitwise AND with**: Provide to use a bitwise AND calculation to define the enabled status of the account. Only use if your LDAP’s enabled attribute value is not 0|1. Default: empty
 
 **Merge Accounts**: Activate to enable account merging. Default: off
+
 **Prefer Enabled over Disabled Accounts on Merge**: Activate to prefer enabled second accounts over disabled primary accounts. Only works, if *Merge Accounts* is enabled. Default: off
+
 **Merge two active accounts by**: Name of the attribute in your LDAP response by which you want to merge two activated accounts. Only works, if *Merge Accounts* is enabled. Default: empty
+
 **Merge two active accounts by: Filterstring**: Define a filterstring for the *Merge by* attribute, that defines which activated account should be preferred on merge. Only works, if *Merge by* is set and *Merge Accounts* is enabled. Default: empty
 
 
