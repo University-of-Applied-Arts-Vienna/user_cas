@@ -22,6 +22,9 @@ style('user_cas', 'settings');
 ?>
 
 <form id="user_cas" class='section' method="post">
+
+    <input type="hidden" autocomplete="false" />
+
     <h2><?php p($l->t('CAS Authentication backend')); ?>
         &nbsp;<?php p(\OCP\App::getAppInfo('user_cas')["version"]); ?></h2>
 
@@ -55,13 +58,15 @@ style('user_cas', 'settings');
                         id="cas_server_port"
                         name="cas_server_port"
                         placeholder="443"
-                        value="<?php p($_['cas_server_port']); ?>">
+                        autocomplete="off"
+                        value="<?php if( !empty($_['cas_server_port']) ) { p($_['cas_server_port']); } else { p('443'); } ?>">
             </p>
             <p><label for="cas_server_path"><?php p($l->t('CAS Server Path')); ?></label><input
                         id="cas_server_path"
                         name="cas_server_path"
+                        autocomplete="off"
                         placeholder="/cas"
-                        value="<?php p($_['cas_server_path']); ?>">
+                        value="<?php if( !empty($_['cas_server_path']) ) { p($_['cas_server_path']);} else { p('/cas'); } ?>">
             </p>
             <p><label for="cas_service_url"><?php p($l->t('Service URL')); ?></label><input
                         id="cas_service_url"

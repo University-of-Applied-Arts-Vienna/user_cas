@@ -518,6 +518,8 @@ class AppService
 
             } catch (\CAS_Exception $e) {
 
+                \phpCAS::setVerbose(TRUE);
+
                 $this->casInitialized = FALSE;
 
                 $this->loggingService->write(\OCA\UserCas\Service\LoggingService::ERROR, "phpCAS has thrown an exception with code: " . $e->getCode() . " and message: " . $e->getMessage() . ".");
@@ -696,6 +698,44 @@ class AppService
             #$this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS Nextcloud " . $version[0] . "." . $version[1] . "." . $version[2] . "." . " detected.");
             \OC_App::registerLogIn(array('href' => $this->linkToRoute($this->appName . '.authentication.casLogin'), 'name' => 'CAS Login'));
         }
+    }
+
+    /**
+     * UnregisterLogin
+     */
+    public function unregisterLogin() {
+
+        if ($this->isNotNextcloud()) {
+
+            $loginAlternatives = $this->config->getSystemValue('login.alternatives', []);
+
+            foreach ($loginAlternatives as $key => $loginAlternative) {
+
+                if (isset($loginAlternative['name']) && $loginAlternative['name'] === 'CAS Login') {
+
+                    unset($loginAlternatives[$key]);
+                }
+            }
+
+            $this->config->setSystemValue('login.alternatives', $loginAlternatives);
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSetupValid() {
+
+        $casHostname = $this->config->getAppValue($this->appName, 'cas_server_hostname');
+        $casPort = intval($this->config->getAppValue($this->appName, 'cas_server_port'));
+        $casPath = $this->config->getAppValue($this->appName, 'cas_server_path');
+
+        if(is_string($casHostname) && strlen($casHostname) > 1 && is_int($casPort) && $casPort > 1 && is_string($casPath) && strlen($casPath) > 1 && strpos($casPath, "/") == 0) {
+
+            return TRUE;
+        }
+
+        return FALSE;
     }
 
     /**
