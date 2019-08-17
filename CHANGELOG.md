@@ -11,6 +11,7 @@ Version 1.7.2
 * Adds error handling when CAS basic config is missing or truncated
 * Adds the license file for AGPL 3.0 or later
 * Adds ActiveDirectory import OCC command, let’s you import specific LDAP users as user_cas users to your ownCloud/Nextcloud instance
+* Adds options for group name filter and group umlaut replacement in "Groups" panel
 
 
 Version 1.7.1

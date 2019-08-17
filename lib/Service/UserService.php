@@ -390,30 +390,51 @@ class UserService
 
             $groupObject = NULL;
 
-            if (preg_match('/[^a-zA-Z0-9 _\.@\-]/', $group)) {
+            # Replace umlauts
+            if (boolval($this->config->getAppValue($this->appName, 'cas_groups_letter_umlauts'))) {
 
-                $this->loggingService->write(LoggingService::ERROR, "Invalid group '" . $group . "', allowed chars 'a-zA-Z0-9' and '_.@-' ");
-                #\OCP\Util::writeLog('cas', 'Invalid group "' . $group . '", allowed chars "a-zA-Z0-9" and "_.@-" ', \OCA\UserCas\Service\LoggingService::DEBUG);
-            } else {
+                $group = str_replace("Ä", "Ae", $group);
+                $group = str_replace("Ö", "Oe", $group);
+                $group = str_replace("Ü", "Ue", $group);
+                $group = str_replace("ä", "ae", $group);
+                $group = str_replace("ö", "oe", $group);
+                $group = str_replace("ü", "ue", $group);
+                $group = str_replace("ß", "ss", $group);
+            }
 
-                if (!$this->groupManager->isInGroup($uid, $group)) {
+            # Filter unwanted characters
+            $nameFilter = $this->config->getAppValue($this->appName, 'cas_groups_letter_filter');
 
-                    if (!$this->groupManager->groupExists($group)) {
+            if (strlen($nameFilter) > 0) {
 
-                        $groupObject = $this->groupManager->createGroup($group);
+                $group = preg_replace("/[^" . $nameFilter . "]+/", "", $group);
+            }
+            else { # Use default filter
 
-                        $this->loggingService->write(LoggingService::DEBUG, 'New group created: ' . $group);
-                        #\OCP\Util::writeLog('cas', 'New group created: ' . $group, \OCA\UserCas\Service\LoggingService::DEBUG);
-                    } else {
+                $group = preg_replace("/[^a-zA-Z0-9\.\-_ @]+/", "", $group);
+            }
 
-                        $groupObject = $this->groupManager->get($group);
-                    }
+            # Filter length to max 64 chars
+            $group = substr($group, 0, 63)."…";
 
-                    $groupObject->addUser($user);
 
-                    $this->loggingService->write(LoggingService::DEBUG, "Added '" . $uid . "' to the group '" . $group . "'");
-                    #\OCP\Util::writeLog('cas', 'Added "' . $uid . '" to the group "' . $group . '"', \OCA\UserCas\Service\LoggingService::DEBUG);
+            if (!$this->groupManager->isInGroup($uid, $group)) {
+
+                if (!$this->groupManager->groupExists($group)) {
+
+                    $groupObject = $this->groupManager->createGroup($group);
+
+                    $this->loggingService->write(LoggingService::DEBUG, 'New group created: ' . $group);
+                    #\OCP\Util::writeLog('cas', 'New group created: ' . $group, \OCA\UserCas\Service\LoggingService::DEBUG);
+                } else {
+
+                    $groupObject = $this->groupManager->get($group);
                 }
+
+                $groupObject->addUser($user);
+
+                $this->loggingService->write(LoggingService::DEBUG, "Added '" . $uid . "' to the group '" . $group . "'");
+                #\OCP\Util::writeLog('cas', 'Added "' . $uid . '" to the group "' . $group . '"', \OCA\UserCas\Service\LoggingService::DEBUG);
             }
         }
     }

@@ -181,6 +181,16 @@ style('user_cas', 'settings');
                         value="<?php p($_['cas_access_group_quotas']); ?>"
                         placeholder="group1:5GB,group2:20GB,group3:none"
                         title="<?php p($l->t('Multivalued field, use comma to separate values')); ?>"/></p>
+            <p><label for="cas_groups_letter_filter"><?php p($l->t('Group Name Filter')); ?></label><input
+                        id="cas_groups_letter_filter"
+                        name="cas_groups_letter_filter"
+                        value="<?php p($_['cas_groups_letter_filter']); ?>" placeholder="a-zA-Z0-9\.\-_ @"/> <span class="csh"><?php p($l->t('Attention: You must use PHP (PCRE) Regex syntax for the filter.')) ?></span>
+            </p>
+            <p>
+                <input type="checkbox" id="cas_groups_letter_umlauts"
+                      name="cas_groups_letter_umlauts" <?php print_unescaped((($_['cas_groups_letter_umlauts'] === 'true' || $_['cas_groups_letter_umlauts'] === 'on' || $_['cas_groups_letter_umlauts'] === '1') ? 'checked="checked"' : '')); ?>><label class='checkbox'
+                       for="cas_groups_letter_umlauts"><?php p($l->t('Group Name Replace Umlauts')); ?></label>
+            </p>
         </fieldset>
         <!-- ECAS Settings -->
         <fieldset id="casSettings-5">
