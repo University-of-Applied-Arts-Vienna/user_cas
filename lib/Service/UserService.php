@@ -415,7 +415,7 @@ class UserService
             }
 
             # Filter length to max 64 chars
-            if(strlen($group) > 63) {
+            if(strlen($group) > 64) {
 
                 $group = substr($group, 0, 63)."…";
             }
