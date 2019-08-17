@@ -88,7 +88,7 @@ Basic
 
 **Update user data after each CAS login?**: If checked, the data provided by CAS is used to update ownCloud user attributes each time the user logs in. Default: off
 
-**Comma separated list of servers which can send logout requests**: Provide a list of servers which can send logout requests for your CAS ticket (leave empty if you do not want to restrict logout to defined servers).
+**Logout Servers**: Provide a list of servers which can send logout requests for your CAS ticket (leave empty if you do not want to restrict logout to defined servers).
 
 
 <a name="mapping"></a>

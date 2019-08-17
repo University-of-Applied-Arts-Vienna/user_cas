@@ -282,7 +282,7 @@ class AppService
                 }
 
                 # Handle logout servers
-                if (!$this->casDisableLogout && count($this->casHandleLogoutServers) > 0) {
+                if (!$this->casDisableLogout) {
 
                     \phpCAS::handleLogoutRequests(true, $this->casHandleLogoutServers);
                 }

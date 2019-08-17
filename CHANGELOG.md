@@ -6,6 +6,7 @@ Version 1.7.2
 
 * Fixes double synchronisation of DisplayName, causing overlays in DisplayName on first login
 * Fixes problems with local database users being converted to user_cas backend by accident
+* Fixes logout handling to not need a list of Logout Servers anymore
 
 * Adds error handling when CAS basic config is missing or truncated
 * Adds the license file for AGPL 3.0 or later
