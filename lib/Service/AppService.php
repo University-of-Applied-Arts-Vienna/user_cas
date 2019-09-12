@@ -735,7 +735,7 @@ class AppService
         $casPort = intval($this->config->getAppValue($this->appName, 'cas_server_port'));
         $casPath = $this->config->getAppValue($this->appName, 'cas_server_path');
 
-        if(is_string($casHostname) && strlen($casHostname) > 1 && is_int($casPort) && $casPort > 1 && is_string($casPath) && strpos($casPath, "/") == 0) {
+        if(is_string($casHostname) && strlen($casHostname) > 1 && is_int($casPort) && $casPort > 1 && is_string($casPath) && strpos($casPath, "/") === 0) {
 
             return TRUE;
         }
