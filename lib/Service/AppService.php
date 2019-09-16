@@ -201,6 +201,11 @@ class AppService
         $this->casServiceUrl = $this->config->getAppValue($this->appName, 'cas_service_url', '');
         $this->casCertPath = $this->config->getAppValue($this->appName, 'cas_cert_path', '');
 
+        // correctly handle root cas server path
+        if ($this->casPath === '/') {
+            $this->casPath = '';
+        }
+
         $this->casUseProxy = boolval($this->config->getAppValue($this->appName, 'cas_use_proxy', false));
         $this->casDisableLogout = boolval($this->config->getAppValue($this->appName, 'cas_disable_logout', false));
         $logoutServersArray = explode(",", $this->config->getAppValue($this->appName, 'cas_handlelogout_servers', ''));
@@ -730,7 +735,7 @@ class AppService
         $casPort = intval($this->config->getAppValue($this->appName, 'cas_server_port'));
         $casPath = $this->config->getAppValue($this->appName, 'cas_server_path');
 
-        if(is_string($casHostname) && strlen($casHostname) > 1 && is_int($casPort) && $casPort > 1 && is_string($casPath) && strlen($casPath) > 1 && strpos($casPath, "/") == 0) {
+        if(is_string($casHostname) && strlen($casHostname) > 1 && is_int($casPort) && $casPort > 1 && is_string($casPath) && strpos($casPath, "/") === 0) {
 
             return TRUE;
         }
