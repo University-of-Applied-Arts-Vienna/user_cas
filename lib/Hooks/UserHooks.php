@@ -393,7 +393,7 @@ class UserHooks
             # Reset cookie
             setcookie("user_cas_redirect_url", '/', null, '/');
 
-            \phpCAS::logout(array("url" => $this->appService->getAbsoluteURL('/')));
+            \phpCAS::logout(array("service" => $this->appService->getAbsoluteURL('/')));
 
         } else {
 

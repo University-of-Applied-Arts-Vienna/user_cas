@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+Version 1.7.4
+-------------
+
+* Fixes CAS logout service backlink
+
+
 Version 1.7.3
 -------------
 
