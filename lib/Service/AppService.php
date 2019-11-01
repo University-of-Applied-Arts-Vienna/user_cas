@@ -123,6 +123,11 @@ class AppService
     private $casHandleLogoutServers;
 
     /**
+     * @var boolean
+     */
+    private $casKeepTicketIds;
+
+    /**
      * @var string
      */
     private $cas_ecas_accepted_strengths;
@@ -210,6 +215,7 @@ class AppService
         $this->casDisableLogout = boolval($this->config->getAppValue($this->appName, 'cas_disable_logout', false));
         $logoutServersArray = explode(",", $this->config->getAppValue($this->appName, 'cas_handlelogout_servers', ''));
         $this->casHandleLogoutServers = array();
+        $this->casKeepTicketIds = boolval($this->config->getAppValue($this->appName, 'cas_keep_ticket_ids', false));
 
         # ECAS
         $this->ecasAttributeParserEnabled = boolval($this->config->getAppValue($this->appName, 'cas_ecas_attributeparserenabled', false));
@@ -305,6 +311,12 @@ class AppService
                 } else {
 
                     \phpCAS::setNoCasServerValidation();
+                }
+
+                # Handle keeping of cas-ticket-ids
+                if($this->casKeepTicketIds) {
+
+                    \phpCAS::setNoClearTicketsFromUrl();
                 }
 
                 # Handle ECAS Attributes if enabled

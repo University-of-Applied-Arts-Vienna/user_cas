@@ -125,6 +125,13 @@ style('user_cas', 'settings');
                     <?php print_unescaped((($_['cas_disable_logout'] === 'true' || $_['cas_disable_logout'] === 'on' || $_['cas_disable_logout'] === '1') ? 'disabled="disabled"' : '')); ?> />
                 <span class="csh"><?php p($l->t('Comma separated list of servers which can send logout requests (leave empty if you do not want to restrict logout to defined servers)')) ?></span>
             </p>
+            <p><input type="checkbox" id="cas_keep_ticket_ids"
+                      name="cas_keep_ticket_ids" <?php print_unescaped((($_['cas_keep_ticket_ids'] === 'true' || $_['cas_keep_ticket_ids'] === 'on' || $_['cas_keep_ticket_ids'] === '1') ? 'checked="checked"' : '')); ?>>
+                <label class='checkbox'
+                       for="cas_keep_ticket_ids"><?php p($l->t('Keep CAS-ticket-ids in URL?')); ?></label>
+                <span class="csh"><?php p($l->t('Beware: Potential security risk! Only activate, if you know what you are doing.')) ?></span>
+
+            </p>
 
             <!-- <p><input type="checkbox" id="cas_link_to_ldap_backend"
                       name="cas_link_to_ldap_backend" <?php /*print_unescaped((($_['cas_link_to_ldap_backend'] === 'true' || $_['cas_link_to_ldap_backend'] === 'on' || $_['cas_link_to_ldap_backend'] === '1') ? 'checked="checked"' : ''));*/ ?>>
