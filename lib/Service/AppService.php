@@ -345,7 +345,7 @@ class AppService
                     # Register the new login url
                     $newUrl = \phpCAS::getServerLoginURL();
 
-                    $newUrl = $this->buildQueryUrl($newUrl, 'acceptedStrengths=' . urlencode($this->cas_ecas_accepted_strengths));
+                    $newUrl = $this->buildQueryUrl($newUrl, 'acceptStrengths=' . urlencode($this->cas_ecas_accepted_strengths));
 
                     \phpCAS::setServerLoginURL($newUrl);
 
