@@ -224,7 +224,8 @@ class UserService
      *
      * @return bool|void
      */
-    public function logout() {
+    public function logout()
+    {
 
         return $this->userSession->logout();
     }
@@ -419,16 +420,15 @@ class UserService
             if (strlen($nameFilter) > 0) {
 
                 $group = preg_replace("/[^" . $nameFilter . "]+/", "", $group);
-            }
-            else { # Use default filter
+            } else { # Use default filter
 
                 $group = preg_replace("/[^a-zA-Z0-9\.\-_ @]+/", "", $group);
             }
 
             # Filter length to max 64 chars
-            if(strlen($group) > 64) {
+            if (strlen($group) > 64) {
 
-                $group = substr($group, 0, 63)."…";
+                $group = substr($group, 0, 63) . "…";
             }
 
             if (!$this->groupManager->isInGroup($uid, $group)) {
@@ -465,9 +465,9 @@ class UserService
 
         $defaultQuota = $this->config->getAppValue('files', 'default_quota');
 
-        if ($defaultQuota === '' || $defaultQuota === 'none') {
+        if ($defaultQuota === '') {
 
-            $defaultQuota = '0 B';
+            $defaultQuota = 'none';
         }
 
         $uid = $user->getUID();
@@ -500,7 +500,7 @@ class UserService
         $this->loggingService->write(LoggingService::DEBUG, "User '" . $uid . "' old computerized Quota is: '" . $usersOldQuota . "'");
         $this->loggingService->write(LoggingService::DEBUG, "User '" . $uid . "' new computerized User Quota would be: '" . $newQuota . "'");
 
-        if ($usersOldQuota < $newQuota || ($usersOldQuota > $newQuota && $newGroupQuota != FALSE)) {
+        if ($usersOldQuota < $newQuota || ($usersOldQuota > $newQuota && $newGroupQuota != NULL)) {
 
             $user->setQuota($newQuota);
 
@@ -518,9 +518,9 @@ class UserService
 
         $defaultQuota = $this->config->getAppValue('files', 'default_quota');
 
-        if ($defaultQuota === '' || $defaultQuota === 'none') {
+        if ($defaultQuota === '') {
 
-            $defaultQuota = '0 B';
+            $defaultQuota = 'none';
         }
 
         $uid = $user->getUID();
