@@ -239,4 +239,18 @@ class NextBackend extends Database implements UserInterface, IUserBackend, IChec
             return FALSE;
         }
     }
+
+    /**
+     * Get the real UID
+     *
+     * @param string $uid
+     * @return string
+     *
+     * @since 1.8.0
+     */
+    public function getRealUID(string $uid): string
+    {
+
+        return $uid;
+    }
 }
