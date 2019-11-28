@@ -77,11 +77,6 @@ class UserService
     private $appService;
 
     /**
-     * @var \OCA\UserCAS\User\Backend $backend
-     */
-    private $backend;
-
-    /**
      * @var LoggingService $loggingService
      */
     private $loggingService;
@@ -96,10 +91,9 @@ class UserService
      * @param IUserSession $userSession
      * @param IGroupManager $groupManager
      * @param AppService $appService
-     * @param UserCasBackendInterface $backend
      * @param LoggingService $loggingService
      */
-    public function __construct($appName, IConfig $config, IUserManager $userManager, IUserSession $userSession, IGroupManager $groupManager, AppService $appService, UserCasBackendInterface $backend, LoggingService $loggingService)
+    public function __construct($appName, IConfig $config, IUserManager $userManager, IUserSession $userSession, IGroupManager $groupManager, AppService $appService, LoggingService $loggingService)
     {
 
         $this->appName = $appName;
@@ -108,7 +102,6 @@ class UserService
         $this->userSession = $userSession;
         $this->groupManager = $groupManager;
         $this->appService = $appService;
-        $this->backend = $backend;
         $this->loggingService = $loggingService;
     }
 
@@ -243,17 +236,17 @@ class UserService
 
     /**
      * @param string $userId
+     * @param UserCasBackendInterface $backend
      * @return boolean|\OCP\IUser the created user or false
-     * @throws \Exception
      */
-    public function create($userId)
+    public function create($userId, UserCasBackendInterface $backend)
     {
 
         $randomPassword = $this->getNewPassword();
 
-        if ($this->backend->implementsActions(\OC\User\Backend::CREATE_USER)) {
+        if ($backend->implementsActions(\OC\User\Backend::CREATE_USER)) {
 
-            return $this->userManager->createUserFromBackend($userId, $randomPassword, $this->backend);
+            return $this->userManager->createUserFromBackend($userId, $randomPassword, $backend);
         }
 
         return FALSE;
@@ -582,11 +575,13 @@ class UserService
 
     /**
      * Register User Backend.
+     *
+     * @param UserCasBackendInterface $backend
      */
-    public function registerBackend()
+    public function registerBackend(UserCasBackendInterface $backend)
     {
 
-        $this->userManager->registerBackend($this->backend);
+        $this->userManager->registerBackend($backend);
     }
 
     /**
@@ -635,13 +630,5 @@ class UserService
         $newPasswordSymbols = \OC::$server->getSecureRandom()->generate(4, \OCP\Security\ISecureRandom::CHAR_SYMBOLS);
 
         return str_shuffle($newPasswordCharsLower . $newPasswordCharsUpper . $newPasswordNumbers . $newPasswordSymbols);
-    }
-
-    /**
-     * @return Backend
-     */
-    public function getBackend()
-    {
-        return $this->backend;
     }
 }

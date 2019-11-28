@@ -24,6 +24,7 @@
 namespace OCA\UserCAS\Hooks;
 
 use OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException;
+use OCA\UserCAS\User\UserCasBackendInterface;
 use \OCP\IUserManager;
 use \OCP\IUserSession;
 use \OCP\IConfig;
@@ -80,6 +81,11 @@ class UserHooks
      */
     private $loggingService;
 
+    /**
+     * @var UserCasBackendInterface
+     */
+    private $backend;
+
 
     /**
      * UserHooks constructor.
@@ -91,8 +97,9 @@ class UserHooks
      * @param \OCA\UserCAS\Service\UserService $userService
      * @param \OCA\UserCAS\Service\AppService $appService
      * @param \OCA\UserCAS\Service\LoggingService $loggingService
+     * @param UserCasBackendInterface $backend
      */
-    public function __construct($appName, IUserManager $userManager, IUserSession $userSession, IConfig $config, UserService $userService, AppService $appService, LoggingService $loggingService)
+    public function __construct($appName, IUserManager $userManager, IUserSession $userSession, IConfig $config, UserService $userService, AppService $appService, LoggingService $loggingService, UserCasBackendInterface $backend)
     {
         $this->appName = $appName;
         $this->userManager = $userManager;
@@ -101,6 +108,7 @@ class UserHooks
         $this->userService = $userService;
         $this->appService = $appService;
         $this->loggingService = $loggingService;
+        $this->backend = $backend;
     }
 
     /**
@@ -108,7 +116,7 @@ class UserHooks
      */
     public function register()
     {
-        $this->userSession->listen('\OC\User', 'preLogin', array($this, 'preLogin'));
+        #$this->userSession->listen('\OC\User', 'preLogin', array($this, 'preLogin'));
         $this->userSession->listen('\OC\User', 'postLogin', array($this, 'postLogin'));
         $this->userSession->listen('\OC\User', 'postLogout', array($this, 'postLogout'));
     }
@@ -121,6 +129,9 @@ class UserHooks
      * @param string $password
      * @return bool
      * @throws \Exception
+     *
+     * @deprecated
+     * @since 1.8.0
      */
     public function preLogin($uid, $password)
     {
@@ -172,7 +183,7 @@ class UserHooks
                             $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, 'phpCAS creating a new user with UID: ' . $uid);
 
                             /** @var bool|\OCP\IUser the created user or false $uid */
-                            $user = $this->userService->create($uid);
+                            $user = $this->userService->create($uid, $this->backend);
 
                             if ($user instanceof \OCP\IUser) {
 

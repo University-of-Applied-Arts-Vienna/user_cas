@@ -34,7 +34,7 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI) {
     if ($appService->isSetupValid()) {
 
         // Register User Backend
-        $userService->registerBackend();
+        $userService->registerBackend($c->query('Backend'));
 
         if (strpos($requestUri, '/login') !== FALSE) {
 

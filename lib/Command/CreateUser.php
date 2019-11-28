@@ -8,12 +8,12 @@ use OCA\UserCAS\Service\UserService;
 
 use OCA\UserCAS\User\Backend;
 use OCA\UserCAS\User\NextBackend;
+use OCA\UserCAS\User\UserCasBackendInterface;
 use OCP\IConfig;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Mail\IMailer;
-use OC\Files\Filesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -69,6 +69,11 @@ class CreateUser extends Command
      */
     protected $config;
 
+    /**
+     * @var Backend|UserCasBackendInterface
+     */
+    protected $backend;
+
 
     /**
      *
@@ -88,22 +93,6 @@ class CreateUser extends Command
         $loggingService = new LoggingService('user_cas', $config, $logger);
         $this->appService = new AppService('user_cas', $config, $loggingService, $userManager, $userSession, $urlGenerator);
 
-        if ($this->appService->isNotNextcloud()) {
-
-            $backend = new Backend(
-                'user_cas',
-                $config,
-                $loggingService,
-                $this->appService
-            );
-        } else {
-
-            $backend = new NextBackend(
-                $loggingService,
-                $this->appService
-            );
-        }
-
         $userService = new UserService(
             'user_cas',
             $config,
@@ -111,9 +100,29 @@ class CreateUser extends Command
             $userSession,
             $groupManager,
             $this->appService,
-            $backend,
             $loggingService
         );
+
+        if ($this->appService->isNotNextcloud()) {
+
+            $backend = new Backend(
+                'user_cas',
+                $config,
+                $loggingService,
+                $this->appService,
+                $userManager
+            );
+        } else {
+
+            $backend = new NextBackend(
+                'user_cas',
+                $config,
+                $loggingService,
+                $this->appService,
+                $userManager,
+                $userService
+            );
+        }
 
         $this->userService = $userService;
         $this->userManager = $userManager;
@@ -121,6 +130,7 @@ class CreateUser extends Command
         $this->mailer = $mailer;
         $this->loggingService = $loggingService;
         $this->config = $config;
+        $this->backend = $backend;
     }
 
 
@@ -200,12 +210,12 @@ class CreateUser extends Command
         }
 
         # Register Backend
-        $this->userService->registerBackend();
+        $this->userService->registerBackend($this->backend);
 
         /**
          * @var IUser
          */
-        $user = $this->userService->create($uid);
+        $user = $this->userService->create($uid, $this->backend);
 
         if ($user instanceof IUser) {
 
@@ -276,7 +286,7 @@ class CreateUser extends Command
             if (!is_null($user) && ($user->getBackendClassName() === 'OC\User\Database' || $user->getBackendClassName() === "Database")) {
 
                 $query = \OC_DB::prepare('UPDATE `*PREFIX*accounts` SET `backend` = ? WHERE LOWER(`user_id`) = LOWER(?)');
-                $result = $query->execute([get_class($this->userService->getBackend()), $uid]);
+                $result = $query->execute([get_class($this->backend), $uid]);
 
                 $output->writeln('New user added to CAS backend.');
             }

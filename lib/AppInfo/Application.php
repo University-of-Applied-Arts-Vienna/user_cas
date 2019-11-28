@@ -113,7 +113,8 @@ class Application extends App
                     $c->query('AppName'),
                     $c->query('Config'),
                     $c->query('LoggingService'),
-                    $c->query('AppService')
+                    $c->query('AppService'),
+                    $c->query('ServerContainer')->getUserManager()
                 );
             });
         } else {
@@ -123,8 +124,12 @@ class Application extends App
              */
             $container->registerService('Backend', function (IContainer $c) {
                 return new NextBackend(
+                    $c->query('AppName'),
+                    $c->query('Config'),
                     $c->query('LoggingService'),
-                    $c->query('AppService')
+                    $c->query('AppService'),
+                    $c->query('ServerContainer')->getUserManager(),
+                    $c->query('UserService')
                 );
             });
         }
@@ -140,7 +145,6 @@ class Application extends App
                 $c->query('ServerContainer')->getUserSession(),
                 $c->query('ServerContainer')->getGroupManager(),
                 $c->query('AppService'),
-                $c->query('Backend'),
                 $c->query('LoggingService')
             );
         });
@@ -183,7 +187,8 @@ class Application extends App
                 $c->query('Config'),
                 $c->query('UserService'),
                 $c->query('AppService'),
-                $c->query('LoggingService')
+                $c->query('LoggingService'),
+                $c->query('Backend')
             );
         });
     }
