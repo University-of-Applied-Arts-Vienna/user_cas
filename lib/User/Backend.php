@@ -134,7 +134,7 @@ class Backend extends Database implements UserInterface, IUserBackend, IProvides
                 $this->loggingService->write(\OCA\UserCas\Service\LoggingService::ERROR, 'phpCAS returned no user.');
             }
 
-            if (\phpCAS::checkAuthentication()) {
+            if (\phpCAS::isAuthenticated()) {
 
                 $casUid = \phpCAS::getUser();
 
