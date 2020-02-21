@@ -51,6 +51,14 @@ This app does not require a standalone version of jasig’s/apereo’s phpCAS an
 6. Access the administration panel => User Authentication/Security and configure the app.
 
 
+**Be aware that you may need to add the following entry to your config/config.php to prevent warning messages about the missing app signature in your backend:**
+
+```
+'integrity.ignore.missing.app.signature' =>
+    array (
+        0 => 'user_cas',
+    ),
+```
 
 
 CONFIGURATION
