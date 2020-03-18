@@ -8,7 +8,7 @@
     <screenshot>https://raw.githubusercontent.com/felixrupp/user_cas/master/.github/SCREENSHOTS/splashscreen.png</screenshot>
     <author>Felix Rupp</author>
     <namespace>UserCAS</namespace>
-    <version>1.8.1</version>
+    <version>1.8.2</version>
     <types>
         <prelogin/>
         <authentication/>
@@ -29,7 +29,7 @@
     <repository type="git">https://github.com/felixrupp/user_cas.git</repository>
 
     <dependencies>
-        <owncloud min-version="10.0" max-version="10.3"/>
+        <owncloud min-version="10.0" max-version="10.4"/>
         <nextcloud min-version="14" max-version="18"/>
     </dependencies>
 

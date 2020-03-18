@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+Version 1.8.2
+-------------
+
+* Raises compatibility to ownCloud 10.4
+* Adds section in README to describe how to disable code integrity checks on dev setups
+
+
 Version 1.8.1
 -------------
 
