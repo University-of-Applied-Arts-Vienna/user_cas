@@ -92,7 +92,7 @@ Basic
 
 **Don’t use force login on these client-IPs**: Comma separated list of client IP addresses (or address ranges), which won’t be forced to login if "Force user login" is enabled (e.g. 192.168.1.1-254,192.168.2.5). Default: empty
 
-**Disable CAS logout**: If checked, you will only be logged out from ownCloud and not from your CAS instance. Default: off
+**Disable CAS logout**: If checked, you will only be logged out from ownCloud and not from your CAS instance. Leave this off for SingleSignout to work. Default: off
 
 **Autocreate user after first CAS login?**: If checked, users authenticated against CAS are automatically created. This means, users which did not exist in the database yet who authenticate against CAS will be created and stored in the ownCloud database on their first login. Default: on
 
