@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+Version 1.8.5
+-------------
+
+* Fixes Nextcloud login-flow bug (see Issue [#69](https://github.com/felixrupp/user_cas/issues/69)) - thanks to [@pingou2712](https://github.com/pingou2712>)
+
+
 Version 1.8.4
 -------------
 
