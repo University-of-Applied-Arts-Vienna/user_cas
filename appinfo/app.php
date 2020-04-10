@@ -36,7 +36,7 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI) {
         // Register User Backend
         $userService->registerBackend($c->query('Backend'));
 
-        if ($requestUri === '/' || (strpos($requestUri, '/login') !== FALSE && strpos($requestUri, '/apps/user_cas/login') === FALSE) && strpos($requestUri, '/login/flow') === FALSE) {
+        if ($requestUri === '/' || (strpos($requestUri, '/login') !== FALSE && strpos($requestUri, '/apps/user_cas/login') === FALSE)) {
 
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') { // POST is used for single logout requests
 
