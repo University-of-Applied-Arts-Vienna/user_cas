@@ -23,6 +23,7 @@
 
 namespace OCA\UserCAS\Service;
 
+use OC\Authentication\Token\IToken;
 use OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException;
 use \OCP\IConfig;
 use \OCP\IUserSession;
@@ -922,6 +923,7 @@ class AppService
      * Kill the username's session.
      *
      * @author Vincent <https://github.com/pingou2712>
+     * @author Felix Rupp <kontakt@felixrupp.com>
      *
      * @param string $username The username of the user.
      * @return NULL
@@ -931,9 +933,13 @@ class AppService
 
         if ($this->userManager->userExists($username)) {
 
-            $sql = "DELETE FROM oc_authtoken WHERE uid = ?;";
+            $tokenType = IToken::TEMPORARY_TOKEN;
+
+            $sql = "DELETE FROM oc_authtoken WHERE uid = ? AND type = ? AND password IS NULL;";
             $stmt = \OC::$server->getDatabaseConnection()->prepare($sql);
             $stmt->bindParam(1, $username, \PDO::PARAM_STR);
+            $stmt->bindParam(2, $tokenType, \PDO::PARAM_INT);
+
             $stmt->execute();
         }
 
