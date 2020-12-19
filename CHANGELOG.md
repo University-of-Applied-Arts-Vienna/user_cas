@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+Version 1.8.7
+-------------
+
+* Raises compatibility to ownCloud 10.6 and Nextcloud 20
+* Changes the phpCAS Version to specify 1.3.5 or higher (was >= 1.3 before)
+
+
 Version 1.8.6
 -------------
 
