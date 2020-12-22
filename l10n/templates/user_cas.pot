@@ -190,6 +190,14 @@ msgid "Comma separated list of client IP addresses (or address ranges), which wo
 msgstr ""
 
 #: templates/admin.php:89
+msgid "User-ID"
+msgstr ""
+
+#: templates/admin.php:89
+msgid "Only map this attribute, if you want one specific CAS attribute as your user’s id. If left blank, the default CAS user-id is used."
+msgstr ""
+
+#: templates/admin.php:89
 msgid "Email"
 msgstr ""
 

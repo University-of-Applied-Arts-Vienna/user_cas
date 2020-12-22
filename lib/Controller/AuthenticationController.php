@@ -153,7 +153,8 @@ class AuthenticationController extends Controller
 
                 if (\phpCAS::isAuthenticated()) {
 
-                    $userName = \phpCAS::getUser();
+                    #$userName = \phpCAS::getUser();
+                    $userName = $this->userService->getUserId();
 
                     $this->loggingService->write(\OCA\UserCas\Service\LoggingService::DEBUG, "phpCAS user " . $userName . " has been authenticated.");
 

@@ -161,7 +161,8 @@ class UserHooks
 
         if (\phpCAS::isAuthenticated() && !$this->userSession->isLoggedIn()) {
 
-            $casUid = \phpCAS::getUser();
+            #$casUid = \phpCAS::getUser();
+            $casUid = $this->userService->getUserId();
 
             if ($casUid === $uid) {
 
@@ -248,7 +249,8 @@ class UserHooks
 
                 // $cas_attributes may vary in name, therefore attributes are fetched to $attributes
 
-                $casUid = \phpCAS::getUser();
+                #$casUid = \phpCAS::getUser();
+                $casUid = $this->userService->getUserId();
 
                 if ($casUid === $uid) {
 

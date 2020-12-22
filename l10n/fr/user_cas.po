@@ -195,6 +195,13 @@ msgid "Comma separated list of client IP addresses (or address ranges), which wo
 msgstr "Liste d'adresses IP client (ou plages d'adresses), séparées par des virgules, qui ne seront pas obligées d'utiliser l'authentification à plusieurs facteurs si \"ECAS AssuranceLevel\" est au moins de MEDIUM (par exemple 192.168.1.1-254, 192.168.2.5)"
 
 #: templates/admin.php:89
+msgid "User-ID"
+msgstr "Nom d'utilisateur"
+
+msgid "Only map this attribute, if you want one specific CAS attribute as your user’s id. If left blank, the default CAS user-id is used."
+msgstr "Mappez cet attribut uniquement si vous voulez un attribut CAS spécifique comme identifiant de votre utilisateur. S'il est laissé vide, le nom d'utilisateur CAS par défaut est utilisé."
+
+#: templates/admin.php:89
 msgid "Email"
 msgstr "Email"
 

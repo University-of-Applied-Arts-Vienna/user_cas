@@ -270,6 +270,27 @@ class UserService
     }
 
     /**
+     * @return string
+     */
+    public function getUserId()
+    {
+        $uid = \phpCAS::getUser();
+
+        $casAttributes = \phpCAS::getAttributes();
+
+        if($this->config->getAppValue($this->appName, 'cas_userid_mapping') && strlen($this->config->getAppValue($this->appName, 'cas_userid_mapping')) > 0) {
+
+            $userIdAttribute = $this->config->getAppValue($this->appName, 'cas_userid_mapping');
+            if(isset($casAttributes[$userIdAttribute])) {
+
+                $uid = $casAttributes[$userIdAttribute];
+            }
+        }
+
+        return $uid;
+    }
+
+    /**
      * Update the user
      *
      * @param \OCP\IUser $user

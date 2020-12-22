@@ -110,7 +110,8 @@ class UpdateUser extends Command
                 $config,
                 $loggingService,
                 $this->appService,
-                $userManager
+                $userManager,
+                $userService
             );
         } else {
 

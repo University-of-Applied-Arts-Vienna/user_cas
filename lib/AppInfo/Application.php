@@ -115,7 +115,8 @@ class Application extends App
                     $c->query('Config'),
                     $c->query('LoggingService'),
                     $c->query('AppService'),
-                    $c->query('ServerContainer')->getUserManager()
+                    $c->query('ServerContainer')->getUserManager(),
+                    $c->query('UserService')
                 );
             });
         } else {

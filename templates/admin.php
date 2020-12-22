@@ -155,6 +155,12 @@ style('user_cas', 'settings');
         </fieldset>
         <!-- Mapping Settings -->
         <fieldset id="casSettings-3">
+            <p>
+                <label for="cas_userid_mapping"><?php p($l->t('User-ID')); ?></label><input
+                        id="cas_userid_mapping"
+                        name="cas_userid_mapping"
+                        value="<?php p($_['cas_userid_mapping']); ?>"/> <span class="csh">(<?php p($l->t('Only map this attribute, if you want one specific CAS attribute as your user’s id. If left blank, the default CAS user-id is used.')) ?>)</span>
+            </p>
             <p><label for="cas_email_mapping"><?php p($l->t('Email')); ?></label><input
                         id="cas_email_mapping"
                         name="cas_email_mapping"

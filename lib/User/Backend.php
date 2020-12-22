@@ -27,6 +27,7 @@ use OC\User\Database;
 use OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException;
 use OCA\UserCAS\Service\AppService;
 use OCA\UserCAS\Service\LoggingService;
+use OCA\UserCAS\Service\UserService;
 use OCP\IConfig;
 use OCP\IUserBackend;
 use OCP\IUserManager;
@@ -68,6 +69,11 @@ class Backend extends Database implements UserInterface, IUserBackend, IProvides
      */
     protected $appService;
 
+    /**
+     * @var \OCA\UserCAS\Service\UserService $userService
+     */
+    protected $userService;
+
 
     /**
      * @var \OCP\IUserManager $userManager
@@ -82,14 +88,16 @@ class Backend extends Database implements UserInterface, IUserBackend, IProvides
      * @param LoggingService $loggingService
      * @param AppService $appService
      * @param IUserManager $userManager
+     * @param UserService $userService
      */
-    public function __construct($appName, IConfig $config, LoggingService $loggingService, AppService $appService, IUserManager $userManager)
+    public function __construct($appName, IConfig $config, LoggingService $loggingService, AppService $appService, IUserManager $userManager, UserService $userService)
     {
 
         parent::__construct();
         $this->appName = $appName;
         $this->loggingService = $loggingService;
         $this->appService = $appService;
+        $this->userService = $userService;
         $this->config = $config;
         $this->userManager = $userManager;
     }
@@ -136,7 +144,8 @@ class Backend extends Database implements UserInterface, IUserBackend, IProvides
 
             if (\phpCAS::isAuthenticated()) {
 
-                $casUid = \phpCAS::getUser();
+                #$casUid = \phpCAS::getUser();
+                $casUid = $this->userService->getUserId();
 
                 $isAuthorized = TRUE;
                 $createUser = TRUE;

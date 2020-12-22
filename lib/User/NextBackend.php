@@ -147,7 +147,8 @@ class NextBackend extends Database implements UserInterface, IUserBackend, IChec
 
             if (\phpCAS::isAuthenticated()) {
 
-                $casUid = \phpCAS::getUser();
+                #$casUid = \phpCAS::getUser();
+                $casUid = $this->userService->getUserId();
 
                 $isAuthorized = TRUE;
                 $createUser = TRUE;
