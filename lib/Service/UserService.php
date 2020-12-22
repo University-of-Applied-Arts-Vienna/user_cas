@@ -398,6 +398,22 @@ class UserService
 
         $uid = $user->getUID();
 
+        # Add default user group to groups and protectedGroups
+        if($this->config->getAppValue($this->appName, 'cas_groups_create_default_for_user')) {
+
+            $userGroupPrefix = $this->config->getAppValue($this->appName, 'cas_groups_create_default_for_user_prefix', '');
+
+            if(strpos($userGroupPrefix, '/') !== strlen($userGroupPrefix)) {
+
+                $userGroupPrefix .= '/';
+            }
+
+            $userGroupName = $userGroupPrefix.$uid;
+
+            $groups[] = $userGroupName;
+            $protectedGroups[] = $userGroupName;
+        }
+
         if (!$justCreated) {
 
             $oldGroups = $this->groupManager->getUserGroups($user);
@@ -443,7 +459,7 @@ class UserService
                 $group = preg_replace("/[^" . $nameFilter . "]+/", "", $group);
             } else { # Use default filter
 
-                $group = preg_replace("/[^a-zA-Z0-9\.\-_ @]+/", "", $group);
+                $group = preg_replace("/[^a-zA-Z0-9\.\-_ @\/]+/", "", $group);
             }
 
             # Filter length to max 64 chars

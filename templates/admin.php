@@ -210,7 +210,7 @@ style('user_cas', 'settings');
             <p><label for="cas_groups_letter_filter"><?php p($l->t('Group Name Filter')); ?></label><input
                         id="cas_groups_letter_filter"
                         name="cas_groups_letter_filter"
-                        value="<?php p($_['cas_groups_letter_filter']); ?>" placeholder="a-zA-Z0-9\.\-_ @"/> <span class="csh"><?php p($l->t('Attention: You must use PHP (PCRE) Regex syntax for the filter.')) ?></span>
+                        value="<?php p($_['cas_groups_letter_filter']); ?>" placeholder="a-zA-Z0-9\.\-_ @\/"/> <span class="csh"><?php p($l->t('Attention: You must use PHP (PCRE) Regex syntax for the filter.')) ?></span>
             </p>
             <p>
                 <input type="checkbox" id="cas_groups_letter_umlauts"
@@ -224,6 +224,16 @@ style('user_cas', 'settings');
                 <label class='checkbox'
                        for="cas_groups_json_decode"><?php p($l->t('Group Name: JSON Decode')); ?></label>
                 <span class="csh">(<?php p($l->t('Beware: Potential security risk! Only activate, if you know what you are doing.')) ?>)</span>
+            </p>
+            <p>
+                <input type="checkbox" id="cas_groups_create_default_for_user"
+                      name="cas_groups_create_default_for_user" <?php print_unescaped((($_['cas_groups_create_default_for_user'] === 'true' || $_['cas_groups_create_default_for_user'] === 'on' || $_['cas_groups_create_default_for_user'] === '1') ? 'checked="checked"' : '')); ?>>
+                <label class='checkbox'
+                       for="cas_groups_create_default_for_user"><?php p($l->t('User’s Default Group: Create default group for each user with UID and optional prefix:')); ?></label>
+                <input
+                        id="cas_groups_create_default_for_user_prefix"
+                        name="cas_groups_create_default_for_user_prefix"
+                        value="<?php p($_['cas_groups_create_default_for_user_prefix']); ?>" placeholder="FooBar"/>
             </p>
         </fieldset>
         <!-- ECAS Settings -->

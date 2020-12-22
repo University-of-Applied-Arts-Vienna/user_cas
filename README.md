@@ -144,6 +144,8 @@ Groups
 
 **Group Name: JSON Decode**: Activate to JSON decode the delivered data in the group field. Only works, if *Group* in "Mapping" is filled and your CAS-Server uses JSON syntax for it. Default: off
 
+**User’s Default Group**: Create default group for each user with UID and optional prefix. Default: off and no prefix
+
 
 
 ECAS Settings:
