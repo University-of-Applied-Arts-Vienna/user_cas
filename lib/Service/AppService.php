@@ -623,6 +623,23 @@ class AppService
     }
 
     /**
+     * Check if public shares should be protected
+     *
+     * @return bool TRUE|FALSE
+     */
+    public function arePublicSharesProtected()
+    {
+        $protected = (bool)$this->config->getAppValue($this->appName, 'cas_shares_protected', FALSE);
+        $loggedIn = $this->userSession->isLoggedIn();
+
+        if($loggedIn && $protected) {
+            $protected = FALSE;
+        }
+
+        return $protected;
+    }
+
+    /**
      * Register Login
      *
      */
@@ -803,7 +820,8 @@ class AppService
         # Only the IP added by the last proxy (last IP in the list) can be trusted.
         if (array_key_exists($proxyHeader, $_SERVER)) {
 
-            $proxyIp = trim(end(explode(",", $_SERVER[$proxyHeader])));
+            $explodedProxyHeader = explode(",", $_SERVER[$proxyHeader]);
+            $proxyIp = trim(end($explodedProxyHeader));
 
             if (filter_var($proxyIp, FILTER_VALIDATE_IP)) {
 

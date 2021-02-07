@@ -45,7 +45,10 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI) {
         // Register User Backend
         $userService->registerBackend($c->query('Backend'));
 
-        if ($requestUri === '/' || (strpos($requestUri, '/login') !== FALSE && strpos($requestUri, '/apps/user_cas/login') === FALSE)) {
+        $loginScreen = (strpos($requestUri, '/login') !== FALSE && strpos($requestUri, '/apps/user_cas/login') === FALSE);
+        $publicShare = (strpos($requestUri, '/index.php/s/') !== FALSE && $appService->arePublicSharesProtected());
+
+        if ($requestUri === '/' || $loginScreen || $publicShare) {
 
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') { // POST is used for single logout requests
 
@@ -72,6 +75,11 @@ if (\OCP\App::isEnabled($c->getAppName()) && !\OC::$CLI) {
 
                 /** @var boolean $isEnforced */
                 $isEnforced = $appService->isEnforceAuthentication($_SERVER['REMOTE_ADDR'], $requestUri);
+
+                // Check if public share, if yes, enforce regardless the enforce-flag
+                if($publicShare) {
+                    $isEnforced = true;
+                }
 
                 // Check for enforced authentication
                 if ($isEnforced && (!isset($_COOKIE['user_cas_enforce_authentication']) || (isset($_COOKIE['user_cas_enforce_authentication']) && $_COOKIE['user_cas_enforce_authentication'] === '0'))) {

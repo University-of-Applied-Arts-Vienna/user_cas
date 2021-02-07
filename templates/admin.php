@@ -145,6 +145,12 @@ style('user_cas', 'settings');
                         name="cas_login_button_label"
                         value="<?php p($_['cas_login_button_label']); ?>" />
             </p>
+            <p>
+                <input type="checkbox" id="cas_shares_protected"
+                      name="cas_shares_protected" <?php print_unescaped((($_['cas_shares_protected'] === 'true' || $_['cas_shares_protected'] === 'on' || $_['cas_shares_protected'] === '1') ? 'checked="checked"' : '')); ?>>
+                <label class='checkbox'
+                       for="cas_shares_protected"><?php p($l->t('Protect "public share" links with CAS')); ?></label>
+            </p>
 
             <!-- <p><input type="checkbox" id="cas_link_to_ldap_backend"
                       name="cas_link_to_ldap_backend" <?php /*print_unescaped((($_['cas_link_to_ldap_backend'] === 'true' || $_['cas_link_to_ldap_backend'] === 'on' || $_['cas_link_to_ldap_backend'] === '1') ? 'checked="checked"' : ''));*/ ?>>

@@ -25,6 +25,7 @@ OC.L10N.register(
         "Keep CAS-ticket-ids in URL?": "Gardez CAS-ticket-ids dans l'URL?",
         "Beware: Potential security risk! Only activate, if you know what you are doing.": "Attention: risque potentiel de sécurité! Activez uniquement si vous savez ce que vous faites.",
         "Overwrite Login Button Label": "Écraser l'étiquette du bouton de connexion",
+        "Protect \"public share\" links with CAS": "Protéger les liens de «partage public» avec CAS ",
         "Link CAS authentication with LDAP users and groups backend": "Lier l'authentification CAS avec les utilisateurs et groupe de l'authentification LDAP?",
         "Update user data after each CAS login?": "Mettre à jour les données utilisateurs après la connexion?",
         "Locked Groups": "Groupes protégés",

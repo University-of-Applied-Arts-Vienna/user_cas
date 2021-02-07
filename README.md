@@ -106,6 +106,8 @@ Basic
 
 **Overwrite Login Button Label**: Overwrites the CAS-Login button label (only used in Nextcloud). Default: empty
 
+**Protect "public share" links with CAS**: If checked, public share links will be protected by CAS-login. If a user is already logged in with a valid ownCloud/Nexctloud session, no additional CAS-login is needed. Default off
+
 
 <a name="mapping"></a>
 

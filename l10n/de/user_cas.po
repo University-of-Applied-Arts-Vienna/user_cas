@@ -104,6 +104,9 @@ msgstr "Achtung: Potentielles Sicherheitsrisiko! Nur aktivieren, wenn Sie wissen
 msgid "Overwrite Login Button Label"
 msgstr "Login Button Label überschreiben"
 
+msgid "Protect \"public share\" links with CAS"
+msgstr "Teilen-Links mit CAS schützen"
+
 #: templates/admin.php:65
 msgid "Autocreate user after first CAS login?"
 msgstr "Benutzer nach erstem CAS Login automatisch erstellen?"

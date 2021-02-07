@@ -7,6 +7,7 @@ Unreleased
 * Add setting to allow json-decode for mapped group attribute (see: Issue [#51](https://github.com/felixrupp/user_cas/issues/51))
 * Add mapping for user-id attribute (see: Issue [#70](https://github.com/felixrupp/user_cas/issues/70))
 * Add setting for adding default group, based on the user’s name and an optional prefix (see: Issue [75](https://github.com/felixrupp/user_cas/issues/75))
+* Add setting to protect public share links with CAS (see: Issue [93](https://github.com/felixrupp/user_cas/issues/93))
 
 
 Version 1.8.7
