@@ -49,7 +49,7 @@ class Admin implements ISettings
         'cas_access_group_quotas', 'cas_groups_letter_filter', 'cas_groups_letter_umlauts', 'cas_groups_json_decode', 'cas_groups_create_default_for_user', 'cas_groups_create_default_for_user_prefix',
         'cas_import_ad_protocol', 'cas_import_ad_host', 'cas_import_ad_port', 'cas_import_ad_user', 'cas_import_ad_domain', 'cas_import_ad_password', 'cas_import_ad_base_dn', 'cas_import_ad_sync_filter', 'cas_import_ad_sync_pagesize',
         'cas_import_map_uid', 'cas_import_map_displayname', 'cas_import_map_email', 'cas_import_map_groups', 'cas_import_map_groups_description', 'cas_import_map_quota', 'cas_import_map_enabled', 'cas_import_map_enabled_and_bitwise', 'cas_import_map_dn_filter', 'cas_import_map_dn', 'cas_import_merge', 'cas_import_merge_enabled',
-        'cas_ecas_accepted_strengths', 'cas_ecas_retrieve_groups','cas_ecas_request_full_userdetails', 'cas_ecas_assurance_level','cas_use_proxy', 'cas_ecas_internal_ip_range');
+        'cas_ecas_accepted_strengths', 'cas_ecas_retrieve_groups','cas_ecas_request_full_userdetails', 'cas_ecas_assurance_level','cas_use_proxy', 'cas_ecas_internal_ip_range', 'cas_shares_protected');
 
     /**
      * @var IConfig

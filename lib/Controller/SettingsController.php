@@ -134,6 +134,7 @@ class SettingsController extends Controller
      * @param string|null $cas_keep_ticket_ids
      * @param string|null $cas_groups_json_decode
      * @param string|null $cas_groups_create_default_for_user
+     * @param string|null $cas_shares_protected
      * @return mixed
      */
     public function saveSettings($cas_server_version, $cas_server_hostname, $cas_server_port, $cas_server_path, $cas_protected_groups, $cas_default_group, $cas_groups_letter_filter, $cas_groups_create_default_for_user_prefix,
@@ -143,7 +144,7 @@ class SettingsController extends Controller
                                     $cas_import_map_uid, $cas_import_map_displayname, $cas_import_map_email, $cas_import_map_groups, $cas_import_map_groups_description, $cas_import_map_quota, $cas_import_map_enabled, $cas_import_map_enabled_and_bitwise, $cas_import_map_dn, $cas_import_map_dn_filter,
                                     $cas_ecas_attributeparserenabled = NULL, $cas_ecas_request_full_userdetails = NULL, $cas_force_login = NULL, $cas_autocreate = NULL, $cas_update_user_data = NULL, $cas_link_to_ldap_backend = NULL,
                                     $cas_disable_logout = NULL, $cas_disable_singlesignout = NULL, $cas_use_proxy = NULL, $cas_import_merge = NULL, $cas_import_merge_enabled = NULL, $cas_groups_letter_umlauts = NULL, $cas_keep_ticket_ids = NULL, $cas_groups_json_decode = NULL,
-                                    $cas_groups_create_default_for_user = NULL)
+                                    $cas_groups_create_default_for_user = NULL, $cas_shares_protected = NULL)
     {
 
         try {
@@ -227,6 +228,7 @@ class SettingsController extends Controller
             $this->config->setAppValue($this->appName, 'cas_keep_ticket_ids', ($cas_keep_ticket_ids !== NULL) ? '1' : '0');
             $this->config->setAppValue($this->appName, 'cas_groups_json_decode', ($cas_groups_json_decode !== NULL) ? '1' : '0');
             $this->config->setAppValue($this->appName, 'cas_groups_create_default_for_user', ($cas_groups_create_default_for_user !== NULL) ? '1' : '0');
+            $this->config->setAppValue($this->appName, 'cas_shares_protected', ($cas_shares_protected !== NULL) ? '1' : '0');
 
 
             return array(

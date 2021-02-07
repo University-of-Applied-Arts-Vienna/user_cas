@@ -109,6 +109,9 @@ msgstr ""
 msgid "Overwrite Login Button Label"
 msgstr ""
 
+msgid "Protect \"public share\" links with CAS"
+msgstr ""
+
 #: templates/admin.php:70
 msgid "Link CAS authentication with LDAP users and groups backend"
 msgstr ""

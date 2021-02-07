@@ -108,6 +108,9 @@ msgstr "Attention: risque potentiel de sécurité! Activez uniquement si vous sa
 msgid "Overwrite Login Button Label"
 msgstr "Écraser l'étiquette du bouton de connexion"
 
+msgid "Protect \"public share\" links with CAS"
+msgstr "Protéger les liens de partage avec CAS"
+
 #: templates/admin.php:70
 msgid "Link CAS authentication with LDAP users and groups backend"
 msgstr ""

@@ -24,6 +24,7 @@
     "Keep CAS-ticket-ids in URL?": "CAS-Ticket-IDs nicht aus der URL entfernen",
     "Beware: Potential security risk! Only activate, if you know what you are doing.": "Achtung: Potentielles Sicherheitsrisiko! Nur aktivieren, wenn Sie wissen, was Sie tun.",
     "Overwrite Login Button Label": "Login Button Label überschreiben",
+    "Protect \"public share\" links with CAS": "Öffentliche Teilen-Links mit CAS schützen",
     "Link CAS authentication with LDAP users and groups backend": "CAS Authentifizierung mit LDAP Backend verknüpfen",
     "Update user data after each CAS login?": "Benutzerdaten nach jedem CAS Login aktualisieren?",
     "Locked Groups": "Geschützte Gruppen",
