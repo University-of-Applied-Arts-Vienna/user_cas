@@ -1,0 +1,18 @@
+{
+  "name": "example/user_cas",
+  "description": "This is the package for Ownclouds 3rd Party App user_cas",
+  "minimum-stability": "stable",
+  "license": "AGPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Original contributors",
+      "email": "maintainers@example.invalid"
+    }
+  ],
+  "require": {
+    "jasig/phpcas": "^1.5.0",
+    "ec-europa/ecas-phpcas-parser": "^0.3",
+    "php": ">=8.2 <=8.5",
+    "ext-json": "*"
+  }
+}
