@@ -8,6 +8,7 @@ use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 
 /**
@@ -35,9 +36,9 @@ use Psr\Log\LoggerInterface;
  */
 class GroupRenamer
 {
-    private const APP_NAME       = 'user_cas';
-    private const DN_MAP_KEY     = 'cas_group_dn_gid_map';
-    private const MANUAL_KEY     = 'cas_group_rename_pairs';
+    private const APP_NAME   = 'user_cas';
+    private const DN_MAP_KEY = 'cas_group_dn_gid_map';
+    private const MANUAL_KEY = 'cas_group_rename_pairs';
 
     /** @var IConfig */
     private $config;
@@ -51,6 +52,9 @@ class GroupRenamer
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var OutputInterface|null */
+    private $output;
+
 
     public function __construct(IConfig $config, IGroupManager $groupManager, IDBConnection $db, LoggerInterface $logger)
     {
@@ -63,14 +67,24 @@ class GroupRenamer
 
     /**
      * @param array<string, string> $dnToRawName  dn => raw group name from LDAP
-     * @return int  number of groups renamed
+     * @param OutputInterface|null  $output        when provided, key events are written live
+     * @return array{renamed: int, warnings: list<string>}
      */
-    public function renameGroups(array $dnToRawName): int
+    public function renameGroups(array $dnToRawName, ?OutputInterface $output = null): array
     {
-        $renamed  = 0;
-        $renamed += $this->applyManualPairs();
-        $renamed += $this->applyDnMapping($dnToRawName);
-        return $renamed;
+        $this->output = $output;
+
+        $result = ['renamed' => 0, 'warnings' => []];
+
+        $manualResult = $this->applyManualPairs();
+        $result['renamed']  += $manualResult['renamed'];
+        $result['warnings']  = array_merge($result['warnings'], $manualResult['warnings']);
+
+        $dnResult = $this->applyDnMapping($dnToRawName);
+        $result['renamed']  += $dnResult['renamed'];
+        $result['warnings']  = array_merge($result['warnings'], $dnResult['warnings']);
+
+        return $result;
     }
 
 
@@ -78,25 +92,35 @@ class GroupRenamer
     // Pass 1: manual pairs
     // -------------------------------------------------------------------------
 
-    private function applyManualPairs(): int
+    /** @return array{renamed: int, warnings: list<string>} */
+    private function applyManualPairs(): array
     {
         $raw = trim((string) $this->config->getAppValue(self::APP_NAME, self::MANUAL_KEY, ''));
+        $result = ['renamed' => 0, 'warnings' => []];
+
         if ($raw === '') {
-            return 0;
+            return $result;
         }
 
-        $renamed = 0;
         foreach (preg_split("/[\r\n;]+/", $raw) as $line) {
             $line = trim($line);
             if ($line === '' || strpos($line, ':') === false) {
                 continue;
             }
             [$oldGid, $newGid] = array_map('trim', explode(':', $line, 2));
-            if ($oldGid !== '' && $newGid !== '' && $this->renameOne($oldGid, $newGid, 'manual')) {
-                $renamed++;
+            if ($oldGid === '' || $newGid === '') {
+                continue;
+            }
+
+            $outcome = $this->renameOne($oldGid, $newGid, 'manual');
+            if ($outcome === true) {
+                $result['renamed']++;
+            } elseif (is_string($outcome)) {
+                $result['warnings'][] = $outcome;
             }
         }
-        return $renamed;
+
+        return $result;
     }
 
 
@@ -106,12 +130,13 @@ class GroupRenamer
 
     /**
      * @param array<string, string> $dnToRawName
+     * @return array{renamed: int, warnings: list<string>}
      */
-    private function applyDnMapping(array $dnToRawName): int
+    private function applyDnMapping(array $dnToRawName): array
     {
         $storedMap  = $this->loadDnMap();
         $updatedMap = [];
-        $renamed    = 0;
+        $result     = ['renamed' => 0, 'warnings' => []];
 
         foreach ($dnToRawName as $dn => $rawName) {
             $newGid = $this->normalizeGroupName($rawName);
@@ -127,29 +152,39 @@ class GroupRenamer
                 $prevExists = $this->groupManager->groupExists($prevGid);
 
                 if ($prevExists && !$newExists) {
-                    $ok = $this->renameOne($prevGid, $newGid, 'DN map');
-                    $updatedMap[$dn] = $ok ? $newGid : $prevGid;
-                    if ($ok) $renamed++;
+                    $outcome = $this->renameOne($prevGid, $newGid, 'DN map');
+                    if ($outcome === true) {
+                        $updatedMap[$dn] = $newGid;
+                        $result['renamed']++;
+                    } else {
+                        $updatedMap[$dn] = $prevGid;
+                        if (is_string($outcome)) $result['warnings'][] = $outcome;
+                    }
                 } elseif ($prevExists && $newExists) {
-                    $this->logger->warning(sprintf(
-                        "GroupRenamer [DN map]: cannot rename '%s' → '%s' (both exist); shares remain on '%s'.",
-                        $prevGid, $newGid, $prevGid
-                    ));
+                    $msg = sprintf("Cannot rename '%s' → '%s': both exist in Nextcloud; shares remain on '%s'.", $prevGid, $newGid, $prevGid);
+                    $this->writeln('<comment>  [group-rename] ' . $msg . '</comment>');
+                    $this->logger->warning('GroupRenamer [DN map]: ' . $msg);
+                    $result['warnings'][] = $msg;
                     $updatedMap[$dn] = $prevGid;
                 } else {
                     $updatedMap[$dn] = $newGid;
                 }
 
             } elseif ($prevGid === null && !$newExists) {
-                // Unmapped and target missing: check for a legacy group created under
+                // Unmapped and target missing: look for a legacy group created under
                 // different normalization settings (e.g. before umlauts were enabled).
                 $candidate = $this->findLegacyCandidate($rawName, $newGid);
                 if ($candidate !== null) {
-                    $ok = $this->renameOne($candidate, $newGid, 'auto-detect');
-                    $updatedMap[$dn] = $ok ? $newGid : $candidate;
-                    if ($ok) $renamed++;
+                    $outcome = $this->renameOne($candidate, $newGid, 'auto-detect');
+                    if ($outcome === true) {
+                        $updatedMap[$dn] = $newGid;
+                        $result['renamed']++;
+                    } else {
+                        $updatedMap[$dn] = $candidate;
+                        if (is_string($outcome)) $result['warnings'][] = $outcome;
+                    }
                 } else {
-                    // Group will be created fresh by the normal import loop
+                    // Will be created fresh by the normal import loop
                     $updatedMap[$dn] = $newGid;
                 }
 
@@ -159,7 +194,7 @@ class GroupRenamer
         }
 
         $this->saveDnMap($updatedMap);
-        return $renamed;
+        return $result;
     }
 
 
@@ -178,8 +213,12 @@ class GroupRenamer
         // Candidate 1: strip-only (no umlaut substitution)
         $stripOnly = $this->normalizeGroupNameStripOnly($rawName);
         if ($stripOnly !== '' && $stripOnly !== $currentNormalized && $this->groupManager->groupExists($stripOnly)) {
+            $this->writeln(sprintf(
+                '  [group-rename] Auto-detected legacy group <comment>"%s"</comment> for LDAP name "%s" (strip-only match) → will rename to <info>"%s"</info>.',
+                $stripOnly, $rawName, $currentNormalized
+            ));
             $this->logger->info(sprintf(
-                "GroupRenamer [auto-detect]: found legacy group '%s' for LDAP name '%s' → will rename to '%s'.",
+                "GroupRenamer [auto-detect]: found legacy group '%s' for LDAP name '%s' → renaming to '%s'.",
                 $stripOnly, $rawName, $currentNormalized
             ));
             return $stripOnly;
@@ -193,8 +232,12 @@ class GroupRenamer
             && $trimmed !== $stripOnly
             && $this->groupManager->groupExists($trimmed)
         ) {
+            $this->writeln(sprintf(
+                '  [group-rename] Auto-detected legacy group <comment>"%s"</comment> for LDAP name "%s" (raw name match) → will rename to <info>"%s"</info>.',
+                $trimmed, $rawName, $currentNormalized
+            ));
             $this->logger->info(sprintf(
-                "GroupRenamer [auto-detect]: found legacy group '%s' (raw name) for LDAP name '%s' → will rename to '%s'.",
+                "GroupRenamer [auto-detect]: found legacy group '%s' (raw name) for LDAP name '%s' → renaming to '%s'.",
                 $trimmed, $rawName, $currentNormalized
             ));
             return $trimmed;
@@ -208,23 +251,30 @@ class GroupRenamer
     // DB rename
     // -------------------------------------------------------------------------
 
-    private function renameOne(string $oldGid, string $newGid, string $source): bool
+    /**
+     * Rename a single group inside a transaction.
+     * Returns true on success, a warning string on a skippable conflict,
+     * or false on DB error (already logged).
+     *
+     * @return true|false|string
+     */
+    private function renameOne(string $oldGid, string $newGid, string $source)
     {
         if (!$this->groupManager->groupExists($oldGid)) {
-            $this->logger->warning(sprintf(
-                "GroupRenamer [%s]: cannot rename '%s' → '%s': source does not exist.",
-                $source, $oldGid, $newGid
-            ));
-            return false;
+            $msg = sprintf("Cannot rename '%s' → '%s': source group does not exist.", $oldGid, $newGid);
+            $this->writeln('<comment>  [group-rename] ' . $msg . '</comment>');
+            $this->logger->warning("GroupRenamer [$source]: $msg");
+            return $msg;
         }
 
         if ($this->groupManager->groupExists($newGid)) {
-            $this->logger->warning(sprintf(
-                "GroupRenamer [%s]: cannot rename '%s' → '%s': target already exists.",
-                $source, $oldGid, $newGid
-            ));
-            return false;
+            $msg = sprintf("Cannot rename '%s' → '%s': target already exists.", $oldGid, $newGid);
+            $this->writeln('<comment>  [group-rename] ' . $msg . '</comment>');
+            $this->logger->warning("GroupRenamer [$source]: $msg");
+            return $msg;
         }
+
+        $this->writeln(sprintf('  [group-rename] Renaming <comment>"%s"</comment> → <info>"%s"</info> …', $oldGid, $newGid));
 
         $this->db->beginTransaction();
         try {
@@ -246,6 +296,7 @@ class GroupRenamer
 
             $this->db->commit();
 
+            $this->writeln(sprintf('  [group-rename] <info>Done</info> — groups, memberships, shares updated.'));
             $this->logger->info(sprintf(
                 "GroupRenamer [%s]: renamed '%s' → '%s' (groups, group_user, group_admin, shares updated).",
                 $source, $oldGid, $newGid
@@ -254,6 +305,7 @@ class GroupRenamer
 
         } catch (\Throwable $e) {
             $this->db->rollBack();
+            $this->writeln(sprintf('  [group-rename] <error>DB error renaming "%s" → "%s": %s</error>', $oldGid, $newGid, $e->getMessage()));
             $this->logger->error(sprintf(
                 "GroupRenamer [%s]: DB error renaming '%s' → '%s': %s",
                 $source, $oldGid, $newGid, $e->getMessage()
@@ -336,5 +388,17 @@ class GroupRenamer
     private function saveDnMap(array $map): void
     {
         $this->config->setAppValue(self::APP_NAME, self::DN_MAP_KEY, json_encode($map));
+    }
+
+
+    // -------------------------------------------------------------------------
+    // Output helper
+    // -------------------------------------------------------------------------
+
+    private function writeln(string $message): void
+    {
+        if ($this->output !== null) {
+            $this->output->writeln($message);
+        }
     }
 }

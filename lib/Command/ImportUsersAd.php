@@ -99,29 +99,34 @@ protected function execute(InputInterface $input, OutputInterface $output)
             throw new \Exception("User import failed. PHP extension 'ldap' is not loaded.");
         }
 
-        $output->writeln('Start account import from ActiveDirectory.');
+        $output->writeln('Fetching users from ActiveDirectory …');
 
         $importer = new AdImporter($this->config);
         $importer->init($logger);
 
         $allUsers = $importer->getUsers();
 
+        $output->writeln(sprintf('Fetched %d user(s) from ActiveDirectory.', count($allUsers)));
+
+        $renameResult = ['renamed' => 0, 'warnings' => []];
         $groupDns = $importer->getResolvedGroupDns();
         if (!empty($groupDns)) {
+            $output->writeln(sprintf('Checking %d group(s) for rename …', count($groupDns)));
             $renamer = new GroupRenamer(
                 $this->config,
                 $this->groupManager,
                 \OC::$server->getDatabaseConnection(),
                 $logger
             );
-            $renamedCount = $renamer->renameGroups($groupDns);
-            if ($renamedCount > 0) {
-                $output->writeln(sprintf('<info>Renamed %d group(s) to match current normalization settings.</info>', $renamedCount));
-            }
+            $renameResult = $renamer->renameGroups($groupDns, $output);
+            $output->writeln(sprintf(
+                'Group rename check done: %d renamed, %d warning(s).',
+                $renameResult['renamed'],
+                count($renameResult['warnings'])
+            ));
         }
 
-        $output->writeln('Account import from ActiveDirectory finished.');
-        $output->writeln('Start account import to database.');
+        $output->writeln('Starting account import to database.');
 
         $progressBar = new ProgressBar($output, count($allUsers));
 
@@ -148,6 +153,7 @@ protected function execute(InputInterface $input, OutputInterface $output)
             'deactivation_candidates' => 0,
             'skipped_existing' => 0,
             'failed' => 0,
+            'groups_renamed' => $renameResult['renamed'],
             'groups_created' => 0,
             'group_memberships_added' => 0,
             'group_memberships_removed' => 0,
@@ -331,7 +337,7 @@ protected function execute(InputInterface $input, OutputInterface $output)
 
         $output->writeln('Account import to database finished.');
         $output->writeln(sprintf(
-            'Import statistics: processed=%d added=%d updated=%d users_deactivated=%d deactivation_candidates=%d skipped_existing=%d failed=%d groups_created=%d group_memberships_added=%d group_memberships_removed=%d empty_excluded_groups=%d',
+            'Import statistics: processed=%d added=%d updated=%d users_deactivated=%d deactivation_candidates=%d skipped_existing=%d failed=%d groups_renamed=%d groups_created=%d group_memberships_added=%d group_memberships_removed=%d empty_excluded_groups=%d',
             $stats['processed'],
             $stats['added'],
             $stats['updated'],
@@ -339,11 +345,22 @@ protected function execute(InputInterface $input, OutputInterface $output)
             $stats['deactivation_candidates'],
             $stats['skipped_existing'],
             $stats['failed'],
+            $stats['groups_renamed'],
             $stats['groups_created'],
             $stats['group_memberships_added'],
             $stats['group_memberships_removed'],
             $stats['empty_excluded_groups']
         ));
+
+        if (count($renameResult['warnings']) > 0) {
+            $output->writeln(sprintf(
+                '<comment>Group rename warnings (%d):</comment>',
+                count($renameResult['warnings'])
+            ));
+            foreach ($renameResult['warnings'] as $warning) {
+                $output->writeln('<comment>  - ' . $warning . '</comment>');
+            }
+        }
 
         if (count($failedUsers) > 0) {
             $output->writeln(sprintf(
