@@ -226,7 +226,44 @@ class GroupRenamer
         }
 
         $this->saveDnMap($updatedMap);
+        $this->syncDisplayNames($updatedMap);
         return $result;
+    }
+
+
+    /**
+     * Ensure displayname matches gid for every group in the map.
+     *
+     * Catches groups whose gid was already updated by a previous import run
+     * but whose displayname was never corrected (e.g. before this fix existed).
+     *
+     * @param array<string, string> $dnToGid
+     */
+    private function syncDisplayNames(array $dnToGid): void
+    {
+        $seen = [];
+        foreach ($dnToGid as $gid) {
+            if ($gid === '' || isset($seen[$gid])) {
+                continue;
+            }
+            $seen[$gid] = true;
+
+            try {
+                $qb = $this->db->getQueryBuilder();
+                $affected = $qb->update('groups')
+                    ->set('displayname', $qb->createNamedParameter($gid))
+                    ->where($qb->expr()->eq('gid', $qb->createNamedParameter($gid)))
+                    ->andWhere($qb->expr()->neq('displayname', $qb->createNamedParameter($gid)))
+                    ->executeStatement();
+
+                if ($affected > 0) {
+                    $this->writeln(sprintf('  [group-rename] Fixed stale displayname for <info>"%s"</info>.', $gid));
+                    $this->logger->info(sprintf("GroupRenamer: corrected displayname for '%s'.", $gid));
+                }
+            } catch (\Throwable $e) {
+                $this->logger->warning(sprintf("GroupRenamer: could not sync displayname for '%s': %s", $gid, $e->getMessage()));
+            }
+        }
     }
 
 
