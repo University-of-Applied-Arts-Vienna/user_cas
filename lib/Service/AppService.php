@@ -302,10 +302,10 @@ class AppService
                 # Initialize client
                 if ($this->casUseProxy) {
 
-                    \phpCAS::proxy($this->casVersion, $this->casHostname, intval($this->casPort), $this->casPath);
+                    \phpCAS::proxy($this->casVersion, $this->casHostname, intval($this->casPort), $this->casPath, true);
                 } else {
 
-                    \phpCAS::client($this->casVersion, $this->casHostname, intval($this->casPort), $this->casPath);
+                    \phpCAS::client($this->casVersion, $this->casHostname, intval($this->casPort), $this->casPath, true);
                 }
 
                 # Handle SingleSignout requests
