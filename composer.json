@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "jasig/phpcas": "^1.5.0",
+    "jasig/phpcas": "1.5.0",
     "ec-europa/ecas-phpcas-parser": "^0.3",
     "php": ">=8.2 <8.6",
     "ext-json": "*"

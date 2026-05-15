@@ -300,19 +300,12 @@ class AppService
 
 
                 # Initialize client
-                if (version_compare(PHPCAS_VERSION, '1.6.0', '>=')) {
-                    $serviceBaseUrl = $this->urlGenerator->getAbsoluteURL('/');
-                    if ($this->casUseProxy) {
-                        \phpCAS::proxy($this->casVersion, $this->casHostname, intval($this->casPort), $this->casPath, $serviceBaseUrl, true);
-                    } else {
-                        \phpCAS::client($this->casVersion, $this->casHostname, intval($this->casPort), $this->casPath, $serviceBaseUrl, true);
-                    }
+                if ($this->casUseProxy) {
+
+                    \phpCAS::proxy($this->casVersion, $this->casHostname, intval($this->casPort), $this->casPath);
                 } else {
-                    if ($this->casUseProxy) {
-                        \phpCAS::proxy($this->casVersion, $this->casHostname, intval($this->casPort), $this->casPath, true);
-                    } else {
-                        \phpCAS::client($this->casVersion, $this->casHostname, intval($this->casPort), $this->casPath, true);
-                    }
+
+                    \phpCAS::client($this->casVersion, $this->casHostname, intval($this->casPort), $this->casPath);
                 }
 
                 # Handle SingleSignout requests
