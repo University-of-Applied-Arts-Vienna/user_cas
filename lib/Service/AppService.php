@@ -23,7 +23,7 @@
 
 namespace OCA\UserCAS\Service;
 
-use OC\Authentication\Token\IToken;
+use OCP\Authentication\Token\IToken;
 use OCA\UserCAS\Exception\PhpCas\PhpUserCasLibraryNotFoundException;
 use OCP\App\IAppManager;
 use \OCP\IConfig;
@@ -962,7 +962,7 @@ class AppService
             $tokenType = IToken::TEMPORARY_TOKEN;
 
             $sql = "DELETE FROM oc_authtoken WHERE uid = ? AND type = ? AND password IS NULL;";
-            $stmt = \OC::$server->getDatabaseConnection()->prepare($sql);
+            $stmt = \OC::$server->get(\OCP\IDBConnection::class)->prepare($sql);
             $stmt->bindParam(1, $username, \PDO::PARAM_STR);
             $stmt->bindParam(2, $tokenType, \PDO::PARAM_INT);
 

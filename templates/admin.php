@@ -26,7 +26,7 @@ style('user_cas', 'settings');
     <input type="hidden" autocomplete="false" />
 
     <h2><?php p($l->t('CAS Authentication backend')); ?>
-	&nbsp;<?php p(\OC::$server->getAppManager()->getAppInfo('user_cas')["version"]); ?></h2>
+	&nbsp;<?php p(\OC::$server->get(\OCP\App\IAppManager::class)->getAppVersion("user_cas")); ?></h2>
     <div id="casSettings" class="personalblock">
         <ul>
             <li><a href="#casSettings-1"><?php p($l->t('CAS Server')); ?></a></li>

@@ -719,10 +719,10 @@ class UserService
     protected function getNewPassword()
     {
 
-        $newPasswordCharsLower = \OC::$server->getSecureRandom()->generate(8, \OCP\Security\ISecureRandom::CHAR_LOWER);
-        $newPasswordCharsUpper = \OC::$server->getSecureRandom()->generate(4, \OCP\Security\ISecureRandom::CHAR_UPPER);
-        $newPasswordNumbers = \OC::$server->getSecureRandom()->generate(4, \OCP\Security\ISecureRandom::CHAR_DIGITS);
-        $newPasswordSymbols = \OC::$server->getSecureRandom()->generate(4, \OCP\Security\ISecureRandom::CHAR_SYMBOLS);
+        $newPasswordCharsLower = \OC::$server->get(\OCP\Security\ISecureRandom::class)->generate(8, \OCP\Security\ISecureRandom::CHAR_LOWER);
+        $newPasswordCharsUpper = \OC::$server->get(\OCP\Security\ISecureRandom::class)->generate(4, \OCP\Security\ISecureRandom::CHAR_UPPER);
+        $newPasswordNumbers = \OC::$server->get(\OCP\Security\ISecureRandom::class)->generate(4, \OCP\Security\ISecureRandom::CHAR_DIGITS);
+        $newPasswordSymbols = \OC::$server->get(\OCP\Security\ISecureRandom::class)->generate(4, \OCP\Security\ISecureRandom::CHAR_SYMBOLS);
 
         return str_shuffle($newPasswordCharsLower . $newPasswordCharsUpper . $newPasswordNumbers . $newPasswordSymbols);
     }

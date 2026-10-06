@@ -42,9 +42,9 @@ class DebugImportUserAd extends Command
     {
         parent::__construct();
 
-        $this->config       = \OC::$server->getConfig();
-        $this->groupManager = \OC::$server->getGroupManager();
-        $this->userManager  = \OC::$server->getUserManager();
+        $this->config       = \OC::$server->get(\OCP\IConfig::class);
+        $this->groupManager = \OC::$server->get(\OCP\IGroupManager::class);
+        $this->userManager  = \OC::$server->get(\OCP\IUserManager::class);
     }
 
 

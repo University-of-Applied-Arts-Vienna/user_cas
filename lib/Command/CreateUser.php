@@ -82,14 +82,14 @@ class CreateUser extends Command
     {
         parent::__construct();
 
-        $userManager = \OC::$server->getUserManager();
-        $groupManager = \OC::$server->getGroupManager();
-        $mailer = \OC::$server->getMailer();
-        $config = \OC::$server->getConfig();
-        $userSession = \OC::$server->getUserSession();
+        $userManager = \OC::$server->get(\OCP\IUserManager::class);
+        $groupManager = \OC::$server->get(\OCP\IGroupManager::class);
+        $mailer = \OC::$server->get(\OCP\Mail\IMailer::class);
+        $config = \OC::$server->get(\OCP\IConfig::class);
+        $userSession = \OC::$server->get(\OCP\IUserSession::class);
         $logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
-        $urlGenerator = \OC::$server->getURLGenerator();
-        $appManager = \OC::$server->getAppManager();
+        $urlGenerator = \OC::$server->get(\OCP\IURLGenerator::class);
+        $appManager = \OC::$server->get(\OCP\App\IAppManager::class);
 
         $loggingService = new LoggingService('user_cas', $config, $logger);
         $this->appService = new AppService('user_cas', $config, $loggingService, $userManager, $userSession, $urlGenerator, $appManager);

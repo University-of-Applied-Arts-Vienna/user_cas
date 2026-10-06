@@ -31,7 +31,7 @@
     <dependencies>
         <owncloud min-version="10.0" max-version="10.10"/>
         <php min-version="8.2" max-version="8.5"/>
-        <nextcloud min-version="31" max-version="33"/>
+        <nextcloud min-version="31" max-version="39"/>
     </dependencies>
 
     <commands>

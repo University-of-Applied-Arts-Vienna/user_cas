@@ -23,11 +23,20 @@
 
 namespace OCA\UserCAS\AppInfo;
 
+use OCP\App\IAppManager;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\IConfig;
 use OCP\IContainer;
+use OCP\IGroupManager;
+use OCP\IL10N;
+use OCP\IRequest;
+use OCP\IURLGenerator;
+use OCP\IUserManager;
+use OCP\IUserSession;
+use Psr\Log\LoggerInterface;
 use OCA\UserCAS\Service\UserService;
 use OCA\UserCAS\Service\AppService;
 use OCA\UserCAS\Hooks\UserHooks;
@@ -62,20 +71,25 @@ class Application extends App implements IBootstrap
 
         $container = $this->getContainer();
 
+        /**
+         * All core services are resolved by their interface name. The legacy
+         * \OC\Server::getXyz() getters (and the "ServerContainer" alias) were
+         * removed in Nextcloud 34.
+         */
         $container->registerService('User', function (IContainer $c) {
-            return $c->query('UserSession')->getUser();
+            return $c->get(IUserSession::class)->getUser();
         });
 
         $container->registerService('Config', function (IContainer $c) {
-            return $c->query('ServerContainer')->getConfig();
+            return $c->get(IConfig::class);
         });
 
         $container->registerService('L10N', function (IContainer $c) {
-            return $c->query('ServerContainer')->getL10N($c->query('AppName'));
+            return $c->get(IL10N::class);
         });
 
         $container->registerService('Logger', function (IContainer $c) {
-            return $c->query('ServerContainer')->get(\Psr\Log\LoggerInterface::class);
+            return $c->get(LoggerInterface::class);
         });
 
         /**
@@ -83,9 +97,9 @@ class Application extends App implements IBootstrap
          */
         $container->registerService('LoggingService', function (IContainer $c) {
             return new LoggingService(
-                $c->query('AppName'),
-                $c->query('Config'),
-                $c->query('Logger')
+                $c->get('AppName'),
+                $c->get(IConfig::class),
+                $c->get(LoggerInterface::class)
             );
         });
 
@@ -94,62 +108,63 @@ class Application extends App implements IBootstrap
          */
         $container->registerService('AppService', function (IContainer $c) {
             return new AppService(
-                $c->query('AppName'),
-                $c->query('Config'),
-                $c->query('LoggingService'),
-                $c->query('ServerContainer')->getUserManager(),
-                $c->query('ServerContainer')->getUserSession(),
-                $c->query('ServerContainer')->getURLGenerator(),
-                $c->query('ServerContainer')->getAppManager()
+                $c->get('AppName'),
+                $c->get(IConfig::class),
+                $c->get('LoggingService'),
+                $c->get(IUserManager::class),
+                $c->get(IUserSession::class),
+                $c->get(IURLGenerator::class),
+                $c->get(IAppManager::class)
             );
         });
 
+        /**
+         * Register the matching Backend.
+         *
+         * The ownCloud/Nextcloud decision is made inside the closure on
+         * purpose: resolving services while the container is still being
+         * built breaks app registration on Nextcloud >= 34.
+         */
+        $container->registerService('Backend', function (IContainer $c) {
 
-        // Workaround for Nextcloud >= 14.0.0
-        if ($container->query('AppService')->isNotNextcloud()) {
+            /** @var AppService $appService */
+            $appService = $c->get('AppService');
 
-            /**
-             * Register regular Backend
-             */
-            $container->registerService('Backend', function (IContainer $c) {
+            // Workaround for Nextcloud >= 14.0.0
+            if ($appService->isNotNextcloud()) {
+
                 return new Backend(
-                    $c->query('AppName'),
-                    $c->query('Config'),
-                    $c->query('LoggingService'),
-                    $c->query('AppService'),
-                    $c->query('ServerContainer')->getUserManager(),
-                    $c->query('UserService')
+                    $c->get('AppName'),
+                    $c->get(IConfig::class),
+                    $c->get('LoggingService'),
+                    $appService,
+                    $c->get(IUserManager::class),
+                    $c->get('UserService')
                 );
-            });
-        } else {
+            }
 
-            /**
-             * Register Nextcloud Backend
-             */
-            $container->registerService('Backend', function (IContainer $c) {
-                return new NextBackend(
-                    $c->query('AppName'),
-                    $c->query('Config'),
-                    $c->query('LoggingService'),
-                    $c->query('AppService'),
-                    $c->query('ServerContainer')->getUserManager(),
-                    $c->query('UserService')
-                );
-            });
-        }
+            return new NextBackend(
+                $c->get('AppName'),
+                $c->get(IConfig::class),
+                $c->get('LoggingService'),
+                $appService,
+                $c->get(IUserManager::class),
+                $c->get('UserService')
+            );
+        });
 
         /**
          * Register UserService with UserSession for login/logout and UserManager for create
          */
         $container->registerService('UserService', function (IContainer $c) {
             return new UserService(
-                $c->query('AppName'),
-                $c->query('Config'),
-                $c->query('ServerContainer')->getUserManager(),
-                $c->query('ServerContainer')->getUserSession(),
-                $c->query('ServerContainer')->getGroupManager(),
-                $c->query('AppService'),
-                $c->query('LoggingService')
+                $c->get('AppName'),
+                $c->get(IConfig::class),
+                $c->get(IUserManager::class),
+                $c->get(IUserSession::class),
+                $c->get(IGroupManager::class),
+                $c->get('AppService'),
+                $c->get('LoggingService')
             );
         });
 
@@ -158,10 +173,10 @@ class Application extends App implements IBootstrap
          */
         $container->registerService('SettingsController', function (IContainer $c) {
             return new SettingsController(
-                $c->query('AppName'),
-                $c->query('Request'),
-                $c->query('Config'),
-                $c->query('L10N')
+                $c->get('AppName'),
+                $c->get(IRequest::class),
+                $c->get(IConfig::class),
+                $c->get(IL10N::class)
             );
         });
 
@@ -170,13 +185,13 @@ class Application extends App implements IBootstrap
          */
         $container->registerService('AuthenticationController', function (IContainer $c) {
             return new AuthenticationController(
-                $c->query('AppName'),
-                $c->query('Request'),
-                $c->query('Config'),
-                $c->query('UserService'),
-                $c->query('AppService'),
-                $c->query('ServerContainer')->getUserSession(),
-                $c->query('LoggingService')
+                $c->get('AppName'),
+                $c->get(IRequest::class),
+                $c->get(IConfig::class),
+                $c->get('UserService'),
+                $c->get('AppService'),
+                $c->get(IUserSession::class),
+                $c->get('LoggingService')
             );
         });
 
@@ -185,14 +200,14 @@ class Application extends App implements IBootstrap
          */
         $container->registerService('UserHooks', function (IContainer $c) {
             return new UserHooks(
-                $c->query('AppName'),
-                $c->query('ServerContainer')->getUserManager(),
-                $c->query('ServerContainer')->getUserSession(),
-                $c->query('Config'),
-                $c->query('UserService'),
-                $c->query('AppService'),
-                $c->query('LoggingService'),
-                $c->query('Backend')
+                $c->get('AppName'),
+                $c->get(IUserManager::class),
+                $c->get(IUserSession::class),
+                $c->get(IConfig::class),
+                $c->get('UserService'),
+                $c->get('AppService'),
+                $c->get('LoggingService'),
+                $c->get('Backend')
             );
         });
     }
@@ -213,16 +228,16 @@ class Application extends App implements IBootstrap
         $requestUri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 
         /** @var UserService $userService */
-        $userService = $container->query('UserService');
+        $userService = $container->get('UserService');
 
         /** @var AppService $appService */
-        $appService = $container->query('AppService');
+        $appService = $container->get('AppService');
 
         // Check for valid setup, only enable app if we have at least a CAS host, port and path
         if ($appService->isSetupValid()) {
 
             // Register User Backend
-            $userService->registerBackend($container->query('Backend'));
+            $userService->registerBackend($container->get('Backend'));
 
             $loginScreen = (strpos($requestUri, '/login') !== false && strpos($requestUri, '/apps/user_cas/login') === false);
             $publicShare = (strpos($requestUri, '/index.php/s/') !== false && $appService->arePublicSharesProtected());
@@ -232,7 +247,7 @@ class Application extends App implements IBootstrap
                 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { // POST is used for single logout requests
 
                     // Register UserHooks
-                    $container->query('UserHooks')->register();
+                    $container->get('UserHooks')->register();
 
                     // URL params and redirect_url cookie
                     setcookie("user_cas_enforce_authentication", "0", ["path" => "/"]);
@@ -260,7 +275,7 @@ class Application extends App implements IBootstrap
                     if ($isEnforced && (!isset($_COOKIE['user_cas_enforce_authentication']) || (isset($_COOKIE['user_cas_enforce_authentication']) && $_COOKIE['user_cas_enforce_authentication'] === '0'))) {
 
                         /** @var LoggingService $loggingService */
-                        $loggingService = $container->query("LoggingService");
+                        $loggingService = $container->get("LoggingService");
 
                         $loggingService->write(LoggingService::DEBUG, 'Enforce Authentication was: ' . $isEnforced);
                         setcookie("user_cas_enforce_authentication", '1', ["path" => "/"]);
@@ -294,7 +309,7 @@ class Application extends App implements IBootstrap
                 // Filter DAV requests
                 if (strpos($requestUri, '/remote.php') === false && strpos($requestUri, '/webdav') === false && strpos($requestUri, '/dav') === false) {
                     // Register UserHooks
-                    $container->query('UserHooks')->register();
+                    $container->get('UserHooks')->register();
                 }
             }
         } else {

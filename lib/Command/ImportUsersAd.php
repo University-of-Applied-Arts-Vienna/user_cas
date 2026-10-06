@@ -3,7 +3,7 @@
 
 namespace OCA\UserCAS\Command;
 
-use OC\User\Manager;
+use OCP\IUserManager;
 use OCA\UserCAS\Service\Group\GroupRenamer;
 use OCA\UserCAS\Service\Import\AdImporter;
 use OCA\UserCAS\Service\Import\ImporterInterface;
@@ -35,7 +35,7 @@ class ImportUsersAd extends Command
 
 
     /**
-     * @var Manager $userManager
+     * @var IUserManager $userManager
      */
     private $userManager;
 
@@ -57,9 +57,9 @@ class ImportUsersAd extends Command
     {
         parent::__construct();
 
-        $this->userManager = \OC::$server->getUserManager();
-        $this->groupManager = \OC::$server->getGroupManager();
-        $this->config = \OC::$server->getConfig();
+        $this->userManager = \OC::$server->get(\OCP\IUserManager::class);
+        $this->groupManager = \OC::$server->get(\OCP\IGroupManager::class);
+        $this->config = \OC::$server->get(\OCP\IConfig::class);
     }
 
     /**
@@ -116,7 +116,7 @@ protected function execute(InputInterface $input, OutputInterface $output)
             $renamer = new GroupRenamer(
                 $this->config,
                 $this->groupManager,
-                \OC::$server->getDatabaseConnection(),
+                \OC::$server->get(\OCP\IDBConnection::class),
                 $logger
             );
             $renameResult = $renamer->renameGroups($groupDns, $output);

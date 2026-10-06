@@ -25,7 +25,7 @@ class DebugUserAd extends Command
     {
         parent::__construct();
 
-        $this->config = \OC::$server->getConfig();
+        $this->config = \OC::$server->get(\OCP\IConfig::class);
     }
 
     protected function configure()
