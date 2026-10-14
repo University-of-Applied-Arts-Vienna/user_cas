@@ -30,6 +30,7 @@ use \OCP\IConfig;
 use \OCP\IUserManager;
 use \OCP\IGroupManager;
 use \OCP\IUserSession;
+use \OCP\IUser;
 
 use OCA\UserCAS\User\Backend;
 
@@ -253,10 +254,103 @@ class UserService
 
         if ($backend->implementsActions(\OC\User\Backend::CREATE_USER)) {
 
+            if (!$this->userManager->userExists($userId) && $this->hasExistingDataDirectory($userId)) {
+
+                return $this->createWithExistingDataDirectory($userId, $randomPassword, $backend);
+            }
+
             return $this->userManager->createUserFromBackend($userId, $randomPassword, $backend);
         }
 
         return FALSE;
+    }
+
+    /**
+     * Whether a data directory is left over for a user without an account (e.g. a previously deleted user).
+     *
+     * @param string $userId
+     * @return bool
+     */
+    private function hasExistingDataDirectory($userId)
+    {
+
+        $dataDirectory = (string)$this->config->getSystemValue('datadirectory', \OC::$SERVERROOT . '/data');
+
+        return $userId !== '' && is_dir(rtrim($dataDirectory, '/') . '/' . $userId);
+    }
+
+    /**
+     * Mirrors IUserManager::createUserFromBackend(), but skips the core "files already exist for this user"
+     * check, so the new account reuses the existing data directory without touching its files.
+     *
+     * @param string $userId
+     * @param string $password
+     * @param UserCasBackendInterface $backend
+     * @return boolean|\OCP\IUser the created user or false
+     */
+    private function createWithExistingDataDirectory($userId, $password, UserCasBackendInterface $backend)
+    {
+
+        $this->loggingService->write(LoggingService::WARN, 'Data directory already exists for new user "' . $userId . '", reusing it.');
+
+        if (method_exists($this->userManager, 'validateUserId')) {
+
+            $this->userManager->validateUserId($userId, false);
+        }
+
+        $dispatcher = $this->getEventDispatcher();
+        if ($dispatcher !== null && class_exists(\OCP\User\Events\BeforeUserCreatedEvent::class)) {
+
+            $dispatcher->dispatchTyped(new \OCP\User\Events\BeforeUserCreatedEvent($userId, $password));
+        }
+        if (method_exists($this->userManager, 'emit')) {
+
+            $this->userManager->emit('\OC\User', 'preCreateUser', [$userId, $password]);
+        }
+
+        if (!$backend->createUser($userId, $password)) {
+
+            return FALSE;
+        }
+
+        $user = $this->userManager->get($userId);
+        if (!$user instanceof IUser) {
+
+            return FALSE;
+        }
+
+        // The account exists at this point. A listener failing (e.g. a stale system address book card left over
+        // from the previously deleted account) must not turn the creation into a failure.
+        try {
+
+            if (method_exists($this->userManager, 'emit')) {
+
+                $this->userManager->emit('\OC\User', 'postCreateUser', [$user, $password]);
+            }
+            if ($dispatcher !== null && class_exists(\OCP\User\Events\UserCreatedEvent::class)) {
+
+                $dispatcher->dispatchTyped(new \OCP\User\Events\UserCreatedEvent($user, $password));
+            }
+        } catch (\Throwable $e) {
+
+            $this->loggingService->write(LoggingService::WARN, 'User "' . $userId . '" created, but a user-created listener failed: ' . $e->getMessage());
+        }
+
+        return $user;
+    }
+
+    /**
+     * @return \OCP\EventDispatcher\IEventDispatcher|null
+     */
+    private function getEventDispatcher()
+    {
+
+        if (!class_exists(\OCP\Server::class) || !interface_exists(\OCP\EventDispatcher\IEventDispatcher::class)) {
+
+            return null;
+        }
+
+        return \OCP\Server::get(\OCP\EventDispatcher\IEventDispatcher::class);
     }
 
     /**
